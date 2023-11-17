@@ -20,7 +20,16 @@ local pluginlist = {
         end
     },
     {
-      "EtiamNullam/deferred-clipboard.nvim",
+        "EtiamNullam/deferred-clipboard.nvim",
+        cmd = "VeryLazy"
+    },
+    {
+        "m4xshen/hardtime.nvim",
+        event = {"BufReadPost", "BufAdd", "BufNewFile"},
+        dependencies = {"MunifTanjim/nui.nvim", "nvim-lua/plenary.nvim"},
+        opts = {
+            disabled_filetypes = {"qf", "alpha", "NvimTree", "lazy", "mason", "oil"}
+        }
     },
     -- Lua Library
     {"nvim-lua/popup.nvim"},
