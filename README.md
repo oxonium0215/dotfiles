@@ -23,8 +23,10 @@ git push -u origin main
 
 ## Apply
 ```
-chezmoi diff
-```
-```
 chezmoi -v apply
+```
+
+## Diff
+```
+chezmoi diff
 ```
