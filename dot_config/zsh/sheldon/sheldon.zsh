@@ -1,0 +1,7 @@
+source "/home/yugo/.local/share/sheldon/repos/github.com/romkatv/zsh-defer/zsh-defer.plugin.zsh"
+zsh-defer source "/home/yugo/.local/share/sheldon/repos/github.com/agkozak/zsh-z/zsh-z.plugin.zsh"
+zsh-defer eval "ZSHZ_NO_RESOLVE_SYMLINKS=1"
+zsh-defer source "/home/yugo/.local/share/sheldon/repos/github.com/supercrabtree/k/k.sh"
+zsh-defer source "/home/yugo/.local/share/sheldon/repos/github.com/Tarrasch/zsh-bd/bd.zsh"
+zsh-defer source "/home/yugo/.local/share/sheldon/repos/github.com/zsh-users/zsh-completions/zsh-completions.plugin.zsh"
+zsh-defer source "/home/yugo/.local/share/sheldon/repos/github.com/azu/ni.zsh/ni.zsh"

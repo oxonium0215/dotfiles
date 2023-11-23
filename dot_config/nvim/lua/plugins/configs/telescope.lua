@@ -49,7 +49,7 @@ local options = {
     },
   },
 
-  extensions_list = { "themes" },
+  extensions_list = { "kensaku", "gh", "ui-select", "changes", "live_grep_args", "smart_history", "undo" },
 }
 
 return options

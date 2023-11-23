@@ -21,7 +21,7 @@ local pluginlist = {
     },
     {
         "EtiamNullam/deferred-clipboard.nvim",
-        cmd = "VeryLazy"
+        event = "VeryLazy",
     },
     {
         "m4xshen/hardtime.nvim",
@@ -39,13 +39,42 @@ local pluginlist = {
     -- ╭─────────────────────────────────────────────────────────────────────────────────╮
     -- │ ∘ UI                                                                            │
     -- ╰─────────────────────────────────────────────────────────────────────────────────╯
-
+    -- Search
+    {
+        "VonHeikemen/searchbox.nvim",
+        init = function()
+            require("core.utils").load_mappings "searchbox"
+        end,
+        cmd = { "SearchBoxIncSearch", "SearchBoxReplace" },
+        dependencies = {"MunifTanjim/nui.nvim"},
+    },
+    -- Cmdline
+    --[[
+    {
+        "VonHeikemen/fine-cmdline.nvim",
+        init = function()
+            require("core.utils").load_mappings "cmdline"
+        end,
+        cmd = { "FineCmdline" },
+        config = function()
+          require('fine-cmdline').setup {
+            popup = {
+              position = {
+                row = '50%',
+                col = '50%'
+              }
+            }
+          }
+        end,
+        dependencies = {"MunifTanjim/nui.nvim"},
+    },
+    ]]
     -- Notify
     {
-        "rcarriga/nvim-notify",
+        "vigoux/notifier.nvim",
         event = "VeryLazy",
         config = function()
-            require("plugins.configs.nvim-notify")
+          require'notifier'.setup {}
         end
     },
     -- Font
@@ -55,9 +84,11 @@ local pluginlist = {
             return not os.getenv("DISABLE_DEVICONS") or os.getenv("DISABLE_DEVICONS") == "false"
         end
     },
+    -- colorscheme
     {
-        "navarasu/onedark.nvim",
-        "Mofiqul/vscode.nvim"
+        {"EdenEast/nightfox.nvim", event = "BufWinEnter"},
+        {"navarasu/onedark.nvim", event = "BufWinEnter"},
+        {"Mofiqul/vscode.nvim", event = "BufWinEnter"}
     },
     {
         "akinsho/bufferline.nvim",
@@ -120,6 +151,29 @@ local pluginlist = {
             require("indent_blankline").setup(opts)
         end
     },
+    
+    -- ╭─────────────────────────────────────────────────────────────────────────────────╮
+    -- │ ∘ Easymotion                                                                    │
+    -- ╰─────────────────────────────────────────────────────────────────────────────────╯
+    {
+		"rlane/pounce.nvim",
+        init = function()
+            require("core.utils").load_mappings "pounce"
+        end,
+		cmd = {"Pounce", "PounceRepeat"},
+    },
+    {
+        "phaazon/hop.nvim",
+        branch = 'v2',
+        init = function()
+            require("core.utils").load_mappings "hop"
+        end,
+        config = function()
+          -- you can configure Hop the way you like here; see :h hop-config
+          require'hop'.setup { keys = 'etovxqpdygfblzhckisuran' }
+        end
+    },
+    
     -- ╭─────────────────────────────────────────────────────────────────────────────────╮
     -- │ ∘ Treesitter                                                                    │
     -- ╰─────────────────────────────────────────────────────────────────────────────────╯
@@ -270,7 +324,6 @@ local pluginlist = {
         "j-hui/fidget.nvim",
         tag = "legacy",
         event = "LspAttach",
-        lazy = false,
         opts = {}
     },
     {
@@ -395,12 +448,6 @@ local pluginlist = {
                 "nvim-telescope/telescope-ui-select.nvim",
                 config = function()
                     require("telescope").load_extension("ui-select")
-                end
-            },
-            {
-                "andrew-george/telescope-themes",
-                config = function()
-                    require("telescope").load_extension("themes")
                 end
             },
             {

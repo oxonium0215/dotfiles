@@ -11,4 +11,4 @@ vim.opt.rtp:prepend(lazypath)
 require("plugins")
 
 -- colorschemeを設定
-require('onedark').load()
+vim.cmd("colorscheme onedark")

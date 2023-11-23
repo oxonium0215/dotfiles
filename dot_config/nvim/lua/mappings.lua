@@ -241,6 +241,67 @@ M.nvimtree = {
   },
 }
 
+M.hop = {
+  plugin = true,
+  n = {
+    ["f"] = {
+      function()
+        require('hop').hint_char1({ direction = require('hop.hint').HintDirection.AFTER_CURSOR, current_line_only = true })
+      end,
+      opts = { remap=true },
+    },
+    
+    ["F"] = {
+      function()
+        require('hop').hint_char1({ direction = require('hop.hint').HintDirection.BEFORE_CURSOR, current_line_only = true })
+      end,
+      opts = { remap=true },
+    },
+    
+    ["t"] = {
+      function()
+        require('hop').hint_char1({ direction = require('hop.hint').HintDirection.AFTER_CURSOR, current_line_only = true, hint_offset = -1 })
+      end,
+      opts = { remap=true },
+    },
+    
+    ["T"] = {
+      function()
+        require('hop').hint_char1({ direction = require('hop.hint').HintDirection.BEFORE_CURSOR, current_line_only = true, hint_offset = 1 })
+      end,
+      opts = { remap=true },
+    },
+  },
+}
+
+M.searchbox = {
+  plugin = true,
+  n = {
+    ["?"] = { "<cmd> SearchBoxIncSearch <CR>", "Open float searchbox" },
+  }
+}
+
+M.cmdline = {
+  plugin = true,
+  n = {
+    [":"] = { "<cmd>FineCmdline<CR>", "Open float cmdline" },
+  }
+}
+
+M.pounce = {
+  plugin = true,
+  n = {
+    ["s"] = { "<cmd> Pounce <CR>", "Pounce" },
+    ["S"] = { "<cmd> PounceRepeat <CR>", "PounceRepeat" },
+  },
+  o = {
+    ["gs"] = { "<cmd> Pounce <CR>", "Pounce" },
+  },
+  x = {
+    ["s"] = { "<cmd> Pounce <CR>", "Pounce" },
+  },
+}
+
 M.telescope = {
   plugin = true,
 
@@ -262,7 +323,7 @@ M.telescope = {
     ["<leader>pt"] = { "<cmd> Telescope terms <CR>", "Pick hidden term" },
 
     -- theme switcher
-    ["<leader>th"] = { "<cmd> Telescope themes <CR>", "Nvchad themes" },
+    ["<leader>th"] = { "<cmd> Telescope colorscheme <CR>", "Neovim themes" },
 
     ["<leader>ma"] = { "<cmd> Telescope marks <CR>", "telescope bookmarks" },
   },
