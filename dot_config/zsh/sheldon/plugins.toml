@@ -1,0 +1,23 @@
+shell = "zsh"
+
+[templates]
+defer = "{{ hooks | get: \"pre\" | nl }}{% for file in files %}zsh-defer source \"{{ file }}\"\n{% endfor %}{{ hooks | get: \"post\" | nl }}"
+
+[plugins.zsh-defer]
+github = "romkatv/zsh-defer"
+
+[plugins.z]
+github = 'agkozak/zsh-z'
+apply = ["defer"]
+hooks.post = '''
+zsh-defer eval "ZSHZ_NO_RESOLVE_SYMLINKS=1"
+'''
+
+[plugins.bd]
+github = 'Tarrasch/zsh-bd'
+use = ['bd.zsh']
+apply = ["defer"]
+
+[plugins.zsh-completions]
+github = 'zsh-users/zsh-completions'
+apply = ["defer"]

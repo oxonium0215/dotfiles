@@ -1,0 +1,10 @@
+[codestyle]
+template_file='~/my_template.cpp'
+workspace_dir='~/atcoder/'
+lang='cpp'
+[tester]
+compile_before_testing=true
+compile_only_when_diff_detected=true
+timeout_adjustment=1.2
+[etc]
+download_without_login=true
