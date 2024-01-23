@@ -55,11 +55,11 @@ zle-cd() {
 zle -N zle-cd
 bindkey '^j' zle-cd
 # hooks
-chpwd() {
-  if [[ $(pwd) != $HOME ]]; then
-    exa -a --group-directories-first
-  fi
-}
+# chpwd() {
+#  if [[ $(pwd) != $HOME ]]; then
+#    exa -a --group-directories-first
+#  fi
+# }
 
 # どこからでも参照できるディレクトリパス
 cdpath=(~)
