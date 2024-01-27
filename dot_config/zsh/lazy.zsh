@@ -26,10 +26,10 @@ export LESS_TERMCAP_us=$'\e[1;4;31m'
 # alias
 alias lst='ls -ltr --color=auto'
 alias l='ls -ltr --color=auto'
-alias ls='ls -a'
-alias la='ls -la --color=auto'
-alias ll='ls -l --color=auto'
-alias vi='vim'
+alias ls='exa -a'
+alias la='exa -la --color=auto'
+alias ll='exa -l --color=auto'
+alias vi='nvim'
 alias atc='atcoder-tools'
 alias docker-purge='docker stop $(docker ps -q) && docker rmi $(docker images -q) -f'
 # sudo の後のコマンドでエイリアスを有効にする
@@ -54,6 +54,7 @@ zle-cd() {
 }
 zle -N zle-cd
 bindkey '^j' zle-cd
+
 # hooks
 chpwd() {
  if [[ $(pwd) != $HOME ]]; then
