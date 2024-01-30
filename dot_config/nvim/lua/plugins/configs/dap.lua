@@ -55,13 +55,13 @@ dapui.setup {
     icons = {
       pause = "󰏤",
       play = "",
-      step_into = "⏎",
-      step_over = "⏭",
-      step_out = "⏮",
-      step_back = "b",
+      step_into = "",
+      step_over = "",
+      step_out = "",
+      step_back = "",
       run_last = "▶▶",
-      terminate = "⏹",
-      disconnect = "⏏"
+      terminate = "",
+      disconnect = ""
     }
   }
 }
