@@ -229,295 +229,307 @@ M.lspconfig = {
   },
 }
 
+-- M.dap = {
+--     plugin = true,
+--     n = {
+--         ["F5"] = { function() require("dap").continue() end, "Debug: Start/Continue"},
+--         ["F1"] = { function() require("dap").step_into() end, "Debug: Step Into"},
+--         ["F2"] = { function() require("dap").step_over() end, "Debug: Step Over"},
+--         ["F3"] = { function() require("dap").step_out() end, "Debug: Step Out"},
+--         ["<leader>b"] = { function() require("dap").toggle_breakpoint() end, "Debug: Toggle Breakpoint"},
+--         ["<leader>B"] = { function() require("dap").set_breakpoint(vim.fn.input "Breakpoint condition: ") end, "Debug: Set Breakpoint"}
+--     }
+-- }
+
 M.nvimtree = {
-  plugin = true,
+    plugin = true,
 
-  n = {
-    -- toggle
-    ["<C-n>"] = { "<cmd> NvimTreeToggle <CR>", "Toggle nvimtree" },
+    n = {
+        -- toggle
+        ["<C-n>"] = { "<cmd> NvimTreeToggle <CR>", "Toggle nvimtree" },
 
-    -- focus
-    ["<leader>e"] = { "<cmd> NvimTreeFocus <CR>", "Focus nvimtree" },
-  },
+        -- focus
+        ["<leader>e"] = { "<cmd> NvimTreeFocus <CR>", "Focus nvimtree" },
+    },
 }
 
 M.nvimwindow = {
-  plugin = true,
-  n = {
-    ["<C-w>"] = {
-      function()
-        require('nvim-window').pick()
-      end,
-      opts = { silent = true },
-      "Window picker"
+    plugin = true,
+    n = {
+        ["<C-w>"] = {
+            function()
+                require('nvim-window').pick()
+            end,
+            opts = { silent = true },
+            "Window picker"
+        },
     },
-  },
-  t = {
-    ["<C-w>"] = {
-      function()
-        require('nvim-window').pick()
-      end,
-      opts = { silent = true },
-      "Window picker"
+    t = {
+        ["<C-w>"] = {
+            function()
+                require('nvim-window').pick()
+            end,
+            opts = { silent = true },
+            "Window picker"
+        },
     },
-  },
 }
 
 M.hop = {
-  plugin = true,
-  n = {
-    ["f"] = {
-      function()
-        require('hop').hint_char1({ direction = require('hop.hint').HintDirection.AFTER_CURSOR, current_line_only = true })
-      end,
-      opts = { remap=true },
+    plugin = true,
+    n = {
+        ["f"] = {
+            function()
+                require('hop').hint_char1({ direction = require('hop.hint').HintDirection.AFTER_CURSOR, current_line_only = true })
+            end,
+            opts = { remap=true },
+        },
+
+        ["F"] = {
+            function()
+                require('hop').hint_char1({ direction = require('hop.hint').HintDirection.BEFORE_CURSOR, current_line_only = true })
+            end,
+            opts = { remap=true },
+        },
+
+        ["t"] = {
+            function()
+                require('hop').hint_char1({ direction = require('hop.hint').HintDirection.AFTER_CURSOR, current_line_only = true, hint_offset = -1 })
+            end,
+            opts = { remap=true },
+        },
+
+        ["T"] = {
+            function()
+                require('hop').hint_char1({ direction = require('hop.hint').HintDirection.BEFORE_CURSOR, current_line_only = true, hint_offset = 1 })
+            end,
+            opts = { remap=true },
+        },
     },
-    
-    ["F"] = {
-      function()
-        require('hop').hint_char1({ direction = require('hop.hint').HintDirection.BEFORE_CURSOR, current_line_only = true })
-      end,
-      opts = { remap=true },
-    },
-    
-    ["t"] = {
-      function()
-        require('hop').hint_char1({ direction = require('hop.hint').HintDirection.AFTER_CURSOR, current_line_only = true, hint_offset = -1 })
-      end,
-      opts = { remap=true },
-    },
-    
-    ["T"] = {
-      function()
-        require('hop').hint_char1({ direction = require('hop.hint').HintDirection.BEFORE_CURSOR, current_line_only = true, hint_offset = 1 })
-      end,
-      opts = { remap=true },
-    },
-  },
 }
 
 M.searchbox = {
-  plugin = true,
-  n = {
-    ["?"] = { "<cmd> SearchBoxIncSearch <CR>", "Open float searchbox" },
-  }
+    plugin = true,
+    n = {
+        ["?"] = { "<cmd> SearchBoxIncSearch <CR>", "Open float searchbox" },
+    }
 }
 
 M.cmdline = {
-  plugin = true,
-  n = {
-    [":"] = { "<cmd>FineCmdline<CR>", "Open float cmdline" },
-  }
+    plugin = true,
+    n = {
+        [":"] = { "<cmd>FineCmdline<CR>", "Open float cmdline" },
+    }
 }
 
 M.pounce = {
-  plugin = true,
-  n = {
-    ["s"] = { "<cmd> Pounce <CR>", "Pounce" },
-    ["S"] = { "<cmd> PounceRepeat <CR>", "PounceRepeat" },
-  },
-  o = {
-    ["gs"] = { "<cmd> Pounce <CR>", "Pounce" },
-  },
-  x = {
-    ["s"] = { "<cmd> Pounce <CR>", "Pounce" },
-  },
+    plugin = true,
+    n = {
+        ["s"] = { "<cmd> Pounce <CR>", "Pounce" },
+        ["S"] = { "<cmd> PounceRepeat <CR>", "PounceRepeat" },
+    },
+    o = {
+        ["gs"] = { "<cmd> Pounce <CR>", "Pounce" },
+    },
+    x = {
+        ["s"] = { "<cmd> Pounce <CR>", "Pounce" },
+    },
 }
 
 M.telescope = {
-  plugin = true,
+    plugin = true,
 
-  n = {
-    -- find
-    ["<leader>ff"] = { "<cmd> Telescope find_files <CR>", "Find files" },
-    ["<leader>fa"] = { "<cmd> Telescope find_files follow=true no_ignore=true hidden=true <CR>", "Find all" },
-    ["<leader>fw"] = { "<cmd> Telescope live_grep <CR>", "Live grep" },
-    ["<leader>fb"] = { "<cmd> Telescope buffers <CR>", "Find buffers" },
-    ["<leader>fh"] = { "<cmd> Telescope help_tags <CR>", "Help page" },
-    ["<leader>fo"] = { "<cmd> Telescope oldfiles <CR>", "Find oldfiles" },
-    ["<leader>fz"] = { "<cmd> Telescope current_buffer_fuzzy_find <CR>", "Find in current buffer" },
+    n = {
+        -- find
+        ["<leader>ff"] = { "<cmd> Telescope find_files <CR>", "Find files" },
+        ["<leader>fa"] = { "<cmd> Telescope find_files follow=true no_ignore=true hidden=true <CR>", "Find all" },
+        ["<leader>fw"] = { "<cmd> Telescope live_grep <CR>", "Live grep" },
+        ["<leader>fb"] = { "<cmd> Telescope buffers <CR>", "Find buffers" },
+        ["<leader>fh"] = { "<cmd> Telescope help_tags <CR>", "Help page" },
+        ["<leader>fo"] = { "<cmd> Telescope oldfiles <CR>", "Find oldfiles" },
+        ["<leader>fz"] = { "<cmd> Telescope current_buffer_fuzzy_find <CR>", "Find in current buffer" },
 
-    -- git
-    ["<leader>cm"] = { "<cmd> Telescope git_commits <CR>", "Git commits" },
-    ["<leader>gt"] = { "<cmd> Telescope git_status <CR>", "Git status" },
+        -- git
+        ["<leader>cm"] = { "<cmd> Telescope git_commits <CR>", "Git commits" },
+        ["<leader>gt"] = { "<cmd> Telescope git_status <CR>", "Git status" },
 
-    -- pick a hidden term
-    ["<leader>pt"] = { "<cmd> Telescope terms <CR>", "Pick hidden term" },
+        -- pick a hidden term
+        ["<leader>pt"] = { "<cmd> Telescope terms <CR>", "Pick hidden term" },
 
-    -- theme switcher
-    ["<leader>th"] = { "<cmd> Telescope colorscheme <CR>", "Neovim themes" },
+        -- theme switcher
+        ["<leader>th"] = { "<cmd> Telescope colorscheme <CR>", "Neovim themes" },
 
-    ["<leader>ma"] = { "<cmd> Telescope marks <CR>", "telescope bookmarks" },
-  },
+        ["<leader>ma"] = { "<cmd> Telescope marks <CR>", "telescope bookmarks" },
+    },
 }
 
 M.toggleterm = {
-  plugin = true,
+    plugin = true,
 
-  t = {
-    -- toggle in terminal mode
-    ["<A-i>"] = {
-      function()
-        require("core.utils").toggleTerm("float")
-      end,
-      "Toggle floating term",
+    t = {
+        -- toggle in terminal mode
+        ["<A-i>"] = {
+            function()
+                require("core.utils").toggleTerm("float")
+            end,
+            "Toggle floating term",
+        },
+
+        ["<A-h>"] = {
+            function()
+                require("core.utils").toggleTerm("horizontal")
+            end,
+            "Toggle horizontal term",
+        },
+
+
+        ["<A-v>"] = {
+            function()
+                require("core.utils").toggleTerm("vertical")
+            end,
+            "Toggle vertical term",
+        },
     },
 
-    ["<A-h>"] = {
-      function()
-        require("core.utils").toggleTerm("horizontal")
-      end,
-      "Toggle horizontal term",
-    },
+    n = {
+        -- toggle in normal mode
+        ["<A-i>"] = {
+            function()
+                require("core.utils").toggleTerm("float")
+            end,
+            "Toggle floating term",
+        },
 
+        ["<A-h>"] = {
+            function()
+                require("core.utils").toggleTerm("horizontal")
+            end,
+            "Toggle horizontal term",
+        },
 
-    ["<A-v>"] = {
-      function()
-        require("core.utils").toggleTerm("vertical")
-      end,
-      "Toggle vertical term",
+        ["<A-v>"] = {
+            function()
+                require("core.utils").toggleTerm("vertical")
+            end,
+            "Toggle vertical term",
+        },
     },
-  },
-
-  n = {
-    -- toggle in normal mode
-    ["<A-i>"] = {
-      function()
-        require("core.utils").toggleTerm("float")
-      end,
-      "Toggle floating term",
-    },
-
-    ["<A-h>"] = {
-      function()
-        require("core.utils").toggleTerm("horizontal")
-      end,
-      "Toggle horizontal term",
-    },
-
-    ["<A-v>"] = {
-      function()
-        require("core.utils").toggleTerm("vertical")
-      end,
-      "Toggle vertical term",
-    },
-  },
 }
 
 M.whichkey = {
-  plugin = true,
+    plugin = true,
 
-  n = {
-    ["<leader>wK"] = {
-      function()
-        vim.cmd "WhichKey"
-      end,
-      "Which-key all keymaps",
+    n = {
+        ["<leader>wK"] = {
+            function()
+                vim.cmd "WhichKey"
+            end,
+            "Which-key all keymaps",
+        },
+        ["<leader>wk"] = {
+            function()
+                local input = vim.fn.input "WhichKey: "
+                vim.cmd("WhichKey " .. input)
+            end,
+            "Which-key query lookup",
+        },
     },
-    ["<leader>wk"] = {
-      function()
-        local input = vim.fn.input "WhichKey: "
-        vim.cmd("WhichKey " .. input)
-      end,
-      "Which-key query lookup",
-    },
-  },
 }
 
 M.blankline = {
-  plugin = true,
+    plugin = true,
 
-  n = {
-    ["<leader>cc"] = {
-      function()
-        local ok, start = require("indent_blankline.utils").get_current_context(
-          vim.g.indent_blankline_context_patterns,
-          vim.g.indent_blankline_use_treesitter_scope
-        )
+    n = {
+        ["<leader>cc"] = {
+            function()
+                local ok, start = require("indent_blankline.utils").get_current_context(
+                    vim.g.indent_blankline_context_patterns,
+                    vim.g.indent_blankline_use_treesitter_scope
+                )
 
-        if ok then
-          vim.api.nvim_win_set_cursor(vim.api.nvim_get_current_win(), { start, 0 })
-          vim.cmd [[normal! _]]
-        end
-      end,
+                if ok then
+                    vim.api.nvim_win_set_cursor(vim.api.nvim_get_current_win(), { start, 0 })
+                    vim.cmd [[normal! _]]
+                end
+            end,
 
-      "Jump to current context",
+            "Jump to current context",
+        },
     },
-  },
 }
 
 M.overseer = {
-  plugin = true;
-  n = {
-    ["<leader><F5>"] = { "<cmd> OverseerRun <CR>", "Run tasks" }
-  },
-  i = {
-    ["<leader><F5>"] = { "<cmd> OverseerRun <CR>", "Run tasks" }
-  }
+    plugin = true;
+    n = {
+        ["<leader><F5>"] = { "<cmd> OverseerRun <CR>", "Run tasks" }
+    },
+    i = {
+        ["<leader><F5>"] = { "<cmd> OverseerRun <CR>", "Run tasks" }
+    }
 }
 
 M.gitsigns = {
-  plugin = true,
+    plugin = true,
 
-  n = {
-    -- Navigation through hunks
-    ["]c"] = {
-      function()
-        if vim.wo.diff then
-          return "]c"
-        end
-        vim.schedule(function()
-          require("gitsigns").next_hunk()
-        end)
-        return "<Ignore>"
-      end,
-      "Jump to next hunk",
-      opts = { expr = true },
-    },
+    n = {
+        -- Navigation through hunks
+        ["]c"] = {
+            function()
+                if vim.wo.diff then
+                    return "]c"
+                end
+                vim.schedule(function()
+                    require("gitsigns").next_hunk()
+                end)
+                return "<Ignore>"
+            end,
+            "Jump to next hunk",
+            opts = { expr = true },
+        },
 
-    ["[c"] = {
-      function()
-        if vim.wo.diff then
-          return "[c"
-        end
-        vim.schedule(function()
-          require("gitsigns").prev_hunk()
-        end)
-        return "<Ignore>"
-      end,
-      "Jump to prev hunk",
-      opts = { expr = true },
-    },
+        ["[c"] = {
+            function()
+                if vim.wo.diff then
+                    return "[c"
+                end
+                vim.schedule(function()
+                    require("gitsigns").prev_hunk()
+                end)
+                return "<Ignore>"
+            end,
+            "Jump to prev hunk",
+            opts = { expr = true },
+        },
 
-    -- Actions
-    ["<leader>rh"] = {
-      function()
-        require("gitsigns").reset_hunk()
-      end,
-      "Reset hunk",
-    },
+        -- Actions
+        ["<leader>rh"] = {
+            function()
+                require("gitsigns").reset_hunk()
+            end,
+            "Reset hunk",
+        },
 
-    ["<leader>ph"] = {
-      function()
-        require("gitsigns").preview_hunk()
-      end,
-      "Preview hunk",
-    },
+        ["<leader>ph"] = {
+            function()
+                require("gitsigns").preview_hunk()
+            end,
+            "Preview hunk",
+        },
 
-    ["<leader>gb"] = {
-      function()
-        package.loaded.gitsigns.blame_line()
-      end,
-      "Blame line",
-    },
+        ["<leader>gb"] = {
+            function()
+                package.loaded.gitsigns.blame_line()
+            end,
+            "Blame line",
+        },
 
-    ["<leader>td"] = {
-      function()
-        require("gitsigns").toggle_deleted()
-      end,
-      "Toggle deleted",
+        ["<leader>td"] = {
+            function()
+                require("gitsigns").toggle_deleted()
+            end,
+            "Toggle deleted",
+        },
     },
-  },
 }
 
 return M
