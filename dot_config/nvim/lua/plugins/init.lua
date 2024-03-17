@@ -393,7 +393,7 @@ local pluginlist = {
         init = function()
             require("core.utils").lazy_load "nvim-lspconfig"
             vim.lsp.handlers["textDocument/publishDiagnostics"] =
-                vim.lsp.with(
+            vim.lsp.with(
                 vim.lsp.diagnostic.on_publish_diagnostics,
                 {
                     -- delay update diagnostics
@@ -436,7 +436,7 @@ local pluginlist = {
     },
     {
         "mfussenegger/nvim-dap",
-        event = "BufReadPre",
+        event = "VeryLazy",
         dependencies = {
             -- Creates a beautiful debugger UI
             "rcarriga/nvim-dap-ui",
