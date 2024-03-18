@@ -16,7 +16,8 @@ local pluginlist = {
         dependencies = {"MunifTanjim/nui.nvim", "nvim-lua/plenary.nvim"},
         opts = {
             disable_mouse = false,
-            disabled_filetypes = {"qf", "alpha", "NvimTree", "lazy", "mason", "oil", "toggleterm"}
+            disabled_filetypes = {"qf", "alpha", "NvimTree", "lazy", "mason", "oil", "toggleterm"},
+            max_count = 10,
         }
     },
     -- Lua Library
