@@ -24,11 +24,11 @@ export LESS_TERMCAP_us=$'\e[1;4;31m'
 
 ########################################
 # alias
-alias lst='lsd -ltr --color=auto'
-alias l='lsd -ltr --color=auto'
-alias ls='lsd -a'
-alias la='lsd -la --color=auto'
-alias ll='lsd -l --color=auto'
+alias lst='eza -ltr --color=auto --icons'
+alias l='eza -ltr --color=auto --icons'
+alias ls='eza -a --icons'
+alias la='eza -la --color=auto --icons'
+alias ll='eza -l --color=auto --icons'
 alias vi='nvim'
 alias atc='atcoder-tools'
 alias docker-purge='docker stop $(docker ps -q) && docker rmi $(docker images -q) -f'
