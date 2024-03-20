@@ -116,20 +116,9 @@ local pluginlist = {
     {
         "akinsho/bufferline.nvim",
         event = {"BufReadPost", "BufAdd", "BufNewFile"},
-        opts = {
-            options = {
-                diagnostics = "nvim_lsp",
-                always_show_bufferline = true,
-                offsets = {
-                    {
-                        filetype = "NvimTree",
-                        text = "Explorer",
-                        highlight = "Directory",
-                        text_align = "left"
-                    }
-                }
-            }
-        },
+        opts = function()
+            return require "plugins.configs.bufferline"
+        end,
         config = function(_, opts)
             require("core.utils").load_mappings "bufferline"
             require("bufferline").setup(opts)
