@@ -58,7 +58,7 @@ bindkey '^j' zle-cd
 # hooks
 chpwd() {
  if [[ $(pwd) != $HOME ]]; then
-   exa -a --group-directories-first
+   eza -a --group-directories-first
  fi
 }
 
