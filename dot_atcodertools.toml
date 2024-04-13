@@ -2,6 +2,9 @@
 template_file='~/my_template.cpp'
 workspace_dir='~/atcoder/'
 lang='cpp'
+[compiler]
+compile_command='g++ main.cpp -o main -std=c++20 -g'
+compile_only_when_diff_detected = true
 [tester]
 compile_before_testing=true
 compile_only_when_diff_detected=true
