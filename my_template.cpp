@@ -5,6 +5,7 @@ using namespace std;
 #define repi(i,a,b) for(int i=int(a);i<int(b);++i)
 #define rep(...) _overload3(__VA_ARGS__,repi,_rep,)(__VA_ARGS__)
 #define all(x) (x).begin(),(x).end()
+#define rall(x) (x).rbegin(),(x).rend()
 typedef long long ll;
 int gcd(int a,int b){return b?gcd(b,a%b):a;}
 bool iseven(int n) {return n%2==0;}
