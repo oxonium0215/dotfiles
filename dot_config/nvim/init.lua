@@ -2,6 +2,7 @@ if vim.loader then vim.loader.enable() end
 require("config")
 require("core.utils").load_mappings()
 local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
+
 -- bootstrap lazy.nvim!
 if not vim.loop.fs_stat(lazypath) then
     require("core.utils").lazy(lazypath)
