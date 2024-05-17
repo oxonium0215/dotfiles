@@ -101,7 +101,7 @@ local config = {
                 function()
                     local msg = "No Active Lsp"
                     local buf_ft = vim.api.nvim_buf_get_option(0, "filetype")
-                    local clients = vim.lsp.get_active_clients()
+                    local clients = vim.lsp.get_clients()
                     if next(clients) == nil then
                         return msg
                     end
@@ -130,7 +130,7 @@ local config = {
                     return icon .. (status.message or "")
                 end,
                 cond = function()
-                    local ok, clients = pcall(vim.lsp.get_active_clients, {name = "copilot", bufnr = 0})
+                    local ok, clients = pcall(vim.lsp.get_clients, {name = "copilot", bufnr = 0})
                     return ok and #clients > 0
                 end,
                 color = function()
