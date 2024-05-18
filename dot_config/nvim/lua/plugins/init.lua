@@ -72,33 +72,33 @@ local pluginlist = {
         dependencies = {"MunifTanjim/nui.nvim"}
     },
     {
-  "rcarriga/nvim-notify",
-  keys = {
-    {
-      "<leader>un",
-      function()
-        require("notify").dismiss({ silent = true, pending = true })
-      end,
-      desc = "Dismiss All Notifications",
+        "rcarriga/nvim-notify",
+        keys = {
+            {
+                "<leader>un",
+                function()
+                    require("notify").dismiss({ silent = true, pending = true })
+                end,
+                desc = "Dismiss All Notifications",
+            },
+        },
+        opts = {
+            stages = "static",
+            timeout = 7000,
+            max_height = function()
+                return math.floor(vim.o.lines * 0.75)
+            end,
+            max_width = function()
+                return math.floor(vim.o.columns * 0.75)
+            end,
+            on_open = function(win)
+                vim.api.nvim_win_set_config(win, { zindex = 100 })
+            end,
+        },
+        init = function()
+            vim.notify = vim.schedule_wrap(require("notify"))
+        end,
     },
-  },
-  opts = {
-    stages = "static",
-    timeout = 3000,
-    max_height = function()
-      return math.floor(vim.o.lines * 0.75)
-    end,
-    max_width = function()
-      return math.floor(vim.o.columns * 0.75)
-    end,
-    on_open = function(win)
-      vim.api.nvim_win_set_config(win, { zindex = 100 })
-    end,
-  },
-  init = function()
-        vim.notify = require("notify")
-  end,
-},
     -- Cmdline
     --[[
     {
@@ -170,19 +170,26 @@ local pluginlist = {
     },
     {
         "lukas-reineke/indent-blankline.nvim",
-        version = "2.20.8",
         event = {"CursorHold", "CursorHoldI"},
+        main = "ibl",
         init = function()
             require("core.utils").lazy_load "indent-blankline.nvim"
         end,
-        opts = function()
-            return require("plugins.configs.others").blankline
+        opts = function(_, opts)
+            opts = require("plugins.configs.others").blankline(opts)
+            if pcall(require, "indent-rainbowline") then
+                opts = require("indent-rainbowline").make_opts(opts)
+            end
         end,
+        dependencies = {
+            --"TheGLander/indent-rainbowline.nvim",
+        },
         config = function(_, opts)
             require("core.utils").load_mappings "blankline"
-            require("indent_blankline").setup(opts)
+            require("ibl").setup(opts)
         end
     },
+
     -- ╭─────────────────────────────────────────────────────────────────────────────────╮
     -- │ ∘ Easymotion                                                                    │
     -- ╰─────────────────────────────────────────────────────────────────────────────────╯
@@ -354,9 +361,9 @@ local pluginlist = {
         "j-hui/fidget.nvim",
         event = "VeryLazy",
         opts = {
-			notification = {
-				-- override_vim_notify = true,
-			},
+            notification = {
+                -- override_vim_notify = true,
+            },
         },
     },
     {
@@ -449,13 +456,13 @@ local pluginlist = {
     {
         "mfussenegger/nvim-dap",
         keys = {
-  { "<F5>", function() require'dap'.continue() end, desc = "Debug: Start/Continue" },
-  { "<F1>", function() require'dap'.step_into() end, desc = "Debug: Step Into" },
-  { "<F2>", function() require'dap'.step_over() end, desc = "Debug: Step Over" },
-  { "<F3>", function() require'dap'.step_out() end, desc = "Debug: Step Out" },
-  { "<leader>b", function() require'dap'.toggle_breakpoint() end, desc = "Debug: Toggle Breakpoint" },
-  { "<leader>B", function() require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: ')) end, desc = "Debug: Set Breakpoint with Condition" }
-},
+            { "<F5>", function() require'dap'.continue() end, desc = "Debug: Start/Continue" },
+            { "<F1>", function() require'dap'.step_into() end, desc = "Debug: Step Into" },
+            { "<F2>", function() require'dap'.step_over() end, desc = "Debug: Step Over" },
+            { "<F3>", function() require'dap'.step_out() end, desc = "Debug: Step Out" },
+            { "<leader>b", function() require'dap'.toggle_breakpoint() end, desc = "Debug: Toggle Breakpoint" },
+            { "<leader>B", function() require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: ')) end, desc = "Debug: Set Breakpoint with Condition" }
+        },
 
         dependencies = {
             -- Creates a beautiful debugger UI
