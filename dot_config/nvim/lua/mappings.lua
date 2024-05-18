@@ -74,6 +74,21 @@ M.general = {
   },
 }
 
+M.barbar = {
+  plugin = true,
+
+  n = {
+    ["<leader>bp"] = { "<Cmd>BufferPin<CR>", "Toggle pin" },
+    ["<leader>bP"] = { "<Cmd>BufferCloseAllButPinned<CR>", "Delete non-pinned buffers" },
+    ["<leader>bo"] = { "<Cmd>BufferCloseAllButCurrent<CR>", "Delete other buffers" },
+    ["<leader>br"] = { "<Cmd>BufferCloseBuffersRight<CR>", "Delete buffers to the right" },
+    ["<leader>bl"] = { "<Cmd>BufferCloseBuffersLeft<CR>", "Delete buffers to the left" },
+    ["<S-h>"] = { "<Cmd>BufferPrevious<CR>", "Prev buffer" },
+    ["<S-l>"] = { "<Cmd>BufferNext<CR>", "Next buffer" },
+  },
+}
+
+
 M.bufferline = {
   plugin = true,
 
