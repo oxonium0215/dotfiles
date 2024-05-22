@@ -1,3 +1,4 @@
+vim.loader.enable()
 if vim.loader then vim.loader.enable() end
 require("config")
 require("core.utils").load_mappings()
