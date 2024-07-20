@@ -191,13 +191,13 @@ local pluginlist = {
             require("core.utils").lazy_load "indent-blankline.nvim"
         end,
         opts = function(_, opts)
-            opts = require("plugins.configs.others").blankline(opts)
+            require("plugins.configs.others").blankline(opts)
             if pcall(require, "indent-rainbowline") then
-                opts = require("indent-rainbowline").make_opts(opts)
+                return require("indent-rainbowline").make_opts(opts)
             end
         end,
         dependencies = {
-            --"TheGLander/indent-rainbowline.nvim",
+            "TheGLander/indent-rainbowline.nvim",
         },
         config = function(_, opts)
             require("core.utils").load_mappings "blankline"
@@ -255,7 +255,9 @@ local pluginlist = {
         event = "BufReadPost",
         config = function()
             -- patch https://github.com/nvim-treesitter/nvim-treesitter/issues/1124
-            vim.cmd.edit({bang = true})
+			if vim.fn.expand('%:p') ~= "" then
+				vim.cmd.edit({ bang = true })
+			end
         end
     },
     -- ╭─────────────────────────────────────────────────────────────────────────────────╮
