@@ -19,12 +19,12 @@ local opts = {
 --        max_name_length = 15,
 --        max_prefix_length = 6,
         diagnostics = "nvim_lsp",
-        diagnostics_indicator = function(_, _, diag)
-            local icons = require('core.icons').get('diagnostics')
-            local ret = (diag.error and icons.Error .. diag.error .. " " or "")
-              .. (diag.warning and icons.Warn .. diag.warning or "")
-            return vim.trim(ret)
-        end,
+--        diagnostics_indicator = function(_, _, diag)
+--            local icons = require('core.icons').get('diagnostics')
+--            local ret = (diag.error and icons.Error .. diag.error .. " " or "")
+--              .. (diag.warning and icons.Warn .. diag.warning or "")
+--            return vim.trim(ret)
+--        end,
     }
 }
 
