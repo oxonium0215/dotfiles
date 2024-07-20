@@ -254,6 +254,7 @@ local pluginlist = {
         "HiPhish/rainbow-delimiters.nvim",
         event = "BufReadPost",
         config = function()
+			require "plugins.configs.rainbow-delimiters"
             -- patch https://github.com/nvim-treesitter/nvim-treesitter/issues/1124
 			if vim.fn.expand('%:p') ~= "" then
 				vim.cmd.edit({ bang = true })
