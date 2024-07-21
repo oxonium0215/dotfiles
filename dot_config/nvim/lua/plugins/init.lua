@@ -148,6 +148,7 @@ local pluginlist = {
         {"navarasu/onedark.nvim", event = "BufWinEnter"},
         {"Mofiqul/vscode.nvim", event = "BufWinEnter"},
         {"folke/tokyonight.nvim", event = "BufWinEnter"},
+        {"olivercederborg/poimandres.nvim", event = "BufWinEnter"},
     },
     {
         "akinsho/bufferline.nvim",
