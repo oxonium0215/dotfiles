@@ -4,8 +4,7 @@ local utils = require "core.utils"
 M.blankline = function()
     return {
         indent = {
-            char = '▎',
-            space_char_blankline = " ",
+            char = '▏',
         },
         exclude = {
             filetypes = {

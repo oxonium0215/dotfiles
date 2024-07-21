@@ -192,7 +192,7 @@ local pluginlist = {
             require("core.utils").lazy_load "indent-blankline.nvim"
         end,
         opts = function(_, opts)
-            require("plugins.configs.others").blankline(opts)
+            require("plugins.configs.others").blankline()
             if pcall(require, "indent-rainbowline") then
                 return require("indent-rainbowline").make_opts(opts)
             end
