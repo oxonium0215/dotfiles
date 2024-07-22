@@ -64,6 +64,8 @@ vim.opt.shortmess:append "sI"
 vim.opt.splitbelow = true
 vim.opt.splitright = true
 vim.opt.termguicolors = true
+vim.opt.winblend = 0
+vim.opt.pumblend = 0
 
 -- go to previous/next line with h,l,left arrow and right arrow
 -- when cursor reaches end/beginning of line

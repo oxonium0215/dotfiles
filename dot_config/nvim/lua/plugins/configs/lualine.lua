@@ -38,28 +38,29 @@ local conditions = {
 local config = {
     options = {
         component_separators = {left = " ", right = " "},
-        theme = {
-            normal = {
-                a = {fg = colors.blue, bg = colors.bg},
-                b = {fg = colors.cyan, bg = colors.bg},
-                c = {fg = colors.fg, bg = colors.bg},
-                x = {fg = colors.fg, bg = colors.bg},
-                y = {fg = colors.magenta, bg = colors.bg},
-                z = {fg = colors.grey, bg = colors.bg}
-            },
-            insert = {
-                a = {fg = colors.green, bg = colors.bg},
-                z = {fg = colors.grey, bg = colors.bg}
-            },
-            visual = {
-                a = {fg = colors.magenta, bg = colors.bg},
-                z = {fg = colors.grey, bg = colors.bg}
-            },
-            terminal = {
-                a = {fg = colors.orange, bg = colors.bg},
-                z = {fg = colors.grey, bg = colors.bg}
-            }
-        },
+--        theme = {
+--            normal = {
+--                a = {fg = colors.blue, bg = colors.bg},
+--                b = {fg = colors.cyan, bg = colors.bg},
+--                c = {fg = colors.fg, bg = colors.bg},
+--                x = {fg = colors.fg, bg = colors.bg},
+--                y = {fg = colors.magenta, bg = colors.bg},
+--                z = {fg = colors.grey, bg = colors.bg}
+--            },
+--            insert = {
+--                a = {fg = colors.green, bg = colors.bg},
+--                z = {fg = colors.grey, bg = colors.bg}
+--            },
+--            visual = {
+--                a = {fg = colors.magenta, bg = colors.bg},
+--                z = {fg = colors.grey, bg = colors.bg}
+--            },
+--            terminal = {
+--                a = {fg = colors.orange, bg = colors.bg},
+--                z = {fg = colors.grey, bg = colors.bg}
+--            }
+--        },
+		  theme = 'auto',
         globalstatus = true,
         disabled_filetypes = {statusline = {"dashboard", "alpha"}}
     },
