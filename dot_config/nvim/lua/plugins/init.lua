@@ -145,7 +145,16 @@ local pluginlist = {
     -- colorscheme
     {
         {"EdenEast/nightfox.nvim", event = "BufWinEnter"},
-        {"navarasu/onedark.nvim", event = "BufWinEnter"},
+        {
+			"navarasu/onedark.nvim",
+			event = "BufWinEnter",
+			opts = {
+				transparent = true,
+				lualine = {
+					transparent = true,
+				}
+			}
+		},
         {"Mofiqul/vscode.nvim", event = "BufWinEnter"},
         {"folke/tokyonight.nvim", event = "BufWinEnter"},
         {"olivercederborg/poimandres.nvim", event = "BufWinEnter"},
