@@ -149,9 +149,9 @@ local pluginlist = {
 			"navarasu/onedark.nvim",
 			event = "BufWinEnter",
 			opts = {
-				transparent = true,
+				--transparent = true,
 				lualine = {
-					transparent = true,
+					--transparent = true,
 				}
 			}
 		},
