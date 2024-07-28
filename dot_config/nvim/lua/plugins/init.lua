@@ -359,9 +359,9 @@ local pluginlist = {
                 "hrsh7th/cmp-nvim-lua", -- Lua補完用
                 "saadparwaiz1/cmp_luasnip", -- LuaSnip用
                 "hrsh7th/cmp-nvim-lsp", -- lsp補完用
+                "hrsh7th/cmp-nvim-lsp-signature-help", -- 関数
                 "hrsh7th/cmp-emoji", -- emoji用
                 "hrsh7th/cmp-calc", -- 計算用
-                "f3fora/cmp-spell", -- vimのspell機能から補完
                 {
                     -- Copilot用
                     "zbirenbaum/copilot-cmp",
