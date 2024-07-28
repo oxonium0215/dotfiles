@@ -109,6 +109,10 @@ local options = {
     }),
   },
   sources = {
+    {
+      name = "lazydev", -- Neovim APIs autocompletions
+      group_index = 0, -- set group index to 0 to skip loading LuaLS completions
+    },
     { name = "path" },
     { name = "buffer" },
     { name = "nvim_lua" },
@@ -120,8 +124,16 @@ local options = {
     { name = "copilot" },
     { name = "treesitter" },
     { name = "rg" },
-    
   },
+  formatting = {
+    fields = { "abbr", "kind", "menu" },
+    format = require("lspkind").cmp_format({ -- Add icons with lspkind
+      mode = "symbol", -- show only symbol annotations
+      maxwidth = 50, -- prevent the popup from showing more than provided characters
+      ellipsis_char = "...", -- excedent character in poput show this var
+    }),
+  },
+
 }
 
 if cmp_style ~= "atom" and cmp_style ~= "atom_colored" then
