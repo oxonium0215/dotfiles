@@ -461,17 +461,6 @@ local pluginlist = {
             )
         end,
         event = {"CursorHold", "CursorHoldI"},
-        config = function()
-            --    require "plugins.configs.lspconfig"
-            --    require "plugins.configs.lsp"
-        end
-    },
-    {
-        "williamboman/mason-lspconfig.nvim",
-        event = "BufReadPre",
-        config = function()
-            require("plugins.configs.mason-lspconfig")
-        end,
         dependencies = {
             {
                 "folke/neoconf.nvim",
@@ -490,7 +479,19 @@ local pluginlist = {
             {
                 "weilbith/nvim-lsp-smag",
             }
-        }
+        },
+        config = function()
+            --    require "plugins.configs.lspconfig"
+            --    require "plugins.configs.lsp"
+            require("plugins.configs.lspconfig").defaults()
+        end
+    },
+    {
+        "williamboman/mason-lspconfig.nvim",
+        event = "BufReadPre",
+        config = function()
+            require("plugins.configs.mason-lspconfig")
+        end,
     },
     {
         "mfussenegger/nvim-dap",
