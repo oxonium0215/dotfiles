@@ -23,6 +23,7 @@ local opts = {
         },
         modified_icon = "●",
         buffer_close_icon = "󰅖",
+        close_command = require("bufdelete").bufdelete,
         show_close_icon = false,
         left_trunc_marker = " ",
         right_trunc_marker = " ",

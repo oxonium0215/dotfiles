@@ -5,6 +5,10 @@ local pluginlist = {
     -- │ ∘ Other                                                                         │
     -- ╰─────────────────────────────────────────────────────────────────────────────────╯
     {
+        "oxonium0215/pure-base46",
+        lazy = false,
+    },
+    {
         "dstein64/vim-startuptime",
         cmd = "StartupTime",
         config = function()
@@ -165,6 +169,9 @@ local pluginlist = {
         opts = function()
             return require "plugins.configs.bufferline"
         end,
+        dependencies = {
+            "famiu/bufdelete.nvim",
+        },
         config = function(_, opts)
             require("core.utils").load_mappings "bufferline"
             require("bufferline").setup(opts)
