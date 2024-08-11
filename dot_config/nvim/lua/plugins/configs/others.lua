@@ -2,6 +2,7 @@ local M = {}
 local utils = require "core.utils"
 
 M.blankline = function()
+    dofile(vim.g.base46_cache .. "blankline")
     return {
         indent = {
             char = '▏',

@@ -1,5 +1,6 @@
 local alpha = require('alpha')
 local dashboard = require('alpha.themes.dashboard')
+dofile(vim.g.base46_cache .. "alpha")
 
 local leader = '<LD>'
 
@@ -13,6 +14,7 @@ local function button(sc, txt, leader_txt, keybind, keybind_opts)
     width = 50,
     align_shortcut = 'right',
     hl_shortcut = 'Keyword',
+    hl = 'AlphaButtons',
   }
 
   if nil == keybind then
@@ -68,6 +70,8 @@ dashboard.section.header.val = {
     "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢸⣿⣿⣿⣮⣛⠿⢣⠰⠧⠾⣿⣿⣿⣿⣾⣿⢸⣿⣿⣿⣿⣿⣿⠿⠛⠁⠀⠀⢀⠐⠀⡀⠄⠀⠀",
     ]]
 }
+dashboard.section.header.opts.hl = 'AlphaHeader'
+
 
 dashboard.section.buttons.val= {
             dashboard.button('<leader>n', '  New File',

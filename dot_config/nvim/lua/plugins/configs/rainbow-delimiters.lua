@@ -1,3 +1,4 @@
+dofile(vim.g.base46_cache .. "rainbowdelimiters")
 -- This module contains a number of default definitions
 local rainbow_delimiters = require("rainbow-delimiters")
 

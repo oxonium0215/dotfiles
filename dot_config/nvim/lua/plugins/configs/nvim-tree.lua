@@ -1,3 +1,5 @@
+dofile(vim.g.base46_cache .. "nvimtree")
+
 local icons = {
 		diagnostics = require("core.icons").get("diagnostics"),
 		documents = require("core.icons").get("documents"),

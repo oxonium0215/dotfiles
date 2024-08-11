@@ -4,10 +4,10 @@ return {
 
   ui = {
     icons = {
---      ft = "・ｶ",
---      lazy = "あ ",
---      loaded = "・・,
---      not_loaded = "・・,
+      ft = "",
+      lazy = "󰂠 ",
+      loaded = "",
+      not_loaded = "",
     },
   },
 
