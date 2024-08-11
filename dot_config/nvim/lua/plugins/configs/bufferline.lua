@@ -1,4 +1,4 @@
---dofile(vim.g.base46_cache .. "bufferline")
+dofile(vim.g.base46_cache .. "bufferline")
 
 vim.cmd [[
 function! Toggle_theme(a,b,c,d)
