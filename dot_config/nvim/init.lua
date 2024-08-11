@@ -18,4 +18,5 @@ else
     require("plugins")
     -- colorschemeを設定
     --vim.cmd("colorscheme onedark")
+    dofile(vim.g.base46_cache .. "defaults")
 end
