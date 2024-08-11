@@ -4,6 +4,8 @@ require("config")
 require("core.utils").load_mappings()
 local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
 
+vim.g.base46_cache = vim.fn.stdpath "data" .. "/base46/"
+
 -- bootstrap lazy.nvim!
 if not vim.loop.fs_stat(lazypath) then
     require("core.utils").lazy(lazypath)
@@ -15,5 +17,5 @@ if vim.g.vscode then
 else
     require("plugins")
     -- colorschemeを設定
-    vim.cmd("colorscheme onedark")
+    --vim.cmd("colorscheme onedark")
 end

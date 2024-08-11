@@ -7,6 +7,9 @@ local pluginlist = {
     {
         "oxonium0215/pure-base46",
         lazy = false,
+        build = function()
+            require("base46").load_all_highlights()
+        end,
     },
     {
         "dstein64/vim-startuptime",
