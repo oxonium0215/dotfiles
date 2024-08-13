@@ -6,6 +6,7 @@ local pluginlist = {
     -- ╰─────────────────────────────────────────────────────────────────────────────────╯
     {
         "oxonium0215/pure-base46",
+        branch = "feature",
         lazy = false,
         build = function()
             require("base46").load_all_highlights()
