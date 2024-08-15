@@ -5,14 +5,6 @@ local pluginlist = {
     -- │ ∘ Other                                                                         │
     -- ╰─────────────────────────────────────────────────────────────────────────────────╯
     {
-        "oxonium0215/pure-base46",
-        branch = "feature",
-        lazy = false,
-        build = function()
-            require("base46").load_all_highlights()
-        end,
-    },
-    {
         "dstein64/vim-startuptime",
         cmd = "StartupTime",
         config = function()
@@ -173,9 +165,6 @@ local pluginlist = {
         opts = function()
             return require "plugins.configs.bufferline"
         end,
-        dependencies = {
-            "famiu/bufdelete.nvim",
-        },
         config = function(_, opts)
             require("core.utils").load_mappings "bufferline"
             require("bufferline").setup(opts)
@@ -462,6 +451,17 @@ local pluginlist = {
             )
         end,
         event = {"CursorHold", "CursorHoldI"},
+        config = function()
+            --    require "plugins.configs.lspconfig"
+            --    require "plugins.configs.lsp"
+        end
+    },
+    {
+        "williamboman/mason-lspconfig.nvim",
+        event = "BufReadPre",
+        config = function()
+            require("plugins.configs.mason-lspconfig")
+        end,
         dependencies = {
             {
                 "folke/neoconf.nvim",
@@ -480,19 +480,7 @@ local pluginlist = {
             {
                 "weilbith/nvim-lsp-smag",
             }
-        },
-        config = function()
-            --    require "plugins.configs.lspconfig"
-            --    require "plugins.configs.lsp"
-            require("plugins.configs.lspconfig").defaults()
-        end
-    },
-    {
-        "williamboman/mason-lspconfig.nvim",
-        event = "BufReadPre",
-        config = function()
-            require("plugins.configs.mason-lspconfig")
-        end,
+        }
     },
     {
         "mfussenegger/nvim-dap",

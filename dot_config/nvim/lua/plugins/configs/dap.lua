@@ -1,6 +1,5 @@
 local dap = require "dap"
 local dapui = require "dapui"
-dofile(vim.g.base46_cache .. "dap")
 
 local opts = {
     require("mason-nvim-dap").setup {

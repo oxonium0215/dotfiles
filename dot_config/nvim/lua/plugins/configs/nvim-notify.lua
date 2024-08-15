@@ -1,4 +1,3 @@
-dofile(vim.g.base46_cache .. "notify")
 vim.notify = require("notify")
 vim.keymap.set("n", "<BS>", function()
 	for _, win in ipairs(vim.api.nvim_list_wins()) do
