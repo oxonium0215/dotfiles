@@ -91,15 +91,15 @@ end
 
 M.gitsigns = {
     signs = {
-        add = {text = "━E"},
-        change = {text = "━E"},
-        delete = {text = "󰍵"},
-        topdelete = {text = "‾"},
-        changedelete = {text = "~"},
-        untracked = {text = "━E"}
+        add = {text = ""},
+        change = {text = ""},
+        delete = {text = ""},
+        topdelete = {text = ""},
+        changedelete = {text = ""},
+        untracked = {text = ""},
     },
     on_attach = function(bufnr)
-        utils.load_mappings("gitsigns", {buffer = bufnr})
+        utils.set_mappings("gitsigns", {buffer = bufnr})
     end
 }
 

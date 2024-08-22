@@ -6,12 +6,7 @@ local utils = require "core.utils"
 M.on_attach = function(client, bufnr)
   client.server_capabilities.documentFormattingProvider = false
   client.server_capabilities.documentRangeFormattingProvider = false
-
-  utils.load_mappings("lspconfig", { buffer = bufnr })
-
-  if not (vim.version.major > 0 or (vim.version.major == 0 and vim.version.minor >= 9)) and client.supports_method "textDocument/semanticTokens" then
-    client.server_capabilities.semanticTokensProvider = nil
-  end
+  utils.set_mappings("lspconfig", { buffer = bufnr })
 end
 
 M.capabilities = vim.lsp.protocol.make_client_capabilities()
@@ -34,26 +29,58 @@ M.capabilities.textDocument.completion.completionItem = {
   },
 }
 
-require("lspconfig").lua_ls.setup {
-  on_attach = M.on_attach,
-  capabilities = M.capabilities,
-
-  settings = {
-    Lua = {
-      diagnostics = {
-        globals = { "vim" },
-      },
-      workspace = {
-        library = {
-          [vim.fn.expand "$VIMRUNTIME/lua"] = true,
-          [vim.fn.expand "$VIMRUNTIME/lua/vim/lsp"] = true,
-          [vim.fn.stdpath "data" .. "/lazy/lazy.nvim/lua/lazy"] = true,
-        },
-        maxPreload = 100000,
-        preloadFileSize = 10000,
+M.defaults = function()
+  diagnostics = {
+    underline = true,
+    update_in_insert = true,
+    virtual_text = {
+      spacing = 4,
+      source = "if_many",
+      prefix = "●",
+      -- this will set set the prefix to a function that returns the diagnostics icon based on the severity
+      -- this only works on a recent 0.10.0 build. Will be set to "●" when not supported
+      -- prefix = "icons",
+    },
+    severity_sort = true,
+  }
+  inlay_hints = {
+    enabled = true,
+    exclude = { "vue" },
+  }
+  document_highlight = {
+    enabled = true,
+  }
+  -- add any global capabilities
+  capabilities = {
+    workspace = {
+      fileOperations = {
+        didRename = true,
+        willRename = true,
       },
     },
-  },
-}
+  }
+  require("lspconfig").lua_ls.setup {
+    on_attach = M.on_attach,
+    capabilities = M.capabilities,
+    settings = {
+      Lua = {
+        diagnostics = {
+          globals = { "vim" },
+        },
+        workspace = {
+          library = {
+            vim.fn.expand "$VIMRUNTIME/lua",
+            vim.fn.expand "$VIMRUNTIME/lua/vim/lsp",
+            vim.fn.stdpath "data" .. "/lazy/ui/nvchad_types",
+            vim.fn.stdpath "data" .. "/lazy/lazy.nvim/lua/lazy",
+            "${3rd}/luv/library",
+          },
+          maxPreload = 100000,
+          preloadFileSize = 10000,
+        },
+      },
+    },
+  }
+end
 
 return M
