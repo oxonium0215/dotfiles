@@ -24,17 +24,13 @@ local pluginlist = {
     -- ╰─────────────────────────────────────────────────────────────────────────────────╯
     {
         "rlane/pounce.nvim",
-        init = function()
-            require("core.utils").load_mappings "pounce"
-        end,
+        keys = require("core.utils").generate_lazy_keys("pounce"),
         cmd = {"Pounce", "PounceRepeat"}
     },
     {
         "phaazon/hop.nvim",
         branch = "v2",
-        init = function()
-            require("core.utils").load_mappings "hop"
-        end,
+        keys = require("core.utils").generate_lazy_keys("hop"),
         config = function()
             -- you can configure Hop the way you like here; see :h hop-config
             require "hop".setup {keys = "etovxqpdygfblzhckisuran"}
@@ -48,24 +44,6 @@ local pluginlist = {
         tag = "legacy",
         event = "LspAttach",
         opts = {}
-    },
-    {
-        "numToStr/Comment.nvim",
-        event = {"CursorHold", "CursorHoldI"},
-        keys = {
-            {"gcc", mode = "n", desc = "Comment toggle current line"},
-            {"gc", mode = {"n", "o"}, desc = "Comment toggle linewise"},
-            {"gc", mode = "x", desc = "Comment toggle linewise (visual)"},
-            {"gbc", mode = "n", desc = "Comment toggle current block"},
-            {"gb", mode = {"n", "o"}, desc = "Comment toggle blockwise"},
-            {"gb", mode = "x", desc = "Comment toggle blockwise (visual)"}
-        },
-        init = function()
-            require("core.utils").load_mappings "comment"
-        end,
-        config = function(_, opts)
-            require("Comment").setup(opts)
-        end
     },
 }
 

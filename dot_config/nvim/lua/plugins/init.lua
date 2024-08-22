@@ -31,9 +31,7 @@ local pluginlist = {
     },
     {
         "yorickpeterse/nvim-window",
-        init = function()
-            require("core.utils").load_mappings "nvimwindow"
-        end
+        keys = require("core.utils").generate_lazy_keys("nvimwindow"),
     },
     {
         "m4xshen/hardtime.nvim",
@@ -65,23 +63,13 @@ local pluginlist = {
     -- Search
     {
         "VonHeikemen/searchbox.nvim",
-        init = function()
-            require("core.utils").load_mappings "searchbox"
-        end,
+        keys = require("core.utils").generate_lazy_keys("searchbox"),
         cmd = {"SearchBoxIncSearch", "SearchBoxReplace"},
         dependencies = {"MunifTanjim/nui.nvim"}
     },
     {
         "rcarriga/nvim-notify",
-        keys = {
-            {
-                "<leader>un",
-                function()
-                    require("notify").dismiss({ silent = true, pending = true })
-                end,
-                desc = "Dismiss All Notifications",
-            },
-        },
+        keys = require("core.utils").generate_lazy_keys("notify"),
         opts = {
             stages = "static",
             timeout = 7000,
@@ -107,8 +95,8 @@ local pluginlist = {
                 require("lazy").load({ plugins = { "dressing.nvim" } })
                 return vim.ui.select(...)
             end
-        ---@diagnostic disable-next-line: duplicate-set-field
-        vim.ui.input = function(...)
+            ---@diagnostic disable-next-line: duplicate-set-field
+            vim.ui.input = function(...)
                 require("lazy").load({ plugins = { "dressing.nvim" } })
                 return vim.ui.input(...)
             end
@@ -118,9 +106,7 @@ local pluginlist = {
     --[[
     {
         "VonHeikemen/fine-cmdline.nvim",
-        init = function()
-            require("core.utils").load_mappings "cmdline"
-        end,
+        keys = require("mappings").cmdline,
         cmd = { "FineCmdline" },
         config = function()
           require('fine-cmdline').setup {
@@ -146,15 +132,15 @@ local pluginlist = {
     {
         {"EdenEast/nightfox.nvim", event = "BufWinEnter"},
         {
-			"navarasu/onedark.nvim",
-			event = "BufWinEnter",
-			opts = {
-				--transparent = true,
-				lualine = {
-					--transparent = true,
-				}
-			}
-		},
+            "navarasu/onedark.nvim",
+            event = "BufWinEnter",
+            opts = {
+                --transparent = true,
+                lualine = {
+                    --transparent = true,
+                }
+            }
+        },
         {"Mofiqul/vscode.nvim", event = "BufWinEnter"},
         {"folke/tokyonight.nvim", event = "BufWinEnter"},
         {"olivercederborg/poimandres.nvim", event = "BufWinEnter"},
@@ -162,11 +148,11 @@ local pluginlist = {
     {
         "akinsho/bufferline.nvim",
         event = {"BufReadPost", "BufAdd", "BufNewFile"},
+        keys = require("core.utils").generate_lazy_keys("bufferline"),
         opts = function()
             return require "plugins.configs.bufferline"
         end,
         config = function(_, opts)
-            require("core.utils").load_mappings "bufferline"
             require("bufferline").setup(opts)
             -- Fix bufferline when restoring a session
             vim.api.nvim_create_autocmd(
@@ -197,6 +183,7 @@ local pluginlist = {
     {
         "lukas-reineke/indent-blankline.nvim",
         event = {"CursorHold", "CursorHoldI"},
+        keys = require("core.utils").generate_lazy_keys("blankline"),
         main = "ibl",
         init = function()
             require("core.utils").lazy_load "indent-blankline.nvim"
@@ -211,7 +198,6 @@ local pluginlist = {
             "TheGLander/indent-rainbowline.nvim",
         },
         config = function(_, opts)
-            require("core.utils").load_mappings "blankline"
             require("ibl").setup(opts)
         end
     },
@@ -221,17 +207,13 @@ local pluginlist = {
     -- ╰─────────────────────────────────────────────────────────────────────────────────╯
     {
         "rlane/pounce.nvim",
-        init = function()
-            require("core.utils").load_mappings "pounce"
-        end,
+        keys = require("core.utils").generate_lazy_keys("pounce"),
         cmd = {"Pounce", "PounceRepeat"}
     },
     {
         "phaazon/hop.nvim",
+        keys = require("core.utils").generate_lazy_keys("hop"),
         branch = "v2",
-        init = function()
-            require("core.utils").load_mappings "hop"
-        end,
         config = function()
             -- you can configure Hop the way you like here; see :h hop-config
             require "hop".setup {keys = "etovxqpdygfblzhckisuran"}
@@ -265,11 +247,11 @@ local pluginlist = {
         "HiPhish/rainbow-delimiters.nvim",
         event = "BufReadPost",
         config = function()
-			require "plugins.configs.rainbow-delimiters"
+            require "plugins.configs.rainbow-delimiters"
             -- patch https://github.com/nvim-treesitter/nvim-treesitter/issues/1124
-			if vim.fn.expand('%:p') ~= "" then
-				vim.cmd.edit({ bang = true })
-			end
+            if vim.fn.expand('%:p') ~= "" then
+                vim.cmd.edit({ bang = true })
+            end
         end
     },
     -- ╭─────────────────────────────────────────────────────────────────────────────────╮
@@ -395,27 +377,19 @@ local pluginlist = {
             },
         },
     },
-    {
-        "numToStr/Comment.nvim",
-        event = {"CursorHold", "CursorHoldI"},
-        keys = {
-            {"gcc", mode = "n", desc = "Comment toggle current line"},
-            {"gc", mode = {"n", "o"}, desc = "Comment toggle linewise"},
-            {"gc", mode = "x", desc = "Comment toggle linewise (visual)"},
-            {"gbc", mode = "n", desc = "Comment toggle current block"},
-            {"gb", mode = {"n", "o"}, desc = "Comment toggle blockwise"},
-            {"gb", mode = "x", desc = "Comment toggle blockwise (visual)"}
-        },
-        init = function()
-            require("core.utils").load_mappings "comment"
-        end,
-        config = function(_, opts)
-            require("Comment").setup(opts)
-        end
-    },
     -- ╭─────────────────────────────────────────────────────────────────────────────────╮
     -- │ ∘ LSP & DAP                                                                     │
     -- ╰─────────────────────────────────────────────────────────────────────────────────╯
+    {
+        "neovim/nvim-lspconfig",
+        event = {"CursorHold", "CursorHoldI"},
+        dependencies = {
+            "mason.nvim", "mason-lspconfig.nvim"
+        },
+        config = function()
+            require ("plugins.configs.lspconfig").defaults()
+        end,
+    },
     {
         "williamboman/mason.nvim",
         cmd = {"Mason", "MasonInstall", "MasonInstallAll", "MasonUninstall", "MasonUninstallAll", "MasonLog"},
@@ -435,25 +409,6 @@ local pluginlist = {
             )
 
             vim.g.mason_binaries_list = opts.ensure_installed
-        end
-    },
-    {
-        "neovim/nvim-lspconfig",
-        init = function()
-            require("core.utils").lazy_load "nvim-lspconfig"
-            vim.lsp.handlers["textDocument/publishDiagnostics"] =
-            vim.lsp.with(
-                vim.lsp.diagnostic.on_publish_diagnostics,
-                {
-                    -- delay update diagnostics
-                    update_in_insert = true
-                }
-            )
-        end,
-        event = {"CursorHold", "CursorHoldI"},
-        config = function()
-            --    require "plugins.configs.lspconfig"
-            --    require "plugins.configs.lsp"
         end
     },
     {
@@ -479,20 +434,12 @@ local pluginlist = {
             },
             {
                 "weilbith/nvim-lsp-smag",
-            }
-        }
+            },
+        },
     },
     {
         "mfussenegger/nvim-dap",
-        keys = {
-            { "<F5>", function() require'dap'.continue() end, desc = "Debug: Start/Continue" },
-            { "<F1>", function() require'dap'.step_into() end, desc = "Debug: Step Into" },
-            { "<F2>", function() require'dap'.step_over() end, desc = "Debug: Step Over" },
-            { "<F3>", function() require'dap'.step_out() end, desc = "Debug: Step Out" },
-            { "<leader>b", function() require'dap'.toggle_breakpoint() end, desc = "Debug: Toggle Breakpoint" },
-            { "<leader>B", function() require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: ')) end, desc = "Debug: Set Breakpoint with Condition" }
-        },
-
+        keys = require("core.utils").generate_lazy_keys("dap"),
         dependencies = {
             -- Creates a beautiful debugger UI
             {
@@ -514,8 +461,15 @@ local pluginlist = {
         opts = {}
     },
     -- ╭─────────────────────────────────────────────────────────────────────────────────╮
-    -- │ ∘ Telescope                                                                     │
+    -- │ ∘ Fuzzy finder                                                                  │
     -- ╰─────────────────────────────────────────────────────────────────────────────────╯
+    {
+        "ibhagwan/fzf-lua",
+        dependencies = { "nvim-tree/nvim-web-devicons" },
+        config = function()
+            require("plugins.configs.fzf")
+        end
+    },
     {
         "nvim-telescope/telescope.nvim",
         dependencies = {
@@ -525,7 +479,7 @@ local pluginlist = {
             {
                 "Allianaab2m/telescope-kensaku.nvim",
                 config = function()
-                    require("telescope").load_extension("kensaku") -- :Telescope kensaku
+                    require("telescope").load_extension("kensaku")
                 end
             },
             {
@@ -575,16 +529,13 @@ local pluginlist = {
             }
         },
         cmd = "Telescope",
-        init = function()
-            require("core.utils").load_mappings "telescope"
-        end,
+        keys = require("core.utils").generate_lazy_keys("telescope"),
         opts = function()
             return require "plugins.configs.telescope"
         end,
         config = function(_, opts)
             local telescope = require "telescope"
             telescope.setup(opts)
-
             -- load extensions
             for _, ext in ipairs(opts.extensions_list) do
                 telescope.load_extension(ext)
@@ -596,6 +547,7 @@ local pluginlist = {
     -- ╰─────────────────────────────────────────────────────────────────────────────────╯
     {
         "nvim-tree/nvim-tree.lua",
+        keys = require("core.utils").generate_lazy_keys("nvimtree"),
         cmd = {
             "NvimTreeToggle",
             "NvimTreeOpen",
@@ -603,9 +555,6 @@ local pluginlist = {
             "NvimTreeFindFileToggle",
             "NvimTreeRefresh"
         },
-        init = function()
-            require("core.utils").load_mappings "nvimtree"
-        end,
         opts = function()
             return require "plugins.configs.nvim-tree"
         end,
@@ -615,9 +564,7 @@ local pluginlist = {
     },
     {
         "akinsho/toggleterm.nvim",
-        init = function()
-            require("core.utils").load_mappings "toggleterm"
-        end,
+        keys = require("core.utils").generate_lazy_keys("toggleterm"),
         cmd = {
             "ToggleTerm",
             "ToggleTermSetName",
@@ -657,9 +604,7 @@ local pluginlist = {
     },
     {
         "stevearc/overseer.nvim",
-        init = function()
-            require("core.utils").load_mappings "overseer"
-        end,
+        keys = require("core.utils").generate_lazy_keys("overseer"),
         cmd = {"OverseerRun"},
         config = function()
             require("overseer").setup(
