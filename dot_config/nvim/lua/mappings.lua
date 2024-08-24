@@ -111,6 +111,21 @@ M.nvimwindow = {
   {"t", "<C-w>", "<cmd>lua require('nvim-window').pick()<CR>", { desc = "Window picker", silent = true }},
 }
 
+M.fzf = {
+  {"n", "<leader>fg", "<cmd>lua require('fzf-lua').live_grep()<CR>", { desc = "fzf-lua live grep" }},
+  {"n", "<leader>fb", "<cmd>lua require('fzf-lua').buffers()<CR>", { desc = "fzf-lua find buffers" }},
+  {"n", "<leader>fh", "<cmd>lua require('fzf-lua').help_tags()<CR>", { desc = "fzf-lua help page" }},
+  {"n", "<leader>ma", "<cmd>lua require('fzf-lua').marks()<CR>", { desc = "fzf-lua find marks" }},
+  {"n", "<leader>fo", "<cmd>lua require('fzf-lua').oldfiles()<CR>", { desc = "fzf-lua find oldfiles" }},
+  {"n", "<leader>fz", "<cmd>lua require('fzf-lua').grep_curbuf()<CR>", { desc = "fzf-lua find in current buffer" }},
+  {"n", "<leader>cm", "<cmd>lua require('fzf-lua').git_commits()<CR>", { desc = "fzf-lua git commits" }},
+  {"n", "<leader>gt", "<cmd>lua require('fzf-lua').git_status()<CR>", { desc = "fzf-lua git status" }},
+  {"n", "<leader>pt", "<cmd>lua require('fzf-lua').builtin()<CR>", { desc = "fzf-lua pick hidden term" }},
+  {"n", "<leader>th", "<cmd>lua require('fzf-lua').colorschemes()<CR>", { desc = "fzf-lua nvchad themes" }},
+  {"n", "<leader>ff", "<cmd>lua require('fzf-lua').files()<CR>", { desc = "fzf-lua find files" }},
+  {"n", "<leader>fa", "<cmd>lua require('fzf-lua').files({ no_ignore = true, hidden = true, follow = true })<CR>", { desc = "fzf-lua find all files" }},
+}
+
 M.telescope = {
   {"n", "<leader>fg", "<cmd>Telescope live_grep<CR>", { desc = "telescope live grep" }},
   {"n", "<leader>fb", "<cmd>Telescope buffers<CR>", { desc = "telescope find buffers" }},
