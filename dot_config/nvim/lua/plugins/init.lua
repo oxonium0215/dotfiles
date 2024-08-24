@@ -463,13 +463,13 @@ local pluginlist = {
     -- ╭─────────────────────────────────────────────────────────────────────────────────╮
     -- │ ∘ Fuzzy finder                                                                  │
     -- ╰─────────────────────────────────────────────────────────────────────────────────╯
-    {
-        "ibhagwan/fzf-lua",
-        dependencies = { "nvim-tree/nvim-web-devicons" },
-        config = function()
-            require("plugins.configs.fzf")
-        end
-    },
+    -- {
+    --     "ibhagwan/fzf-lua",
+    --     dependencies = { "nvim-tree/nvim-web-devicons" },
+    --     opts = function()
+    --         require("plugins.configs.fzf")
+    --     end
+    -- },
     {
         "nvim-telescope/telescope.nvim",
         dependencies = {
