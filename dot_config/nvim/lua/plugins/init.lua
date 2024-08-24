@@ -152,6 +152,9 @@ local pluginlist = {
         opts = function()
             return require "plugins.configs.bufferline"
         end,
+        dependencies = {
+            "famiu/bufdelete.nvim",
+        },
         config = function(_, opts)
             require("bufferline").setup(opts)
             -- Fix bufferline when restoring a session
