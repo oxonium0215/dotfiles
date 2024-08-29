@@ -1,172 +1,194 @@
--- Now use `<A-k>` or `<A-1>` to back to the `dotstutor`.
-local autocmd = {}
+local augroup = vim.api.nvim_create_augroup
+local autocmd = vim.api.nvim_create_autocmd
 
-function autocmd.nvim_create_augroups(definitions)
-	for group_name, definition in pairs(definitions) do
-		vim.api.nvim_command("augroup " .. group_name)
-		vim.api.nvim_command("autocmd!")
-		for _, def in ipairs(definition) do
-			local command = table.concat(vim.tbl_flatten({ "autocmd", def }), " ")
-			vim.api.nvim_command(command)
-		end
-		vim.api.nvim_command("augroup END")
-	end
+local groups = {
+    general = augroup("GeneralSettings", { clear = true }),
+    nvimtree = augroup("NvimTreeClose", { clear = true }),
+    close_ft = augroup("CloseFiletypesWithQ", { clear = true }),
+    telescope = augroup("TelescopeFix", { clear = true }),
+    bufs = augroup("BufferActions", { clear = true }),
+    wins = augroup("WindowActions", { clear = true }),
+    ft = augroup("FileTypeSettings", { clear = true }),
+    yank = augroup("YankHighlight", { clear = true }),
+}
+
+local function create_autocmd(event, opts)
+    opts.group = groups[opts.group]
+    autocmd(event, opts)
 end
 
--- defer setting LSP-related keymaps till LspAttach
---local mapping = require("keymap.completion")
---vim.api.nvim_create_autocmd("LspAttach", {
---	group = vim.api.nvim_create_augroup("LspKeymapLoader", { clear = true }),
---	callback = function(event)
---		if not _G._debugging then
---			mapping.lsp(event.buf)
---		end
---	end,
---})
-
--- Remove this if there's an issue
-vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
-  once = true,
-  callback = function()
-    -- In wsl 2, just install xclip
-    -- Ubuntu
-    -- sudo apt install xclip
-    -- Arch linux
-    -- sudo pacman -S xclip
-    vim.opt.clipboard = "unnamedplus" -- allows neovim to access the system clipboard
-  end,
-  group = general,
-  desc = "Lazy load clipboard",
+-- General Settings: Lazy load clipboard
+create_autocmd({ "BufReadPost", "BufNewFile" }, {
+    once = true,
+    callback = function()
+        -- In wsl2, just install xclip
+        -- Ubuntu
+        -- sudo apt install xclip
+        -- Arch Linux
+        -- sudo pacman -S xclip
+        vim.opt.clipboard = "unnamedplus"
+    end,
+    group = "general",
+    desc = "Lazy load clipboard",
 })
 
--- auto close NvimTree
-vim.api.nvim_create_autocmd("BufEnter", {
-    group = vim.api.nvim_create_augroup("NvimTreeClose", { clear = true }),
+-- Auto close NvimTree when it's the last window
+create_autocmd("BufEnter", {
     pattern = "NvimTree_*",
     callback = function()
-        local layout = vim.api.nvim_call_function("winlayout", {})
-        if
-            layout[1] == "leaf"
+        local layout = vim.fn.winlayout()
+        if layout[1] == "leaf"
             and vim.api.nvim_get_option_value("filetype", { buf = vim.api.nvim_win_get_buf(layout[2]) }) == "NvimTree"
-            and layout[3] == nil
-        then
-            vim.api.nvim_command([[confirm quit]])
+            and not layout[3] then
+            vim.cmd("confirm quit")
         end
     end,
+    group = "nvimtree",
+    desc = "Auto close NvimTree when it's the last window",
 })
 
--- auto close some filetype with <q>
-vim.api.nvim_create_autocmd("FileType", {
-	pattern = {
-		"qf",
-		"help",
-		"man",
-		"notify",
-		"nofile",
-		"lspinfo",
-		"terminal",
-		"prompt",
-		"toggleterm",
-		"copilot",
-		"startuptime",
-		"tsplayground",
-		"PlenaryTestPopup",
-	},
-	callback = function(event)
-		vim.bo[event.buf].buflisted = false
-		vim.api.nvim_buf_set_keymap(event.buf, "n", "q", "<CMD>close<CR>", { silent = true })
-	end,
+-- Auto close specific filetypes with <q>
+local filetypes_to_close = {
+    "qf", "help", "man", "notify", "nofile", "lspinfo",
+    "terminal", "prompt", "toggleterm", "copilot", "startuptime",
+    "tsplayground", "PlenaryTestPopup",
+}
+
+create_autocmd("FileType", {
+    pattern = filetypes_to_close,
+    callback = function(event)
+        vim.bo[event.buf].buflisted = false
+        vim.api.nvim_buf_set_keymap(event.buf, "n", "q", "<CMD>close<CR>", { silent = true })
+    end,
+    group = "close_ft",
+    desc = "Close specific filetypes with <q>",
 })
 
--- Fix fold issue of files opened by telescope
-vim.api.nvim_create_autocmd("BufRead", {
-	callback = function()
-		vim.api.nvim_create_autocmd("BufWinEnter", {
-			once = true,
-			command = "normal! zx",
-		})
-	end,
+-- Fix fold issue with files opened by Telescope
+create_autocmd("BufRead", {
+    callback = function()
+        create_autocmd("BufWinEnter", {
+            once = true,
+            command = "normal! zx",
+            group = "telescope",
+        })
+    end,
+    group = "telescope",
+    desc = "Fix fold issue with files opened by Telescope",
 })
 
-function autocmd.load_autocmds()
-	local definitions = {
-		lazy = {},
-		bufs = {
-			-- Reload vim config automatically
-			{
-				"BufWritePost",
-				[[$VIM_PATH/{*.vim,*.yaml,vimrc} nested source $MYVIMRC | redraw]],
-			},
-			-- Reload Vim script automatically if setlocal autoread
-			{
-				"BufWritePost,FileWritePost",
-				"*.vim",
-				[[nested if &l:autoread > 0 | source <afile> | echo 'source ' . bufname('%') | endif]],
-			},
-			{ "BufWritePre", "/tmp/*", "setlocal noundofile" },
-			{ "BufWritePre", "COMMIT_EDITMSG", "setlocal noundofile" },
-			{ "BufWritePre", "MERGE_MSG", "setlocal noundofile" },
-			{ "BufWritePre", "*.tmp", "setlocal noundofile" },
-			{ "BufWritePre", "*.bak", "setlocal noundofile" },
-			-- auto place to last edit
-			{
-				"BufReadPost",
-				"*",
-				[[if line("'\"") > 1 && line("'\"") <= line("$") | execute "normal! g'\"" | endif]],
-			},
-			-- Auto toggle fcitx5
-			-- {"InsertLeave", "* :silent", "!fcitx5-remote -c"},
-			-- {"BufCreate", "*", ":silent !fcitx5-remote -c"},
-			-- {"BufEnter", "*", ":silent !fcitx5-remote -c "},
-			-- {"BufLeave", "*", ":silent !fcitx5-remote -c "}
-		},
-		wins = {
-			-- Highlight current line only on focused window
-			{
-				"WinEnter,BufEnter,InsertLeave",
-				"*",
-				[[if ! &cursorline && &filetype !~# '^\(dashboard\|clap_\)' && ! &pvw | setlocal cursorline | endif]],
-			},
-			{
-				"WinLeave,BufLeave,InsertEnter",
-				"*",
-				[[if &cursorline && &filetype !~# '^\(dashboard\|clap_\)' && ! &pvw | setlocal nocursorline | endif]],
-			},
-			-- Attempt to write shada when leaving nvim
-			{
-				"VimLeave",
-				"*",
-				[[if has('nvim') | wshada | else | wviminfo! | endif]],
-			},
-			-- Check if file changed when its window is focus, more eager than 'autoread'
-			{ "FocusGained", "* checktime" },
-			-- Equalize window dimensions when resizing vim window
-			{ "VimResized", "*", [[tabdo wincmd =]] },
-		},
-		ft = {
-			{ "FileType", "alpha", "set showtabline=0" },
-			{ "FileType", "markdown", "set wrap" },
-			{ "FileType", "make", "set noexpandtab shiftwidth=8 softtabstop=0" },
-			{ "FileType", "dap-repl", "lua require('dap.ext.autocompl').attach()" },
-			{
-				"FileType",
-				"*",
-				[[setlocal formatoptions-=cro]],
-			},
-			{
-				"FileType",
-				"c,cpp",
-				"nnoremap <leader>h :ClangdSwitchSourceHeaderVSplit<CR>",
-			},
-		},
-		yank = {
-			{
-				"TextYankPost",
-				"*",
-				[[silent! lua vim.highlight.on_yank({higroup="IncSearch", timeout=300})]],
-			},
-		},
-	}
-end
+-- Buffer-related Autocommands
+create_autocmd("BufWritePost", {
+    pattern = "$VIM_PATH/{*.vim,*.yaml,vimrc}",
+    command = "nested source $MYVIMRC | redraw",
+    group = "bufs",
+    desc = "Reload vim config automatically",
+})
 
-autocmd.load_autocmds()
+create_autocmd("BufWritePost", {
+    pattern = "*.vim",
+    command = "nested if &l:autoread > 0 | source <afile> | echo 'source ' . bufname('%') | endif",
+    group = "bufs",
+    desc = "Reload Vim script automatically if setlocal autoread",
+})
+
+create_autocmd("BufWritePre", {
+    pattern = { "/tmp/*", "COMMIT_EDITMSG", "MERGE_MSG", "*.tmp", "*.bak" },
+    command = "setlocal noundofile",
+    group = "bufs",
+    desc = "Disable undofile for specific buffers",
+})
+
+create_autocmd("BufReadPost", {
+    pattern = "*",
+    command = [[if line("'\"") > 1 && line("'\"") <= line("$") | execute "normal! g'\"" | endif]],
+    group = "bufs",
+    desc = "Auto place to last edit",
+})
+
+-- Window-related Autocommands
+create_autocmd({ "WinEnter", "BufEnter", "InsertLeave" }, {
+    pattern = "*",
+    command = [[if ! &cursorline && &filetype !~# '^\(dashboard\|clap_\)' && ! &pvw | setlocal cursorline | endif]],
+    group = "wins",
+    desc = "Highlight current line only on focused window",
+})
+
+create_autocmd({ "WinLeave", "BufLeave", "InsertEnter" }, {
+    pattern = "*",
+    command = [[if &cursorline && &filetype !~# '^\(dashboard\|clap_\)' && ! &pvw | setlocal nocursorline | endif]],
+    group = "wins",
+    desc = "Remove highlight from current line when unfocused",
+})
+
+create_autocmd("VimLeave", {
+    pattern = "*",
+    command = [[if has('nvim') | wshada | else | wviminfo! | endif]],
+    group = "wins",
+    desc = "Attempt to write shada when leaving nvim",
+})
+
+create_autocmd("FocusGained", {
+    pattern = "*",
+    command = "checktime",
+    group = "wins",
+    desc = "Check if file changed when its window is focused",
+})
+
+create_autocmd("VimResized", {
+    pattern = "*",
+    command = "tabdo wincmd =",
+    group = "wins",
+    desc = "Equalize window dimensions when resizing vim window",
+})
+
+-- FileType-specific Autocommands
+create_autocmd("FileType", {
+    pattern = "alpha",
+    command = "set showtabline=0",
+    group = "ft",
+    desc = "Hide tabline for alpha filetype",
+})
+
+create_autocmd("FileType", {
+    pattern = "markdown",
+    command = "set wrap",
+    group = "ft",
+    desc = "Enable wrap for markdown",
+})
+
+create_autocmd("FileType", {
+    pattern = "make",
+    command = "set noexpandtab shiftwidth=8 softtabstop=0",
+    group = "ft",
+    desc = "Set tab settings for make filetype",
+})
+
+create_autocmd("FileType", {
+    pattern = "dap-repl",
+    command = "lua require('dap.ext.autocompl').attach()",
+    group = "ft",
+    desc = "Attach dap autocompletion",
+})
+
+create_autocmd("FileType", {
+    pattern = "*",
+    command = "setlocal formatoptions-=cro",
+    group = "ft",
+    desc = "Disable auto-commenting on newline",
+})
+
+create_autocmd("FileType", {
+    pattern = "c,cpp",
+    command = "nnoremap <leader>h :ClangdSwitchSourceHeaderVSplit<CR>",
+    group = "ft",
+    desc = "Set keymap for switching between source and header in C/C++",
+})
+
+-- Yank Highlight Autocommand
+create_autocmd("TextYankPost", {
+    pattern = "*",
+    command = "silent! lua vim.highlight.on_yank({higroup='IncSearch', timeout=300})",
+    group = "yank",
+    desc = "Highlight text on yank",
+})
