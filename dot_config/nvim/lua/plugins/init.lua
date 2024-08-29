@@ -188,9 +188,6 @@ local pluginlist = {
         event = {"CursorHold", "CursorHoldI"},
         keys = require("core.utils").generate_lazy_keys("blankline"),
         main = "ibl",
-        init = function()
-            require("core.utils").lazy_load "indent-blankline.nvim"
-        end,
         opts = function(_, opts)
             require("plugins.configs.others").blankline()
             if pcall(require, "indent-rainbowline") then
@@ -227,9 +224,6 @@ local pluginlist = {
     -- ╰─────────────────────────────────────────────────────────────────────────────────╯
     {
         "nvim-treesitter/nvim-treesitter",
-        init = function()
-            require("core.utils").lazy_load "nvim-treesitter"
-        end,
         cmd = {"TSInstall", "TSBufEnable", "TSBufDisable", "TSModuleInfo"},
         event = "BufReadPost",
         dependencies = {
