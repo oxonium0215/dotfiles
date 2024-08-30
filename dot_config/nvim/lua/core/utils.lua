@@ -1,5 +1,4 @@
 local M = {}
-local merge_tb = vim.tbl_deep_extend
 
 M.echo = function(str)
     vim.cmd "redraw"
@@ -18,11 +17,9 @@ end
 
 M.set_mappings = function(section, extra_opts)
     local mappings = require("mappings")[section]
-
     if not mappings then
         error("Invalid mappings section: " .. tostring(section))
     end
-
     for _, mapping in ipairs(mappings) do
         local mode, lhs, rhs, opts = unpack(mapping)
         if extra_opts then
@@ -34,39 +31,31 @@ end
 
 M.generate_lazy_keys = function(section)
   local mappings = require("mappings")[section]
-
   if not mappings then
       error("Invalid mappings section: " .. tostring(section))
   end
-
   local lazy_keys = {}
   for _, mapping in ipairs(mappings) do
     local mode = mapping[1]
     local lhs = mapping[2]
     local rhs = mapping[3]
     local opts = mapping[4] or {}
-
     if type(mode) == "table" then
       mode = table.concat(mode, "")
     end
-
     if type(rhs) == "function" then
       rhs = function() rhs() end
     end
-
     local lazy_key = {
       lhs,
       rhs,
       mode = mode,
     }
-
     for key, value in pairs(opts) do
       lazy_key[key] = value
     end
-
     table.insert(lazy_keys, lazy_key)
   end
-
   return lazy_keys
 end
 
@@ -80,31 +69,6 @@ M.lazy = function(install_path)
     -- install plugins
     require("plugins")
     M.echo "Setup finished!"
-end
-
--- Wrapper around vim.keymap.set that will
--- not create a keymap if a lazy key handler exists.
--- It will also set `silent` to true by default.
-M.safe_keymap_set = function(mode, lhs, rhs, opts)
-    local keys = require("lazy.core.handler").handlers.keys
-    ---@cast keys LazyKeysHandler
-    local modes = type(mode) == "string" and { mode } or mode
-
-    ---@param m string
-    modes = vim.tbl_filter(function(m)
-        return not (keys.have and keys:have(lhs, m))
-    end, modes)
-
-    -- do not create the keymap if a lazy keys handler exists
-    if #modes > 0 then
-        opts = opts or {}
-        opts.silent = opts.silent ~= false
-        if opts.remap and not vim.g.vscode then
-            ---@diagnostic disable-next-line: no-unknown
-            opts.remap = nil
-        end
-        vim.keymap.set(modes, lhs, rhs, opts)
-    end
 end
 
 M.toggleTerm = function(direction)
