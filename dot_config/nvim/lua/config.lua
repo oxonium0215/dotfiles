@@ -28,16 +28,6 @@ vim.o.timeoutlen = 400
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = 'menuone,noselect'
 
--- ヤンク時のハイライト
-local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true })
-vim.api.nvim_create_autocmd('TextYankPost', {
-  callback = function()
-    vim.highlight.on_yank()
-  end,
-  group = highlight_group,
-  pattern = '*',
-})
-
 -- Indenting
 vim.opt.expandtab = true
 vim.opt.shiftwidth = 4
@@ -49,7 +39,6 @@ vim.opt.smartindent = true
 vim.opt.laststatus = 3
 vim.opt.showmode = false
 
--- vim.opt.clipboard = "unnamedplus"
 vim.opt.cursorline = true
 
 vim.opt.fillchars = { eob = " " }
