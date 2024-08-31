@@ -1,24 +1,22 @@
--- ハイライトオンサーチ
+-- highlight on search
 vim.o.hlsearch = false
 
--- 行番号を表示
+-- show line number
 vim.wo.number = true
 
--- マウスモードを有効化
+-- enable mouse mode
 vim.o.mouse = 'a'
 
--- undoヒストリーを保存
+-- save undo history
 vim.o.undofile = true
 
--- ブレークインデント、startoflineを有効化
 vim.o.breakindent = true
 vim.opt.startofline = true
 
--- 検索
+-- search
 vim.o.ignorecase = true
 vim.o.smartcase = true
 
--- SignColumn
 vim.wo.signcolumn = 'yes'
 
 -- Decrease update time
@@ -70,6 +68,8 @@ end
 -- add binaries installed by mason.nvim to path
 local is_windows = vim.loop.os_uname().sysname == "Windows_NT"
 vim.env.PATH = vim.fn.stdpath "data" .. "/mason/bin" .. (is_windows and ";" or ":") .. vim.env.PATH
+
+vim.g.did_install_default_menus = 1
 
 -- ╭─────────────────────────────────────────────────────────────────────────────────╮
 -- │ ∘ Load autocmds                                                                 │
