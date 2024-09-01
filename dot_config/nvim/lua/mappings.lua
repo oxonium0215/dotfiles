@@ -23,11 +23,6 @@ M.general = {
   -- cheatsheet
   -- {"n", "<leader>ch", "<cmd>NvCheatsheet<CR>", { desc = "Toggle nvcheatsheet" }}
 
-  -- format
-  {"n", "<leader>fm", function()
-    require("conform").format { lsp_fallback = true }
-  end, { desc = "General Format file" }},
-
   -- global lsp mappings
   {"n", "<leader>ds", vim.diagnostic.setloclist, { desc = "LSP Diagnostic loclist" }},
 
