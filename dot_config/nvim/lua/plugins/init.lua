@@ -560,6 +560,14 @@ local pluginlist = {
         end
     },
     {
+        "stevearc/oil.nvim",
+        keys = require("core.utils").generate_lazy_keys("oil"),
+        cmd = {"Oil"},
+        dependencies = {
+            "nvim-tree/nvim-web-devicons"
+        }
+    },
+    {
         "akinsho/toggleterm.nvim",
         keys = require("core.utils").generate_lazy_keys("toggleterm"),
         cmd = {
