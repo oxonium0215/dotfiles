@@ -73,7 +73,7 @@ dashboard.section.buttons.val= {
             dashboard.button('<leader>n', '  New File',
                              ':enew | NvimTreeFocus<CR>',
                              { desc = 'New file' }),
-            dashboard.button('<leader>o', '  Old Files',
+            dashboard.button('<leader>r', '  Recent Files',
                              ':Telescope oldfiles<CR>',
                              { desc = 'Old files' }),
             dashboard.button('<leader>ff', '  Find File',
