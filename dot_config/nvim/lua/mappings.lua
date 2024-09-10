@@ -80,6 +80,10 @@ M.nvimtree = {
   {"n", "<leader>e", "<cmd>NvimTreeFocus<CR>", { desc = "nvimtree focus window" }},
 }
 
+M.oil = {
+    {"n", "<leader>o", "<cmd>Oil<CR>", { desc = "Open oil" }},
+}
+
 M.pounce = {
   {"n", "s", "<cmd>Pounce<CR>", { desc = "Pounce" }},
   {"n", "S", "<cmd>PounceRepeat<CR>", { desc = "Pounce Repeat" }},
