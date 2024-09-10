@@ -563,6 +563,7 @@ local pluginlist = {
         "stevearc/oil.nvim",
         keys = require("core.utils").generate_lazy_keys("oil"),
         cmd = {"Oil"},
+        opts = {},
         dependencies = {
             "nvim-tree/nvim-web-devicons"
         }
