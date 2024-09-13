@@ -1,1 +1,1 @@
-require("vscode-confige.plugins")
+require("vscode-config.plugins")
