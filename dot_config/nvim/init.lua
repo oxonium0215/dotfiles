@@ -11,7 +11,7 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 if vim.g.vscode then
-    require("vscode")
+    require("vscode-config")
 else
     require("plugins")
     -- colorschemeを設定
