@@ -54,7 +54,7 @@ M.lspconfig = {
   {"n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>", { desc = "LSP implementation" }},
   {"n", "<leader>ls", "<cmd>lua vim.lsp.buf.signature_help()<CR>", { desc = "LSP signature help" }},
   {"n", "<leader>D", "<cmd>lua vim.lsp.buf.type_definition()<CR>", { desc = "LSP definition type" }},
-  {"n", "<leader>ra", "<cmd>lua require('nvchad.renamer').open()<CR>", { desc = "LSP rename" }},
+  {"n", "<leader>ra", "<cmd>lua vim.lsp.buf.rename()<CR>", { desc = "LSP rename" }},
   {"n", "<leader>ca", "<cmd>lua vim.lsp.buf.code_action()<CR>", { desc = "LSP code action" }},
   {"n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", { desc = "LSP references" }},
   {"n", "<leader>f", "<cmd>lua vim.diagnostic.open_float { border = 'rounded' }<CR>", { desc = "Floating diagnostic" }},
@@ -120,7 +120,7 @@ M.fzf = {
   {"n", "<leader>cm", "<cmd>lua require('fzf-lua').git_commits()<CR>", { desc = "fzf-lua git commits" }},
   {"n", "<leader>gt", "<cmd>lua require('fzf-lua').git_status()<CR>", { desc = "fzf-lua git status" }},
   {"n", "<leader>pt", "<cmd>lua require('fzf-lua').builtin()<CR>", { desc = "fzf-lua pick hidden term" }},
-  {"n", "<leader>th", "<cmd>lua require('fzf-lua').colorschemes()<CR>", { desc = "fzf-lua nvchad themes" }},
+  {"n", "<leader>th", "<cmd>lua require('fzf-lua').colorschemes()<CR>", { desc = "fzf-lua themes" }},
   {"n", "<leader>ff", "<cmd>lua require('fzf-lua').files()<CR>", { desc = "fzf-lua find files" }},
   {"n", "<leader>fa", "<cmd>lua require('fzf-lua').files({ no_ignore = true, hidden = true, follow = true })<CR>", { desc = "fzf-lua find all files" }},
 }
@@ -135,7 +135,7 @@ M.telescope = {
   {"n", "<leader>cm", "<cmd>Telescope git_commits<CR>", { desc = "telescope git commits" }},
   {"n", "<leader>gt", "<cmd>Telescope git_status<CR>", { desc = "telescope git status" }},
   {"n", "<leader>pt", "<cmd>Telescope terms<CR>", { desc = "telescope pick hidden term" }},
-  {"n", "<leader>th", "<cmd>Telescope themes<CR>", { desc = "telescope nvchad themes" }},
+  {"n", "<leader>th", "<cmd>Telescope themes<CR>", { desc = "telescope themes" }},
   {"n", "<leader>ff", "<cmd>Telescope find_files<cr>", { desc = "telescope find files" }},
   {"n", "<leader>fa", "<cmd>Telescope find_files follow=true no_ignore=true hidden=true<CR>", { desc = "telescope find all files" }},
 }
