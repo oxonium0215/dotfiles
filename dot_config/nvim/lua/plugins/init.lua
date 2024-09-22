@@ -380,6 +380,7 @@ local pluginlist = {
     {
         "neovim/nvim-lspconfig",
         event = {"CursorHold", "CursorHoldI"},
+        keys = require("core.utils").generate_lazy_keys("lspconfig"),
         dependencies = {
             "mason.nvim", "mason-lspconfig.nvim"
         },
