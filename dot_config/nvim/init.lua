@@ -14,6 +14,5 @@ if vim.g.vscode then
     require("vscode-config")
 else
     require("plugins")
-    -- colorschemeを設定
-    vim.cmd("colorscheme onedark")
+    -- vim.cmd("colorscheme onedark")
 end

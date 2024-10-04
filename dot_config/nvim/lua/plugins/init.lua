@@ -129,60 +129,60 @@ local pluginlist = {
         end
     },
     -- colorscheme
-    {
-        {"EdenEast/nightfox.nvim", event = "BufWinEnter"},
-        {
-            "navarasu/onedark.nvim",
-            event = "BufWinEnter",
-            opts = {
-                --transparent = true,
-                lualine = {
-                    --transparent = true,
-                }
-            }
-        },
-        {"Mofiqul/vscode.nvim", event = "BufWinEnter"},
-        {"folke/tokyonight.nvim", event = "BufWinEnter"},
-        {"olivercederborg/poimandres.nvim", event = "BufWinEnter"},
-    },
-    {
-        "akinsho/bufferline.nvim",
-        event = {"BufReadPost", "BufAdd", "BufNewFile"},
-        keys = require("core.utils").generate_lazy_keys("bufferline"),
-        opts = function()
-            return require "plugins.configs.bufferline"
-        end,
-        dependencies = {
-            "famiu/bufdelete.nvim",
-        },
-        config = function(_, opts)
-            require("bufferline").setup(opts)
-            -- Fix bufferline when restoring a session
-            vim.api.nvim_create_autocmd(
-                "BufAdd",
-                {
-                    callback = function()
-                        vim.schedule(
-                            function()
-                                pcall(nvim_bufferline)
-                            end
-                        )
-                    end
-                }
-            )
-        end
-    },
-    {
-        "nvim-lualine/lualine.nvim",
-        event = {"BufReadPost", "BufAdd", "BufNewFile"},
-        dependencies = {},
-        config = function()
-            require("plugins.configs.lualine")
-        end
-    },
-    {
-        "brenoprata10/nvim-highlight-colors"
-    },
+    -- {
+    --     {"EdenEast/nightfox.nvim", event = "BufWinEnter"},
+    --     {
+    --         "navarasu/onedark.nvim",
+    --         event = "BufWinEnter",
+    --         opts = {
+    --             --transparent = true,
+    --             lualine = {
+    --                 --transparent = true,
+    --             }
+    --         }
+    --     },
+    --     {"Mofiqul/vscode.nvim", event = "BufWinEnter"},
+    --     {"folke/tokyonight.nvim", event = "BufWinEnter"},
+    --     {"olivercederborg/poimandres.nvim", event = "BufWinEnter"},
+    -- },
+    -- {
+    --     "akinsho/bufferline.nvim",
+    --     event = {"BufReadPost", "BufAdd", "BufNewFile"},
+    --     keys = require("core.utils").generate_lazy_keys("bufferline"),
+    --     opts = function()
+    --         return require "plugins.configs.bufferline"
+    --     end,
+    --     dependencies = {
+    --         "famiu/bufdelete.nvim",
+    --     },
+    --     config = function(_, opts)
+    --         require("bufferline").setup(opts)
+    --         -- Fix bufferline when restoring a session
+    --         vim.api.nvim_create_autocmd(
+    --             "BufAdd",
+    --             {
+    --                 callback = function()
+    --                     vim.schedule(
+    --                         function()
+    --                             pcall(nvim_bufferline)
+    --                         end
+    --                     )
+    --                 end
+    --             }
+    --         )
+    --     end
+    -- },
+    -- {
+    --     "nvim-lualine/lualine.nvim",
+    --     event = {"BufReadPost", "BufAdd", "BufNewFile"},
+    --     dependencies = {},
+    --     config = function()
+    --         require("plugins.configs.lualine")
+    --     end
+    -- },
+    -- {
+    --     "brenoprata10/nvim-highlight-colors"
+    -- },
     {
         "lukas-reineke/indent-blankline.nvim",
         event = {"CursorHold", "CursorHoldI"},
