@@ -35,6 +35,8 @@ M.general = {
   -- Comment
   {"n", "<leader>/", "gcc", { desc = "Toggle Comment", remap = true }},
   {"v", "<leader>/", "gc", { desc = "Toggle comment", remap = true }},
+
+  {"n", "<leader>th", "<cmd>lua require(\"nvchad.themes\").open()<CR>", { desc = "telescope themes" }},
 }
 
 M.bufferline = {
@@ -45,6 +47,11 @@ M.bufferline = {
   {"n", "<leader>bl", "<Cmd>BufferLineCloseLeft<CR>", { desc = "Delete buffers to the left" }},
   {"n", "<S-h>", "<Cmd>BufferLineCyclePrev<CR>", { desc = "Prev buffer" }},
   {"n", "<S-l>", "<Cmd>BufferLineCycleNext<CR>", { desc = "Next buffer" }},
+}
+
+M.tabufline = {
+  {"n", "<S-h>", "<Cmd>lua require(\"nvchad.tabufline\").prev()<CR>", { desc = "Prev buffer" }},
+  {"n", "<S-l>", "<Cmd>lua require(\"nvchad.tabufline\").next()<CR>", { desc = "Next buffer" }},
 }
 
 M.lspconfig = {
@@ -135,7 +142,6 @@ M.telescope = {
   {"n", "<leader>cm", "<cmd>Telescope git_commits<CR>", { desc = "telescope git commits" }},
   {"n", "<leader>gt", "<cmd>Telescope git_status<CR>", { desc = "telescope git status" }},
   {"n", "<leader>pt", "<cmd>Telescope terms<CR>", { desc = "telescope pick hidden term" }},
-  {"n", "<leader>th", "<cmd>Telescope themes<CR>", { desc = "telescope themes" }},
   {"n", "<leader>ff", "<cmd>Telescope find_files<cr>", { desc = "telescope find files" }},
   {"n", "<leader>fa", "<cmd>Telescope find_files follow=true no_ignore=true hidden=true<CR>", { desc = "telescope find all files" }},
 }

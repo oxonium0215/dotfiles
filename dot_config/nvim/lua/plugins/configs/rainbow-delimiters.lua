@@ -1,5 +1,6 @@
 -- This module contains a number of default definitions
 local rainbow_delimiters = require("rainbow-delimiters")
+-- dofile(vim.g.base46_cache .. "rainbowdelimiters")
 
 vim.g.rainbow_delimiters = {
   strategy = {
