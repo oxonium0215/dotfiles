@@ -130,7 +130,7 @@ local pluginlist = {
     },
     -- colorscheme
     {
-        {"EdenEast/nightfox.nvim", event = "BufWinEnter"},
+        -- {"EdenEast/nightfox.nvim", event = "BufWinEnter"},
         {
             "navarasu/onedark.nvim",
             event = "BufWinEnter",
@@ -141,9 +141,11 @@ local pluginlist = {
                 }
             }
         },
-        {"Mofiqul/vscode.nvim", event = "BufWinEnter"},
-        {"folke/tokyonight.nvim", event = "BufWinEnter"},
-        {"olivercederborg/poimandres.nvim", event = "BufWinEnter"},
+        -- { "catppuccin/nvim", name = "catppuccin", event = "BufWinEnter" },
+        -- {"Mofiqul/vscode.nvim", event = "BufWinEnter"},
+        -- {"folke/tokyonight.nvim", event = "BufWinEnter"},
+        -- {"olivercederborg/poimandres.nvim", event = "BufWinEnter"},
+        -- {"projekt0n/github-nvim-theme", event = "BufWinEnter"},
     },
     {
         "akinsho/bufferline.nvim",
