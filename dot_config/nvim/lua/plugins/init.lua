@@ -86,10 +86,6 @@ local pluginlist = {
         init = function()
             vim.notify = vim.schedule_wrap(require("notify"))
         end,
-        config = function(_, opts)
-            -- dofile(vim.g.base46_cache .. "notify")
-            require("notify").setup(opts)
-        end,
     },
     {
         "stevearc/dressing.nvim",
@@ -114,7 +110,7 @@ local pluginlist = {
         cmd = { "FineCmdline" },
         config = function()
           require('fine-cmdline').setup {
-                popup = {
+            popup = {
               position = {
                 row = '50%',
                 col = '50%'
@@ -130,26 +126,9 @@ local pluginlist = {
         "nvim-tree/nvim-web-devicons",
         enabled = function()
             return not os.getenv("DISABLE_DEVICONS") or os.getenv("DISABLE_DEVICONS") == "false"
-        end,
-        config = function()
-            dofile(vim.g.base46_cache .. "devicons")
-        end,
-    },
-    {
-        "nvchad/ui",
-        lazy = false,
-        keys = require("core.utils").generate_lazy_keys("tabufline"),
-        config = function()
-            require("nvchad")
-        end,
+        end
     },
     -- colorscheme
-    {
-        "nvchad/base46",
-        build = function()
-            require("base46").load_all_highlights()
-        end,
-    },
     -- {
     --     {"EdenEast/nightfox.nvim", event = "BufWinEnter"},
     --     {
@@ -219,7 +198,6 @@ local pluginlist = {
             "TheGLander/indent-rainbowline.nvim",
         },
         config = function(_, opts)
-        dofile(vim.g.base46_cache .. "blankline")
             require("ibl").setup(opts)
         end
     },
@@ -259,7 +237,6 @@ local pluginlist = {
             return require "plugins.configs.treesitter"
         end,
         config = function(_, opts)
-            dofile(vim.g.base46_cache .. "treesitter")
             require("nvim-treesitter.configs").setup(opts)
         end
     },
@@ -385,7 +362,6 @@ local pluginlist = {
             return require "plugins.configs.cmp"
         end,
         config = function(_, opts)
-            dofile(vim.g.base46_cache .. "cmp")
             require("cmp").setup(opts)
         end
     },
@@ -419,7 +395,6 @@ local pluginlist = {
             return require "plugins.configs.mason"
         end,
         config = function(_, opts)
-            dofile(vim.g.base46_cache .. "mason")
             require("mason").setup(opts)
 
             -- custom cmd to install all mason binaries listed
@@ -558,7 +533,6 @@ local pluginlist = {
         end,
         config = function(_, opts)
             local telescope = require "telescope"
-            dofile(vim.g.base46_cache .. "telescope")
             telescope.setup(opts)
             -- load extensions
             for _, ext in ipairs(opts.extensions_list) do
@@ -583,7 +557,6 @@ local pluginlist = {
             return require "plugins.configs.nvim-tree"
         end,
         config = function(_, opts)
-        dofile(vim.g.base46_cache .. "nvimtree")
             require("nvim-tree").setup(opts)
         end
     },
