@@ -136,7 +136,7 @@ local pluginlist = {
             event = "BufWinEnter",
             opts = {
                 --transparent = true,
-                style = "darker",
+                style = "cool",
                 lualine = {
                     --transparent = true,
                 }
