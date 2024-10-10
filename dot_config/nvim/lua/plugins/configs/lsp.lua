@@ -21,6 +21,12 @@ lspconfig.clangd.setup {
     "clangd",
     "--offset-encoding=utf-16",
   },
+  init_options = {
+    clangdFileStatus = true,
+    usePlaceholders = true,
+    completeUnimported = true,
+    semanticHighlighting = true,
+  },
 }
 
 -- Without the loop, you would have to manually set up each LSP 
