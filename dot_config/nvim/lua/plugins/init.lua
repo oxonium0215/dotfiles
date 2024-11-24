@@ -136,7 +136,7 @@ local pluginlist = {
             event = "BufWinEnter",
             opts = {
                 --transparent = true,
-                style = "cool",
+                style = "darker",
                 lualine = {
                     --transparent = true,
                 }
@@ -193,9 +193,9 @@ local pluginlist = {
         main = "ibl",
         opts = function(_, opts)
             require("plugins.configs.others").blankline()
-            if pcall(require, "indent-rainbowline") then
-                return require("indent-rainbowline").make_opts(opts)
-            end
+            -- if pcall(require, "indent-rainbowline") then
+            --     return require("indent-rainbowline").make_opts(opts)
+            -- end
         end,
         dependencies = {
             "TheGLander/indent-rainbowline.nvim",
