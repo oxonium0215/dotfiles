@@ -200,9 +200,6 @@ local pluginlist = {
         dependencies = {
             -- "TheGLander/indent-rainbowline.nvim",
         },
-        config = function(_, opts)
-            require("ibl").setup(opts)
-        end
     },
 
     -- ╭─────────────────────────────────────────────────────────────────────────────────╮
@@ -217,10 +214,7 @@ local pluginlist = {
         "phaazon/hop.nvim",
         keys = require("core.utils").generate_lazy_keys("hop"),
         branch = "v2",
-        config = function()
-            -- you can configure Hop the way you like here; see :h hop-config
-            require "hop".setup {keys = "etovxqpdygfblzhckisuran"}
-        end
+        opts = {},
     },
     -- ╭─────────────────────────────────────────────────────────────────────────────────╮
     -- │ ∘ Treesitter                                                                    │
@@ -239,9 +233,6 @@ local pluginlist = {
         opts = function()
             return require "plugins.configs.treesitter"
         end,
-        config = function(_, opts)
-            require("nvim-treesitter.configs").setup(opts)
-        end
     },
     {
         "HiPhish/rainbow-delimiters.nvim",
@@ -284,9 +275,6 @@ local pluginlist = {
         opts = function()
             return require("plugins.configs.others").gitsigns
         end,
-        config = function(_, opts)
-            require("gitsigns").setup(opts)
-        end
     },
     -- ╭─────────────────────────────────────────────────────────────────────────────────╮
     -- │ ∘ cmp                                                                           │
@@ -364,9 +352,6 @@ local pluginlist = {
         opts = function()
             return require "plugins.configs.cmp"
         end,
-        config = function(_, opts)
-            require("cmp").setup(opts)
-        end
     },
     {
         "j-hui/fidget.nvim",
@@ -559,9 +544,6 @@ local pluginlist = {
         opts = function()
             return require "plugins.configs.nvim-tree"
         end,
-        config = function(_, opts)
-            require("nvim-tree").setup(opts)
-        end
     },
     {
         "stevearc/oil.nvim",
@@ -595,37 +577,28 @@ local pluginlist = {
         build = "sh install.sh",
         -- do 'sh install.sh 1' if you want to force compile locally
         -- (instead of fetching a binary from the github release). Requires Rust >= 1.65
-
-        config = function()
-            require("sniprun").setup(
-                {
-                    display = {"Terminal", "NvimNotifyErr"},
-                    display_options = {
-                        terminal_scrollback = vim.o.scrollback, -- change terminal display scrollback lines
-                        terminal_line_number = false, -- whether show line number in terminal window
-                        terminal_signcolumn = false, -- whether show signcolumn in terminal window
-                        terminal_width = 35
-                    },
-                    inline_messages = 0,
-                    borders = "single"
-                }
-            )
-        end
+        opts = {
+            display = {"Terminal", "NvimNotifyErr"},
+            display_options = {
+                terminal_scrollback = vim.o.scrollback, -- change terminal display scrollback lines
+                terminal_line_number = false, -- whether show line number in terminal window
+                terminal_signcolumn = false, -- whether show signcolumn in terminal window
+                terminal_width = 35
+            },
+            inline_messages = 0,
+            borders = "single",
+        },
     },
     {
         "stevearc/overseer.nvim",
         keys = require("core.utils").generate_lazy_keys("overseer"),
         cmd = {"OverseerRun"},
-        config = function()
-            require("overseer").setup(
-                {
-                    templates = {"builtin", "user.cpp_build", "user.run_script"},
-                    strategy = {
-                        "toggleterm"
-                    }
-                }
-            )
-        end,
+        opts = {
+            templates = {"builtin", "user.cpp_build", "user.run_script"},
+            strategy = {
+                "toggleterm"
+            }
+        },
         dependencies = {
             "mfussenegger/nvim-dap"
         }
