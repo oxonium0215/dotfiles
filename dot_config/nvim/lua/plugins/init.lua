@@ -198,7 +198,7 @@ local pluginlist = {
             -- end
         end,
         dependencies = {
-            "TheGLander/indent-rainbowline.nvim",
+            -- "TheGLander/indent-rainbowline.nvim",
         },
         config = function(_, opts)
             require("ibl").setup(opts)
