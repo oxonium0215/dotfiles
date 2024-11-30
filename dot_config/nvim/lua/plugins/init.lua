@@ -31,7 +31,7 @@ local pluginlist = {
     },
     {
         "yorickpeterse/nvim-window",
-        keys = require("core.utils").generate_lazy_keys("nvimwindow"),
+        keys = require("core.utils").generate_lazy_keys("nvimwindow")
     },
     {
         "m4xshen/hardtime.nvim",
@@ -40,7 +40,7 @@ local pluginlist = {
         opts = {
             disable_mouse = false,
             disabled_filetypes = {"qf", "alpha", "NvimTree", "lazy", "mason", "oil", "toggleterm"},
-            max_count = 10,
+            max_count = 10
         }
     },
     -- Lua Library
@@ -80,27 +80,27 @@ local pluginlist = {
                 return math.floor(vim.o.columns * 0.75)
             end,
             on_open = function(win)
-                vim.api.nvim_win_set_config(win, { zindex = 100 })
-            end,
+                vim.api.nvim_win_set_config(win, {zindex = 100})
+            end
         },
         init = function()
             vim.notify = vim.schedule_wrap(require("notify"))
-        end,
+        end
     },
     {
         "stevearc/dressing.nvim",
         init = function()
             ---@diagnostic disable-next-line: duplicate-set-field
             vim.ui.select = function(...)
-                require("lazy").load({ plugins = { "dressing.nvim" } })
+                require("lazy").load({plugins = {"dressing.nvim"}})
                 return vim.ui.select(...)
             end
             ---@diagnostic disable-next-line: duplicate-set-field
             vim.ui.input = function(...)
-                require("lazy").load({ plugins = { "dressing.nvim" } })
+                require("lazy").load({plugins = {"dressing.nvim"}})
                 return vim.ui.input(...)
             end
-        end,
+        end
     },
     -- Cmdline
     --[[
@@ -109,14 +109,14 @@ local pluginlist = {
         keys = require("mappings").cmdline,
         cmd = { "FineCmdline" },
         config = function()
-          require('fine-cmdline').setup {
-            popup = {
-              position = {
-                row = '50%',
-                col = '50%'
-              }
+            require('fine-cmdline').setup {
+                popup = {
+                    position = {
+                        row = '50%',
+                        col = '50%'
+                    }
+                }
             }
-          }
         end,
         dependencies = {"MunifTanjim/nui.nvim"},
     },
@@ -137,11 +137,9 @@ local pluginlist = {
             opts = {
                 --transparent = true,
                 style = "darker",
-                lualine = {
-                    --transparent = true,
-                }
+                lualine = {}
             }
-        },
+        }
         -- { "catppuccin/nvim", name = "catppuccin", event = "BufWinEnter" },
         -- {"Mofiqul/vscode.nvim", event = "BufWinEnter"},
         -- {"folke/tokyonight.nvim", event = "BufWinEnter"},
@@ -156,7 +154,7 @@ local pluginlist = {
             return require "plugins.configs.bufferline"
         end,
         dependencies = {
-            "famiu/bufdelete.nvim",
+            "famiu/bufdelete.nvim"
         },
         config = function(_, opts)
             require("bufferline").setup(opts)
@@ -187,21 +185,21 @@ local pluginlist = {
         "brenoprata10/nvim-highlight-colors"
     },
     {
-        "lukas-reineke/indent-blankline.nvim",
-        event = {"CursorHold", "CursorHoldI"},
-        keys = require("core.utils").generate_lazy_keys("blankline"),
-        main = "ibl",
-        opts = function(_, opts)
-            require("plugins.configs.others").blankline()
-            -- if pcall(require, "indent-rainbowline") then
-            --     return require("indent-rainbowline").make_opts(opts)
-            -- end
+        "shellRaining/hlchunk.nvim",
+        event = { "BufReadPre", "BufNewFile" },
+        opts = function()
+            return require("plugins.configs.hlchunk")
         end,
-        dependencies = {
-            -- "TheGLander/indent-rainbowline.nvim",
-        },
     },
-
+    -- {
+    --     "lukas-reineke/indent-blankline.nvim",
+    --     event = {"CursorHold", "CursorHoldI"},
+    --     keys = require("core.utils").generate_lazy_keys("blankline"),
+    --     main = "ibl",
+    --     opts = function()
+    --         require("plugins.configs.others").blankline()
+    --     end,
+    -- },
     -- ╭─────────────────────────────────────────────────────────────────────────────────╮
     -- │ ∘ Easymotion                                                                    │
     -- ╰─────────────────────────────────────────────────────────────────────────────────╯
@@ -214,7 +212,7 @@ local pluginlist = {
         "phaazon/hop.nvim",
         keys = require("core.utils").generate_lazy_keys("hop"),
         branch = "v2",
-        opts = {},
+        opts = {}
     },
     -- ╭─────────────────────────────────────────────────────────────────────────────────╮
     -- │ ∘ Treesitter                                                                    │
@@ -232,7 +230,7 @@ local pluginlist = {
         build = ":TSUpdate",
         opts = function()
             return require "plugins.configs.treesitter"
-        end,
+        end
     },
     {
         "HiPhish/rainbow-delimiters.nvim",
@@ -240,8 +238,8 @@ local pluginlist = {
         config = function()
             require "plugins.configs.rainbow-delimiters"
             -- patch https://github.com/nvim-treesitter/nvim-treesitter/issues/1124
-            if vim.fn.expand('%:p') ~= "" then
-                vim.cmd.edit({ bang = true })
+            if vim.fn.expand("%:p") ~= "" then
+                vim.cmd.edit({bang = true})
             end
         end
     },
@@ -274,7 +272,7 @@ local pluginlist = {
         end,
         opts = function()
             return require("plugins.configs.others").gitsigns
-        end,
+        end
     },
     -- ╭─────────────────────────────────────────────────────────────────────────────────╮
     -- │ ∘ cmp                                                                           │
@@ -351,16 +349,14 @@ local pluginlist = {
         },
         opts = function()
             return require "plugins.configs.cmp"
-        end,
+        end
     },
     {
         "j-hui/fidget.nvim",
         event = "VeryLazy",
         opts = {
-            notification = {
-                -- override_vim_notify = true,
-            },
-        },
+            notification = {}
+        }
     },
     -- ╭─────────────────────────────────────────────────────────────────────────────────╮
     -- │ ∘ LSP & DAP                                                                     │
@@ -370,11 +366,12 @@ local pluginlist = {
         event = {"CursorHold", "CursorHoldI"},
         keys = require("core.utils").generate_lazy_keys("lspconfig"),
         dependencies = {
-            "mason.nvim", "mason-lspconfig.nvim"
+            "mason.nvim",
+            "mason-lspconfig.nvim"
         },
         config = function()
-            require ("plugins.configs.lspconfig").defaults()
-        end,
+            require("plugins.configs.lspconfig").defaults()
+        end
     },
     {
         "williamboman/mason.nvim",
@@ -419,9 +416,9 @@ local pluginlist = {
                 end
             },
             {
-                "weilbith/nvim-lsp-smag",
-            },
-        },
+                "weilbith/nvim-lsp-smag"
+            }
+        }
     },
     {
         "mfussenegger/nvim-dap",
@@ -430,7 +427,7 @@ local pluginlist = {
             -- Creates a beautiful debugger UI
             {
                 "rcarriga/nvim-dap-ui",
-                dependencies = {"nvim-neotest/nvim-nio"},
+                dependencies = {"nvim-neotest/nvim-nio"}
             },
             -- Installs the debug adapters for you
             "williamboman/mason.nvim",
@@ -543,7 +540,7 @@ local pluginlist = {
         },
         opts = function()
             return require "plugins.configs.nvim-tree"
-        end,
+        end
     },
     {
         "stevearc/oil.nvim",
@@ -586,8 +583,8 @@ local pluginlist = {
                 terminal_width = 35
             },
             inline_messages = 0,
-            borders = "single",
-        },
+            borders = "single"
+        }
     },
     {
         "stevearc/overseer.nvim",

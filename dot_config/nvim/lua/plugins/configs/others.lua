@@ -81,26 +81,26 @@ M.luasnip = function(opts)
                 if
                     require("luasnip").session.current_nodes[vim.api.nvim_get_current_buf()] and
                     not require("luasnip").session.jump_active
-                then
-                    require("luasnip").unlink_current()
+                    then
+                        require("luasnip").unlink_current()
+                    end
                 end
-            end
-        }
-    )
-end
-
-M.gitsigns = {
-    signs = {
-        add = {text = ""},
-        change = {text = ""},
-        delete = {text = ""},
-        topdelete = {text = ""},
-        changedelete = {text = ""},
-        untracked = {text = ""},
-    },
-    on_attach = function(bufnr)
-        utils.set_mappings("gitsigns", {buffer = bufnr})
+            }
+        )
     end
-}
 
-return M
+    M.gitsigns = {
+        signs = {
+            add = {text = ""},
+            change = {text = ""},
+            delete = {text = ""},
+            topdelete = {text = ""},
+            changedelete = {text = ""},
+            untracked = {text = ""},
+        },
+        on_attach = function(bufnr)
+            utils.set_mappings("gitsigns", {buffer = bufnr})
+        end
+    }
+
+    return M
