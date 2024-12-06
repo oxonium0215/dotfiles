@@ -133,7 +133,7 @@ local pluginlist = {
         -- {"EdenEast/nightfox.nvim", event = "BufWinEnter"},
         {
             "navarasu/onedark.nvim",
-            event = "BufWinEnter",
+            lazy = false,
             opts = {
                 --transparent = true,
                 style = "darker",
