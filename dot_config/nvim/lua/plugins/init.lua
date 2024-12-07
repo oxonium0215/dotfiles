@@ -189,7 +189,9 @@ local pluginlist = {
         end
     },
     {
-        "brenoprata10/nvim-highlight-colors"
+        "brenoprata10/nvim-highlight-colors",
+        event = "BufReadPost",
+        opts = {},
     },
     {
         "shellRaining/hlchunk.nvim",
@@ -327,7 +329,6 @@ local pluginlist = {
                         "ray-x/cmp-treesitter", -- Treesitter用
                         "lukas-reineke/cmp-rg", -- ripgrep用
                         "petertriho/cmp-git",
-                        "roobert/tailwindcss-colorizer-cmp.nvim",
                         "lukas-reineke/cmp-under-comparator", -- 補完並び替え
                     }
                 },

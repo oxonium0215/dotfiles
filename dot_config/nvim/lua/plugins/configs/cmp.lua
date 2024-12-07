@@ -1,7 +1,6 @@
 local cmp = require("cmp")
 local luasnip = require("luasnip")
 local lspkind = require("lspkind")
-local tailwindcss_cmp = require("tailwindcss-colorizer-cmp")
 local vscodesnippets = require("luasnip.loaders.from_vscode")
 
 cmp.setup({
@@ -74,10 +73,14 @@ cmp.setup({
   formatting = {
       fields = { "abbr", "kind", "menu" },
       format = function(entry, item)
+          local color_item = require("nvim-highlight-colors").format(entry, { kind = item.kind })
           -- Apply apply lspkind formatter
           item = lspkind.cmp_format({ with_text = true, maxwidth = 50 })(entry, item)
-          -- Then apply tailwindcss-colorizer-cmp formatter
-          return tailwindcss_cmp.formatter(entry, item)
+          if color_item.abbr_hl_group then
+              item.kind_hl_group = color_item.abbr_hl_group
+              item.kind = color_item.abbr
+          end
+          return item
       end,
   },
 
