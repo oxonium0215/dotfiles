@@ -74,7 +74,7 @@ cmp.setup({
       fields = { "abbr", "kind", "menu" },
       format = function(entry, item)
           local color_item = require("nvim-highlight-colors").format(entry, { kind = item.kind })
-          -- Apply apply lspkind formatter
+          -- Apply lspkind formatter
           item = lspkind.cmp_format({ with_text = true, maxwidth = 50 })(entry, item)
           if color_item.abbr_hl_group then
               item.kind_hl_group = color_item.abbr_hl_group
