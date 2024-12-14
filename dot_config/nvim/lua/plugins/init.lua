@@ -141,6 +141,7 @@ local pluginlist = {
         {
             "navarasu/onedark.nvim",
             lazy = false,
+            priority = 1000,
             opts = {
                 --transparent = true,
                 style = "darker",
