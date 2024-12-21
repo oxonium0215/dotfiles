@@ -1,5 +1,4 @@
 vim.loader.enable()
-if vim.loader then vim.loader.enable() end
 require("config")
 require("core.utils").set_mappings("general")
 local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
