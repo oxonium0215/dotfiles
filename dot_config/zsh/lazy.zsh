@@ -14,6 +14,10 @@ export EDITOR=nvim
 export SHELL=/bin/zsh
 export MANPAGER='nvim +Man!'
 export ZF_PROMPT=`echo "\033[36mzf ❯ \033[m"`
+# Check if sccache is available
+if command -v sccache >/dev/null 2>&1; then
+  export RUSTC_WRAPPER=sccache
+fi
 # colorize
 export LESS_TERMCAP_mb=$'\e[1;32m'
 export LESS_TERMCAP_md=$'\e[1;32m'
