@@ -223,3 +223,11 @@ create_autocmd("TextYankPost", {
     group = "yank",
     desc = "Highlight text on yank",
 })
+
+-- Show line diagnostics automatically in hover window
+create_autocmd({ "CursorHold", "CursorHoldI" }, {
+  group = vim.api.nvim_create_augroup("float_diagnostic", { clear = true }),
+  callback = function ()
+    vim.diagnostic.open_float(nil, {focus=false})
+  end
+})
