@@ -377,6 +377,7 @@ local pluginlist = {
             },
             {
                 "folke/trouble.nvim",
+                keys = require("core.utils").generate_lazy_keys("trouble"),
                 opts = function()
                     return require "plugins.configs.trouble"
                 end,

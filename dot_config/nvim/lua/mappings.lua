@@ -66,6 +66,15 @@ M.lspconfig = {
   {"n", "<leader>wl", "<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>", { desc = "List workspace folders" }},
 }
 
+M.trouble = {
+    {"n", "<leader>xx", "<cmd>Trouble diagnostics toggle<CR>", { desc = "Trouble diagnostic toggle" }},
+    {"n", "<leader>xX", "<cmd>Trouble diagnostics toggle filter.buf=0<CR>", { desc = "Trouble diagnostics toggle (Buffer)" }},
+    {"n", "<leader>cs", "<cmd>Trouble symbols toggle<CR>", { desc = "Trouble symbols toggle" }},
+    {"n", "<leader>cS", "<cmd> Trouble lsp toggle<CR>", { desc = "LSP references/definitions/..." }},
+    {"n", "<leader>xL", "<cmd>Trouble loclist toggle<cr>", { desc = "Location List (Trouble)" }},
+    {"n", "<leader>xQ", "<cmd>Trouble qflist toggle<cr>", { desc = "Quickfix List (Trouble)" }},
+}
+
 M.dap = {
   {"n", "<F5>", function() require'dap'.continue() end, { desc = "Debug: Start/Continue" }},
   {"n","<F1>", function() require'dap'.step_into() end, { desc = "Debug: Step Into" }},
