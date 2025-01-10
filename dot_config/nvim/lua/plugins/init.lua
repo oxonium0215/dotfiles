@@ -376,6 +376,13 @@ local pluginlist = {
                 end
             },
             {
+                "folke/trouble.nvim",
+                opts = function()
+                    return require "plugins.configs.trouble"
+                end,
+                cmd = {"Trouble"},
+            },
+            {
                 "williamboman/mason.nvim",
                 cmd = {"Mason", "MasonInstall", "MasonInstallAll", "MasonUninstall", "MasonUninstallAll", "MasonLog"},
                 opts = function()
