@@ -1,3 +1,5 @@
+local icons = require("core.icons")
+
 -- highlight on search
 vim.o.hlsearch = false
 
@@ -59,6 +61,37 @@ vim.opt.termguicolors = true
 vim.opt.whichwrap:append "<>[]hl"
 
 vim.g.mapleader = " "
+
+-- Get diagnostic icons
+local diagnostic_icons = icons.get("diagnostics")
+
+-- Define icons for each diagnostic severity using icons.get
+local signs = {
+  [vim.diagnostic.severity.ERROR] = diagnostic_icons.Error,
+  [vim.diagnostic.severity.WARN]  = diagnostic_icons.Warning,
+  [vim.diagnostic.severity.INFO]  = diagnostic_icons.Information,
+  [vim.diagnostic.severity.HINT]  = diagnostic_icons.Hint,
+}
+
+-- Configure diagnostic display
+vim.diagnostic.config({
+  virtual_text = {
+    prefix = function(diagnostic)
+      return signs[diagnostic.severity]
+    end,
+  },
+})
+
+-- Use diagnostic icons for sign definitions
+for name, icon in pairs({
+  Error = diagnostic_icons.Error,
+  Warn = diagnostic_icons.Warning,
+  Info = diagnostic_icons.Information,
+  Hint = diagnostic_icons.Hint,
+}) do
+  local hl = "DiagnosticSign" .. name
+  vim.fn.sign_define(hl, { text = icon, numhl = hl, texthl = hl })
+end
 
 -- disable some default providers
 for _, provider in ipairs { "node", "perl", "python3", "ruby" } do
