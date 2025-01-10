@@ -375,6 +375,14 @@ local pluginlist = {
                     require("plugins.configs.lspconfig").defaults()
                 end
             },
+            -- {
+            --     "rachartier/tiny-inline-diagnostic.nvim",
+            --     event = "VeryLazy",
+            --     priority = 1000,
+            --     opts = function()
+            --         return require("plugins.configs.tiny-inline-diagnostic")
+            --     end
+            -- },
             {
                 "folke/trouble.nvim",
                 keys = require("core.utils").generate_lazy_keys("trouble"),
