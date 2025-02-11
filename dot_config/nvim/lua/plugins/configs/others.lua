@@ -98,6 +98,7 @@ M.luasnip = function(opts)
             changedelete = {text = ""},
             untracked = {text = ""},
         },
+        current_line_blame = true,
         on_attach = function(bufnr)
             utils.set_mappings("gitsigns", {buffer = bufnr})
         end
