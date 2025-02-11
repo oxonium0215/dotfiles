@@ -1,5 +1,6 @@
-local options = {
-  ensure_installed = { "c", "cpp", "lua", "javascript", "markdown", "rust", "json", "yaml" },
+return {
+  auto_install = false,
+  ensure_installed = {},
 
   highlight = {
     enable = true,
@@ -8,5 +9,3 @@ local options = {
 
   indent = { enable = true },
 }
-
-return options

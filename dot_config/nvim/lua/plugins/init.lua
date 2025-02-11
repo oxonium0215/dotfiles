@@ -364,15 +364,49 @@ local pluginlist = {
             -- │ ∘ LSP & DAP                                                                     │
             -- ╰─────────────────────────────────────────────────────────────────────────────────╯
             {
-                "neovim/nvim-lspconfig",
-                event = {"CursorHold", "CursorHoldI"},
-                keys = require("core.utils").generate_lazy_keys("lspconfig"),
+                "williamboman/mason.nvim",
+                cmd = "Mason",
+                opts = function()
+                    return require("plugins.configs.mason")
+                end,
+                config = function(_, opts)
+                    require("mason").setup(opts)
+                    vim.g.mason_binaries_list = opts.ensure_installed
+                end
+            },
+            {
+                "williamboman/mason-lspconfig.nvim",
+                event = "BufReadPre",
+                config = function()
+                    require("plugins.configs.lsp").setup()
+                end,
                 dependencies = {
+                    "neovim/nvim-lspconfig",
                     "mason.nvim",
-                    "mason-lspconfig.nvim"
+                    "jay-babu/mason-null-ls.nvim",
+                    "folke/neoconf.nvim",
+                    "folke/neodev.nvim"
+                }
+            },
+            {
+                "jay-babu/mason-null-ls.nvim",
+                event = "BufReadPre",
+                dependencies = {
+                    "williamboman/mason.nvim",
+                    "nvimtools/none-ls.nvim"
                 },
                 config = function()
-                    require("plugins.configs.lspconfig").defaults()
+                    require("mason-null-ls").setup({
+                        automatic_installation = true,
+                        handlers = {}
+                    })
+                end
+            },
+            {
+                "nvimtools/none-ls.nvim",
+                event = "BufReadPre",
+                config = function()
+                    require("plugins.configs.null-ls")
                 end
             },
             -- {
@@ -390,53 +424,6 @@ local pluginlist = {
                     return require "plugins.configs.trouble"
                 end,
                 cmd = {"Trouble"},
-            },
-            {
-                "williamboman/mason.nvim",
-                cmd = {"Mason", "MasonInstall", "MasonInstallAll", "MasonUninstall", "MasonUninstallAll", "MasonLog"},
-                opts = function()
-                    return require "plugins.configs.mason"
-                end,
-                config = function(_, opts)
-                    require("mason").setup(opts)
-
-                    -- custom cmd to install all mason binaries listed
-                    vim.api.nvim_create_user_command(
-                        "MasonInstallAll",
-                        function()
-                            vim.cmd("MasonInstall " .. table.concat(opts.ensure_installed, " "))
-                        end,
-                        {}
-                    )
-
-                    vim.g.mason_binaries_list = opts.ensure_installed
-                end
-            },
-            {
-                "williamboman/mason-lspconfig.nvim",
-                event = "BufReadPre",
-                config = function()
-                    require("plugins.configs.mason-lspconfig")
-                end,
-                dependencies = {
-                    {
-                        "folke/neoconf.nvim",
-                        config = function()
-                            require("plugins.configs.neoconf")
-                            require "plugins.configs.lspconfig"
-                            require "plugins.configs.lsp"
-                        end
-                    },
-                    {
-                        "folke/neodev.nvim",
-                        config = function()
-                            require("plugins.configs.neodev")
-                        end
-                    },
-                    {
-                        "weilbith/nvim-lsp-smag"
-                    }
-                }
             },
             {
                 "mfussenegger/nvim-dap",
