@@ -57,7 +57,7 @@ M.lspconfig = {
   {"n", "<leader>ra", "<cmd>lua vim.lsp.buf.rename()<CR>", { desc = "LSP rename" }},
   {"n", "<leader>ca", "<cmd>lua vim.lsp.buf.code_action()<CR>", { desc = "LSP code action" }},
   {"n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", { desc = "LSP references" }},
-  {"n", "<leader>f", "<cmd>lua vim.diagnostic.open_float { border = 'rounded' }<CR>", { desc = "Floating diagnostic" }},
+  {"n", "<leader>f", "<cmd>lua smart_format()<CR>", { desc = "Format current buffer" }},
   {"n", "[d", "<cmd>lua vim.diagnostic.goto_prev { float = { border = 'rounded' } }<CR>", { desc = "Goto prev" }},
   {"n", "]d", "<cmd>lua vim.diagnostic.goto_next { float = { border = 'rounded' } }<CR>", { desc = "Goto next" }},
   {"n", "<leader>q", "<cmd>lua vim.diagnostic.setloclist()<CR>", { desc = "Diagnostic setloclist" }},
