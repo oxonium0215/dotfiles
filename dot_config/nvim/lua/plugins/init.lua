@@ -323,6 +323,7 @@ local pluginlist = {
                         end
                     },
                     {
+                        "hrsh7th/cmp-cmdline", -- コマンドライン補完用
                         "hrsh7th/cmp-path", -- パス補完用
                         "hrsh7th/cmp-buffer", -- バッファ補完用
                         "hrsh7th/cmp-nvim-lua", -- Lua補完用
