@@ -1,49 +1,66 @@
--- All plugins have lazy=true by default,to load a plugin on startup just lazy=false
--- List of all default plugins & their definitions
 local pluginlist = {
-    -- ╭─────────────────────────────────────────────────────────────────────────────────╮
-    -- │ ∘ Other                                                                         │
-    -- ╰─────────────────────────────────────────────────────────────────────────────────╯
-    -- Lua Library
-    {"nvim-lua/popup.nvim"},
-    {"nvim-lua/plenary.nvim"},
-    {"kkharji/sqlite.lua"},
-    {"MunifTanjim/nui.nvim"},
-    -- ╭─────────────────────────────────────────────────────────────────────────────────╮
-    -- │ ∘ UI                                                                            │
-    -- ╰─────────────────────────────────────────────────────────────────────────────────╯
-    -- Font
+    -- Essential Lua Libraries
+    { "nvim-lua/plenary.nvim" }, -- Required by many plugins
+
+    -- Syntax & Language Support
     {
-        "nvim-tree/nvim-web-devicons",
-        enabled = function()
-            return not os.getenv("DISABLE_DEVICONS") or os.getenv("DISABLE_DEVICONS") == "false"
-        end
+        "nvim-treesitter/nvim-treesitter",
+        cmd = { "TSInstall", "TSBufEnable", "TSBufDisable", "TSModuleInfo" },
+        event = "BufReadPost",
+        build = ":TSUpdate",
+        opts = function()
+            return require("plugins.configs.treesitter")
+        end,
     },
-    -- ╭─────────────────────────────────────────────────────────────────────────────────╮
-    -- │ ∘ Easymotion                                                                    │
-    -- ╰─────────────────────────────────────────────────────────────────────────────────╯
+
+    -- Autocompletion
     {
-        "rlane/pounce.nvim",
-        keys = require("core.utils").generate_lazy_keys("pounce"),
-        cmd = {"Pounce", "PounceRepeat"}
-    },
-    {
-        "phaazon/hop.nvim",
-        branch = "v2",
-        keys = require("core.utils").generate_lazy_keys("hop"),
+        "hrsh7th/nvim-cmp",
+        event = "InsertEnter",
+        dependencies = {
+            "L3MON4D3/LuaSnip",
+            "rafamadriz/friendly-snippets",
+            "windwp/nvim-autopairs",
+            "hrsh7th/cmp-cmdline",        -- コマンドライン補完用
+            "hrsh7th/cmp-path",           -- パス補完用
+            "hrsh7th/cmp-buffer",         -- バッファ補完用
+            "hrsh7th/cmp-nvim-lua",       -- Lua補完用
+            "saadparwaiz1/cmp_luasnip",   -- LuaSnip用
+            "hrsh7th/cmp-nvim-lsp",       -- lsp補完用
+            "hrsh7th/cmp-nvim-lsp-signature-help", -- 関数
+            "hrsh7th/cmp-emoji",          -- emoji用
+            "hrsh7th/cmp-calc",           -- 計算用
+            "ray-x/cmp-treesitter",       -- Treesitter用
+            "lukas-reineke/cmp-rg",       -- ripgrep用
+            "petertriho/cmp-git",
+            "lukas-reineke/cmp-under-comparator", -- 補完並び替え
+        },
         config = function()
-            -- you can configure Hop the way you like here; see :h hop-config
-            require "hop".setup {keys = "etovxqpdygfblzhckisuran"}
-        end
+            return require("plugins.configs.cmp")
+        end,
     },
-    -- ╭─────────────────────────────────────────────────────────────────────────────────╮
-    -- │ ∘ cmp                                                                           │
-    -- ╰─────────────────────────────────────────────────────────────────────────────────╯
+
+    -- Improved UI Inputs
     {
-        "j-hui/fidget.nvim",
-        tag = "legacy",
-        event = "LspAttach",
-        opts = {}
+        "stevearc/dressing.nvim",
+        init = function()
+            vim.ui.select = function(...)
+                require("lazy").load({ plugins = { "dressing.nvim" } })
+                return vim.ui.select(...)
+            end
+            vim.ui.input = function(...)
+                require("lazy").load({ plugins = { "dressing.nvim" } })
+                return vim.ui.input(...)
+            end
+        end,
+    },
+
+    -- Auto-pairs
+    {
+        "windwp/nvim-autopairs",
+        opts = {
+            disable_filetype = { "TelescopePrompt", "vim" },
+        },
     },
 }
 
