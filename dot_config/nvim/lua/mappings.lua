@@ -76,12 +76,12 @@ M.trouble = {
 }
 
 M.dap = {
-  {"n", "<F5>", function() require'dap'.continue() end, { desc = "Debug: Start/Continue" }},
-  {"n","<F1>", function() require'dap'.step_into() end, { desc = "Debug: Step Into" }},
-  {"n","<F2>", function() require'dap'.step_over() end, { desc = "Debug: Step Over" }},
-  {"n","<F3>", function() require'dap'.step_out() end, { desc = "Debug: Step Out" }},
-  {"n","<leader>b", function() require'dap'.toggle_breakpoint() end, { desc = "Debug: Toggle Breakpoint" }},
-  {"n","<leader>B", function() require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: ')) end, { desc = "Debug: Set Breakpoint with Condition" }}
+  {"n", "<F5>", "<cmd>lua require('dap').continue()<CR>", { desc = "Debug: Start/Continue" }},
+  {"n", "<F1>", "<cmd>lua require('dap').step_into()<CR>", { desc = "Debug: Step Into" }},
+  {"n", "<F2>", "<cmd>lua require('dap').step_over()<CR>", { desc = "Debug: Step Over" }},
+  {"n", "<F3>", "<cmd>lua require('dap').step_out()<CR>", { desc = "Debug: Step Out" }},
+  {"n", "<leader>b", "<cmd>lua require('dap').toggle_breakpoint()<CR>", { desc = "Debug: Toggle Breakpoint" }},
+  {"n", "<leader>B", "<cmd>lua require('dap').set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>", { desc = "Debug: Set Breakpoint with Condition" }},
 }
 
 M.nvimtree = {
