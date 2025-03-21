@@ -84,6 +84,12 @@ M.dap = {
   {"n", "<leader>B", "<cmd>lua require('dap').set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>", { desc = "Debug: Set Breakpoint with Condition" }},
 }
 
+M.codecompanion = {
+    {"n", "<leader>cf", "<cmd>CodeCompanion<CR>", { desc = "Open CodeCompanion" }},
+    {"n", "<leader>cc", "<cmd>CodeCompanionChat<CR>", { desc = "Open CodeCompanion Chat" }},
+    {"n", "<leader>cl", "<cmd>CodeCompanionActions<CR>", { desc = "Open CodeCompanion Inline" }},
+}
+
 M.nvimtree = {
   {"n", "<C-n>", "<cmd>NvimTreeToggle<CR>", { desc = "nvimtree toggle window" }},
   {"n", "<leader>e", "<cmd>NvimTreeFocus<CR>", { desc = "nvimtree focus window" }},

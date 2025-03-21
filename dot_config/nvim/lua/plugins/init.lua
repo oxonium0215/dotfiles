@@ -43,6 +43,11 @@ local pluginlist = {
             max_count = 10,
         },
     },
+    {
+        "MeanderingProgrammer/render-markdown.nvim",
+        ft = { "markdown", "markdown.mdx", "Avante", "codecompanion" },
+        opts = { "markdown", "markdown.mdx", "Avante", "codecompanion" },
+    },
     -- Lua Library
     { "nvim-lua/popup.nvim" },
     { "nvim-lua/plenary.nvim" },
@@ -336,6 +341,20 @@ local pluginlist = {
         "onsails/lspkind-nvim",
         config = function()
             require("plugins.configs.lspkind")
+        end,
+    },
+    -- ╭─────────────────────────────────────────────────────────────────────────────────╮
+    -- │ ∘ AI tools                                                                      │
+    -- ╰─────────────────────────────────────────────────────────────────────────────────╯
+    {
+        "olimorris/codecompanion.nvim",
+        lazy = false,
+        init = function()
+            require("plugins.codecompanion.fidget-spinner"):init()
+        end,
+        keys = require("core.utils").generate_lazy_keys("codecompanion"),
+        opts = function()
+            return require("plugins.configs.codecompanion")
         end,
     },
     {
