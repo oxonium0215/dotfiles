@@ -348,7 +348,7 @@ local pluginlist = {
     -- ╰─────────────────────────────────────────────────────────────────────────────────╯
     {
         "olimorris/codecompanion.nvim",
-        lazy = false,
+        cmd = { "CodeCompanion", "CodeCompanionChat", "CodeCompanionAction" },
         init = function()
             require("plugins.codecompanion.fidget-spinner"):init()
         end,
