@@ -175,6 +175,7 @@ local pluginlist = {
             vim.api.nvim_create_autocmd("BufAdd", {
                 callback = function()
                     vim.schedule(function()
+                        ---@diagnostic disable: undefined-global 
                         pcall(nvim_bufferline)
                     end)
                 end,
