@@ -349,12 +349,13 @@ local pluginlist = {
     {
         "olimorris/codecompanion.nvim",
         cmd = { "CodeCompanion", "CodeCompanionChat", "CodeCompanionAction" },
-        init = function()
-            require("plugins.codecompanion.fidget-spinner"):init()
-        end,
         keys = require("core.utils").generate_lazy_keys("codecompanion"),
         opts = function()
             return require("plugins.configs.codecompanion")
+        end,
+        config = function(_, opts)
+            require("plugins.codecompanion.fidget-spinner"):init()
+            require("codecompanion").setup(opts)
         end,
     },
     {
