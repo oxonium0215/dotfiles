@@ -373,7 +373,7 @@ local pluginlist = {
     -- │ ∘ LSP & DAP                                                                     │
     -- ╰─────────────────────────────────────────────────────────────────────────────────╯
     {
-        "williamboman/mason.nvim",
+        "mason-org/mason.nvim",
         cmd = "Mason",
         opts = function()
             return require("plugins.configs.mason")
@@ -384,7 +384,7 @@ local pluginlist = {
         end,
     },
     {
-        "williamboman/mason-lspconfig.nvim",
+        "mason-org/mason-lspconfig.nvim",
         event = "BufReadPre",
         config = function()
             require("plugins.configs.lsp").setup()
@@ -401,7 +401,7 @@ local pluginlist = {
         "jay-babu/mason-null-ls.nvim",
         event = "BufReadPre",
         dependencies = {
-            "williamboman/mason.nvim",
+            "mason-org/mason.nvim",
             "nvimtools/none-ls.nvim",
         },
         config = function()
@@ -444,7 +444,7 @@ local pluginlist = {
                 dependencies = { "nvim-neotest/nvim-nio" },
             },
             -- Installs the debug adapters for you
-            "williamboman/mason.nvim",
+            "mason-org/mason.nvim",
             "jay-babu/mason-nvim-dap.nvim",
         },
         config = function()
