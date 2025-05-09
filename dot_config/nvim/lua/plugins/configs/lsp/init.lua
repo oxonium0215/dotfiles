@@ -8,6 +8,7 @@ M.on_attach = function(client, bufnr)
 
   -- Only disable LSP formatting if null-ls formatters are available
   if client.name ~= "null-ls" and has_formatters then
+    -- Update to use the new API name in Neovim 0.11+
     client.server_capabilities.documentFormattingProvider = false
     client.server_capabilities.documentRangeFormattingProvider = false
   end
@@ -67,18 +68,7 @@ function M.setup()
   local ts_parsers = require("nvim-treesitter.parsers")
   local pending = { lsp = {}, ts = {}, null_ls = {} }
   local null_ls = require("null-ls")
-  null_ls.setup()  -- Remove parameters from setup()
-
-  -- Initialize mason-lspconfig mappings
-  local mason_lspconfig = require("mason-lspconfig")
-  local server_mappings = require("mason-lspconfig.mappings.server")
-
-  -- Create dynamic package map using official mappings with fallback
-  local mason_package_map = setmetatable({}, {
-    __index = function(_, k)
-      return server_mappings.lspconfig_to_package[k] or k
-    end
-  })
+  null_ls.setup()
 
   -- Configure diagnostics
   vim.diagnostic.config({
@@ -91,6 +81,7 @@ function M.setup()
   })
 
   -- Create server setup map
+  -- This will be used to apply custom configurations to servers
   local server_setups = {}
   for _, lang_config in pairs(lang_configs) do
     if lang_config.lsp and lang_config.lsp.setup then
@@ -100,21 +91,35 @@ function M.setup()
     end
   end
 
-  -- Mason-LSPconfig handler with dynamic translation
-  mason_lspconfig.setup_handlers({
-    function(server_name)
-      local base_config = {
-        on_attach = M.on_attach,
-        capabilities = M.capabilities,
-      }
+  -- Apply server configurations using the new vim.lsp.config API for servers that support it
+  -- For other servers, use the traditional lspconfig approach
+  local apply_server_config = function(server_name)
+    local base_config = {
+      on_attach = M.on_attach,
+      capabilities = M.capabilities,
+    }
 
-      if server_setups[server_name] then
-        local custom_config = server_setups[server_name]() or {}
-        base_config = vim.tbl_deep_extend("force", base_config, custom_config)
-      end
-
+    if server_setups[server_name] then
+      local custom_config = server_setups[server_name]() or {}
+      base_config = vim.tbl_deep_extend("force", base_config, custom_config)
+    end
+    
+    -- Try using vim.lsp.config if available (Neovim 0.11+)
+    local has_native_config = pcall(function()
+      vim.lsp.config(server_name, base_config)
+    end)
+    
+    -- If native config isn't available, fall back to the traditional approach
+    if not has_native_config then
       lspconfig[server_name].setup(base_config)
     end
+  end
+
+  -- Setup mason-lspconfig with the new API
+  require("mason-lspconfig").setup({
+    -- Don't use automatic_installation as it's been removed in v2.0.0
+    -- Use automatic_enable instead which is enabled by default
+    -- automatic_enable = true, -- This is enabled by default
   })
 
   vim.api.nvim_create_autocmd("BufReadPost", {
@@ -127,7 +132,9 @@ function M.setup()
       -- LSP installation logic
       if config.lsp and config.lsp.servers then
         for _, lsp_name in ipairs(config.lsp.servers) do
-          local mason_package = mason_package_map[lsp_name]
+          -- Use mappings provided by mason-registry instead of hardcoded values
+          -- This replaces the previous approach of using server_mappings.lspconfig_to_package
+          local mason_package = require("mason-lspconfig").get_mappings().lspconfig_to_package[lsp_name] or lsp_name
 
           if not mason_registry.is_installed(mason_package) and not pending.lsp[mason_package] then
             pending.lsp[mason_package] = true
@@ -140,19 +147,8 @@ function M.setup()
                 vim.notify("LSP installed: " .. mason_package, vim.log.levels.INFO)
 
                 vim.schedule(function()
-                  if not lspconfig[lsp_name].manager then
-                    local base_config = {
-                      on_attach = M.on_attach,
-                      capabilities = M.capabilities,
-                    }
-
-                    if server_setups[lsp_name] then
-                      local custom_config = server_setups[lsp_name]() or {}
-                      base_config = vim.tbl_deep_extend("force", base_config, custom_config)
-                    end
-
-                    lspconfig[lsp_name].setup(base_config)
-                  end
+                  -- Apply server configuration directly
+                  apply_server_config(lsp_name)
                   vim.cmd("edit " .. vim.fn.expand("%"))
                 end)
               end)
@@ -164,36 +160,36 @@ function M.setup()
         end
       end
 
-      -- Treesitter parser installation
-local parser_configs = require("nvim-treesitter.parsers").get_parser_configs()
+      -- Treesitter parser installation (unchanged as this wasn't affected by the breaking changes)
+      local parser_configs = require("nvim-treesitter.parsers").get_parser_configs()
 
-for _, parser in ipairs(config.treesitter) do
-  if not parser_configs[parser] then
-    vim.notify("No parser configuration found for: " .. parser, vim.log.levels.ERROR)
-  elseif not ts_parsers.has_parser(parser) and not pending.ts[parser] then
-    pending.ts[parser] = true
-    vim.notify("Installing parser: " .. parser, vim.log.levels.INFO)
-    vim.cmd("TSInstall " .. parser)
+      for _, parser in ipairs(config.treesitter) do
+        if not parser_configs[parser] then
+          vim.notify("No parser configuration found for: " .. parser, vim.log.levels.ERROR)
+        elseif not ts_parsers.has_parser(parser) and not pending.ts[parser] then
+          pending.ts[parser] = true
+          vim.notify("Installing parser: " .. parser, vim.log.levels.INFO)
+          vim.cmd("TSInstall " .. parser)
 
-    local function check_parser()
-      if ts_parsers.has_parser(parser) then
-        pending.ts[parser] = nil
-        local bufs = vim.api.nvim_list_bufs()
-        for _, buf in ipairs(bufs) do
-            if vim.bo[buf].filetype == ft then
-                vim.cmd("e!")
+          local function check_parser()
+            if ts_parsers.has_parser(parser) then
+              pending.ts[parser] = nil
+              local bufs = vim.api.nvim_list_bufs()
+              for _, buf in ipairs(bufs) do
+                  if vim.bo[buf].filetype == ft then
+                      vim.cmd("e!")
+                  end
+              end
+              vim.notify("Parser activated: " .. parser, vim.log.levels.INFO)
+            else
+              vim.defer_fn(check_parser, 500)
             end
+          end
+          vim.defer_fn(check_parser, 500)
         end
-        vim.notify("Parser activated: " .. parser, vim.log.levels.INFO)
-      else
-        vim.defer_fn(check_parser, 500)
       end
-    end
-    vim.defer_fn(check_parser, 500)
-  end
-end
 
-      -- null-ls source installation
+      -- null-ls source installation (unchanged)
       if config.lsp then
         local null_ls_sources = {}
         if config.lsp.formatters then
@@ -224,7 +220,7 @@ end
     end
   })
 
-  -- Smart formatting command
+  -- Smart formatting command (unchanged)
   function _G.smart_format()
     local filetype = vim.bo.filetype
     local null_formatters = require("null-ls.sources").get_available(filetype, "formatting")
@@ -236,7 +232,7 @@ end
     end
   end
 
-  -- Format-on-save automation
+  -- Format-on-save automation (unchanged)
   vim.api.nvim_create_autocmd("BufWritePre", {
     callback = function()
       if vim.g.autoformat_enabled == true then
