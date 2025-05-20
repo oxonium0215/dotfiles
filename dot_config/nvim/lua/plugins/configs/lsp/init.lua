@@ -75,7 +75,7 @@ function M.setup()
     virtual_text = { prefix = "●" },
     signs = true,
     underline = true,
-    update_in_insert = false,
+    update_in_insert = true,
     severity_sort = true,
     float = { border = "rounded" },
   })
