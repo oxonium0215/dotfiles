@@ -155,6 +155,23 @@ M.telescope = {
   {"n", "<leader>fa", "<cmd>Telescope find_files follow=true no_ignore=true hidden=true<CR>", { desc = "telescope find all files" }},
 }
 
+M.vimtex = {
+  {"n", "<leader>ll", "<cmd>VimtexCompile<CR>", { desc = "LaTeX compile" }},
+  {"n", "<leader>lv", "<cmd>VimtexView<CR>", { desc = "LaTeX view PDF" }},
+  {"n", "<leader>lt", "<cmd>VimtexTocToggle<CR>", { desc = "LaTeX TOC toggle" }},
+  {"n", "<leader>lc", "<cmd>VimtexClean<CR>", { desc = "LaTeX clean aux files" }},
+  {"n", "<leader>lC", "<cmd>VimtexClean!<CR>", { desc = "LaTeX clean all files" }},
+  {"n", "<leader>ls", "<cmd>VimtexStop<CR>", { desc = "LaTeX stop compiler" }},
+  {"n", "<leader>lS", "<cmd>VimtexStopAll<CR>", { desc = "LaTeX stop all compilers" }},
+  {"n", "<leader>le", "<cmd>VimtexErrors<CR>", { desc = "LaTeX show errors" }},
+  {"n", "<leader>lo", "<cmd>VimtexCompileOutput<CR>", { desc = "LaTeX show output" }},
+  {"n", "<leader>lg", "<cmd>VimtexStatus<CR>", { desc = "LaTeX show status" }},
+  {"n", "<leader>lG", "<cmd>VimtexStatusAll<CR>", { desc = "LaTeX show all status" }},
+  {"n", "<leader>lk", "<cmd>VimtexStopAll<CR>", { desc = "LaTeX kill all processes" }},
+  {"n", "<leader>lr", "<cmd>VimtexReload<CR>", { desc = "LaTeX reload" }},
+  {"n", "<leader>la", "<cmd>VimtexContextMenu<CR>", { desc = "LaTeX context menu" }},
+}
+
 M.toggleterm = {
   {"n", "<A-v>", "<cmd>lua require('core.utils').toggleTerm('vertical')<CR>", { desc = "toggle vertical term" }},
   {"t", "<A-v>", "<cmd>lua require('core.utils').toggleTerm('vertical')<CR>", { desc = "toggle vertical term" }},

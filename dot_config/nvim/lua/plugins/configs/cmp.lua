@@ -69,6 +69,7 @@ cmp.setup({
       { name = "calc" },
       { name = "treesitter" },
       { name = "rg" },
+      { name = "vimtex" },
   },
   formatting = {
       fields = { "abbr", "kind", "menu" },
