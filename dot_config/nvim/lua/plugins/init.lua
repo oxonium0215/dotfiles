@@ -54,6 +54,22 @@ local pluginlist = {
     { "kkharji/sqlite.lua" },
     { "MunifTanjim/nui.nvim" },
     -- ╭─────────────────────────────────────────────────────────────────────────────────╮
+    -- │ ∘ LaTeX                                                                         │
+    -- ╰─────────────────────────────────────────────────────────────────────────────────╯
+    {
+        "lervag/vimtex",
+        ft = { "tex", "bib" },
+        keys = require("core.utils").generate_lazy_keys("vimtex"),
+        config = function()
+            require("plugins.configs.vimtex")
+        end,
+    },
+    {
+        "micangl/cmp-vimtex",
+        ft = "tex",
+        dependencies = { "hrsh7th/nvim-cmp", "lervag/vimtex" },
+    },
+    -- ╭─────────────────────────────────────────────────────────────────────────────────╮
     -- │ ∘ UI                                                                            │
     -- ╰─────────────────────────────────────────────────────────────────────────────────╯
     -- Startup screen
