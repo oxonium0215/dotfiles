@@ -1,11 +1,19 @@
 -- VimTeX configuration
 -- LaTeX editing with compilation, viewing, and navigation support
 
--- Set PDF viewer based on OS. Use SmatraPDF for WSL.
+-- Set PDF viewer based on OS
 if vim.fn.has("mac") == 1 then
     vim.g.vimtex_view_method = "skim"
 elseif vim.fn.has("unix") == 1 then
-    vim.g.vimtex_view_method = "zathura"
+    -- Check if we're in WSL
+    local is_wsl = vim.fn.system("uname -r"):match("microsoft")
+    if is_wsl then
+        vim.g.vimtex_view_method = "general"
+        vim.g.vimtex_view_general_viewer = "SumatraPDF.exe"
+        vim.g.vimtex_view_general_options = "-reuse-instance @pdf"
+    else
+        vim.g.vimtex_view_method = "zathura"
+    end
 else
     vim.g.vimtex_view_method = "general"
 end
@@ -114,57 +122,3 @@ vim.g.vimtex_include_search_enabled = 1
 
 -- Disable mappings that conflict with our custom ones
 vim.g.vimtex_mappings_enabled = 0
-
--- Enable LaTeX-specific features for .tex files
-vim.api.nvim_create_autocmd("FileType", {
-    pattern = "tex",
-    callback = function()
-        -- Enable spell checking for LaTeX files
-        -- vim.opt_local.spell = true
-        -- vim.opt_local.spelllang = { "en_us", "ja" }
-
-        -- Set better text width for LaTeX
-        vim.opt_local.textwidth = 80
-        vim.opt_local.wrap = true
-        vim.opt_local.linebreak = true
-
-        -- Better concealment for LaTeX
-        vim.opt_local.conceallevel = 2
-        vim.opt_local.concealcursor = "nc"
-
-        -- Auto-formatting options
-        vim.opt_local.formatoptions:append("t") -- Auto-wrap text using textwidth
-        vim.opt_local.formatoptions:append("c") -- Auto-wrap comments using textwidth
-        vim.opt_local.formatoptions:append("q") -- Allow formatting of comments with "gq"
-        vim.opt_local.formatoptions:remove("o") -- Don't continue comments when pressing o/O
-    end,
-})
-
--- Setup completion source for vimtex
-local ok, cmp = pcall(require, "cmp")
-if ok then
-    vim.api.nvim_create_autocmd("FileType", {
-        pattern = "tex",
-        callback = function()
-            cmp.setup.buffer({
-                sources = cmp.config.sources({
-                    { name = "vimtex" },
-                    { name = "luasnip" },
-                    { name = "buffer" },
-                    { name = "path" },
-                }),
-                formatting = {
-                    format = function(entry, vim_item)
-                        vim_item.menu = ({
-                            vimtex = "[VimTeX]",
-                            luasnip = "[Snippet]",
-                            buffer = "[Buffer]",
-                            path = "[Path]",
-                        })[entry.source.name]
-                        return vim_item
-                    end,
-                },
-            })
-        end,
-    })
-end
