@@ -1,7 +1,7 @@
 -- VimTeX configuration
 -- LaTeX editing with compilation, viewing, and navigation support
 
--- Set PDF viewer based on OS
+-- Set PDF viewer based on OS. Use SmatraPDF for WSL.
 if vim.fn.has("mac") == 1 then
     vim.g.vimtex_view_method = "skim"
 elseif vim.fn.has("unix") == 1 then
@@ -32,7 +32,7 @@ vim.g.vimtex_quickfix_mode = 0
 vim.g.vimtex_quickfix_open_on_warning = 0
 
 -- Fold settings
-vim.g.vimtex_fold_enabled = 1
+vim.g.vimtex_fold_enabled = 0
 vim.g.vimtex_fold_types = {
     cmd_addplot = {
         cmds = { "addplot", "addplot3", "addplot+", "addplot3+" },
@@ -120,8 +120,8 @@ vim.api.nvim_create_autocmd("FileType", {
     pattern = "tex",
     callback = function()
         -- Enable spell checking for LaTeX files
-        vim.opt_local.spell = true
-        vim.opt_local.spelllang = "en_us"
+        -- vim.opt_local.spell = true
+        -- vim.opt_local.spelllang = { "en_us", "ja" }
 
         -- Set better text width for LaTeX
         vim.opt_local.textwidth = 80

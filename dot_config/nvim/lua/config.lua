@@ -104,6 +104,9 @@ vim.env.PATH = vim.fn.stdpath "data" .. "/mason/bin" .. (is_windows and ";" or "
 
 vim.g.did_install_default_menus = 1
 
+-- set tex flavor to latex
+vim.g.tex_flavor = "latex"
+
 -- ╭─────────────────────────────────────────────────────────────────────────────────╮
 -- │ ∘ Load autocmds                                                                 │
 -- ╰─────────────────────────────────────────────────────────────────────────────────╯
