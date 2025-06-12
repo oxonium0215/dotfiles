@@ -16,3 +16,6 @@ else
     -- colorschemeを設定
     vim.cmd("colorscheme onedark")
 end
+
+require('core.japanese').setup_japanese_input()
+require('core.japanese').setup_japanese_snippets()
