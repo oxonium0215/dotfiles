@@ -1,5 +1,4 @@
--- VimTeX configuration
--- LaTeX editing with compilation, viewing, and navigation support
+-- VimTeX configuration for LuaLaTeX with Japanese support
 
 -- Set PDF viewer based on OS
 if vim.fn.has("mac") == 1 then
@@ -10,7 +9,7 @@ elseif vim.fn.has("unix") == 1 then
     if is_wsl then
         vim.g.vimtex_view_method = "general"
         vim.g.vimtex_view_general_viewer = "SumatraPDF.exe"
-        vim.g.vimtex_view_general_options = "-reuse-instance @pdf"
+        vim.g.vimtex_view_general_options = "-reuse-instance -inverse-search \"nvim --headless -c \\\"VimtexInverseSearch %l '%f'\\\"\" @pdf"
     else
         vim.g.vimtex_view_method = "zathura"
     end
@@ -18,26 +17,72 @@ else
     vim.g.vimtex_view_method = "general"
 end
 
--- Compiler settings
+-- Compiler settings optimized for LuaLaTeX Japanese documents
 vim.g.vimtex_compiler_method = "latexmk"
 vim.g.vimtex_compiler_latexmk = {
     aux_dir = "aux",
-    out_dir = "out",
+    out_dir = "out", 
     callback = 1,
     continuous = 1,
     executable = "latexmk",
     hooks = {},
     options = {
         "-verbose",
-        "-file-line-error",
+        "-file-line-error", 
         "-synctex=1",
         "-interaction=nonstopmode",
+        "-lualatex",  -- Force LuaLaTeX
+        "-shell-escape",  -- Allow shell escape for certain packages
     },
 }
 
--- Quickfix settings
+-- Enhanced error handling for Japanese documents
 vim.g.vimtex_quickfix_mode = 0
 vim.g.vimtex_quickfix_open_on_warning = 0
+vim.g.vimtex_quickfix_ignore_filters = {
+    'Underfull \\hbox',
+    'Overfull \\hbox', 
+    'Package hyperref Warning',
+    'Package luatexja-fontspec Warning',  -- Ignore font scaling warnings
+    'Japanese fonts will be scaled',      -- Ignore scaling warnings
+}
+
+-- Completion settings
+vim.g.vimtex_complete_enabled = 1
+vim.g.vimtex_complete_close_braces = 1
+vim.g.vimtex_complete_ignore_case = 1
+vim.g.vimtex_complete_smart_case = 1
+
+-- Enhanced syntax settings for Japanese
+vim.g.vimtex_syntax_enabled = 1
+vim.g.vimtex_syntax_conceal = {
+    accents = 1,
+    cites = 1,
+    fancy = 1,
+    greek = 1,
+    math_bounds = 1,
+    math_delimiters = 1,
+    math_fracs = 1,
+    math_super_sub = 1,
+    math_symbols = 1,
+    sections = 0,
+    styles = 1,
+}
+
+-- Japanese-specific syntax groups
+vim.g.vimtex_syntax_custom_cmds = {
+    {
+        name = 'ruby',
+        mathmode = 0,
+        argspell = 1,
+        argstyle = 'bold',
+    },
+    {
+        name = 'ltjsetparameter',
+        mathmode = 0,
+        argspell = 0,
+    },
+}
 
 -- Fold settings
 vim.g.vimtex_fold_enabled = 0
@@ -57,7 +102,7 @@ vim.g.vimtex_fold_types = {
     env_options = vim.empty_dict(),
     envs = {
         blacklist = {},
-        whitelist = { "figure", "table", "equation", "align" },
+        whitelist = { "figure", "table", "equation", "align", "itemize", "enumerate" },
     },
     items = {
         enabled = 1,
@@ -73,29 +118,13 @@ vim.g.vimtex_fold_types = {
         sections = {
             "%(add)?part",
             "%(chapter|addchap)",
-            "%(section|addsec)",
+            "%(section|addsec)", 
             "%(subsection|addsubsec)",
             "subsubsection",
             "paragraph",
             "subparagraph",
         },
     },
-}
-
--- Syntax settings
-vim.g.vimtex_syntax_enabled = 1
-vim.g.vimtex_syntax_conceal = {
-    accents = 1,
-    cites = 1,
-    fancy = 1,
-    greek = 1,
-    math_bounds = 1,
-    math_delimiters = 1,
-    math_fracs = 1,
-    math_super_sub = 1,
-    math_symbols = 1,
-    sections = 0,
-    styles = 1,
 }
 
 -- Table of contents settings
@@ -108,10 +137,6 @@ vim.g.vimtex_toc_config = {
     show_numbers = 1,
 }
 
--- Completion settings
-vim.g.vimtex_complete_enabled = 1
-vim.g.vimtex_complete_close_braces = 1
-
 -- Indentation settings
 vim.g.vimtex_indent_enabled = 1
 vim.g.vimtex_indent_bib_enabled = 1
@@ -122,3 +147,29 @@ vim.g.vimtex_include_search_enabled = 1
 
 -- Disable mappings that conflict with our custom ones
 vim.g.vimtex_mappings_enabled = 0
+
+-- Japanese-specific autocmds
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = "tex",
+    callback = function()
+        -- Better Japanese text handling
+        vim.opt_local.encoding = "utf-8"
+        vim.opt_local.fileencoding = "utf-8"
+        
+        -- Enhanced concealment for Japanese LaTeX
+        vim.opt_local.conceallevel = 2
+        vim.opt_local.concealcursor = "nc"
+        
+        -- Better line wrapping for Japanese text
+        vim.opt_local.linebreak = true
+        vim.opt_local.wrap = true
+        vim.opt_local.textwidth = 0
+        vim.opt_local.wrapmargin = 0
+        
+        -- Enhanced formatting for Japanese
+        vim.opt_local.formatoptions = "tcqmMj"
+        
+        -- Spell checking (disable for Japanese)
+        vim.opt_local.spell = false
+    end,
+})

@@ -1,10 +1,10 @@
-# LaTeX Mk configuration for LuaTeX with Japanese support
+# LaTeX Mk configuration optimized for LuaLaTeX with Japanese support
 $pdf_mode = 4;  # Use lualatex
 $postscript_mode = 0;
 $dvi_mode = 0;
 
-# LuaLaTeX command
-$lualatex = 'lualatex -synctex=1 -interaction=nonstopmode -file-line-error %O %S';
+# LuaLaTeX command optimized for Japanese documents
+$lualatex = 'lualatex -synctex=1 -interaction=nonstopmode -file-line-error -halt-on-error --shell-escape %O %S';
 
 # Use biber for bibliography
 $biber = 'biber %O --bblencoding=utf8 -u -U --output_safechars %B';
@@ -14,10 +14,37 @@ $bibtex_use = 2;
 $aux_dir = 'aux';
 $out_dir = 'out';
 
-# Clean up settings
-$clean_ext = 'auxlock figlist makefile xtr xdv run.xml synctex.gz';
+# Enhanced clean up settings
+$clean_ext = 'auxlock figlist makefile xtr xdv run.xml synctex.gz fls fdb_latexmk idx ind ilg glo gls glg nav snm vrb bak sav';
 
 # Preview settings
 $preview_continuous_mode = 1;
 $sleep_time = 2;
 $max_repeat = 5;
+
+# Font settings for WSL
+if (-d '/mnt/c/Windows/Fonts') {
+    $ENV{'OSFONTDIR'} = '/mnt/c/Windows/Fonts:/usr/local/share/fonts:/usr/share/fonts';
+}
+
+# Suppress common Japanese LaTeX warnings
+$warnings_as_errors = 0;
+
+# Set proper encoding
+$ENV{'LANG'} = 'C.UTF-8';
+$ENV{'LC_ALL'} = 'C.UTF-8';
+
+# Additional LuaTeX settings
+$ENV{'max_print_line'} = '10000';
+$ENV{'error_line'} = '254';
+$ENV{'half_error_line'} = '238';
+
+# Custom dependency tracking for Japanese documents
+add_cus_dep('glo', 'gls', 0, 'run_makeglossaries');
+add_cus_dep('acn', 'acr', 0, 'run_makeglossaries');
+add_cus_dep('alg', 'glg', 0, 'run_makeglossaries');
+
+sub run_makeglossaries {
+    my ($base_name, $path) = fileparse($_[0]);
+    return system "makeglossaries", $base_name;
+}
