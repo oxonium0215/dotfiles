@@ -1,0 +1,23 @@
+# LaTeX Mk configuration for LuaTeX with Japanese support
+$pdf_mode = 4;  # Use lualatex
+$postscript_mode = 0;
+$dvi_mode = 0;
+
+# LuaLaTeX command
+$lualatex = 'lualatex -synctex=1 -interaction=nonstopmode -file-line-error %O %S';
+
+# Use biber for bibliography
+$biber = 'biber %O --bblencoding=utf8 -u -U --output_safechars %B';
+$bibtex_use = 2;
+
+# Directory settings
+$aux_dir = 'aux';
+$out_dir = 'out';
+
+# Clean up settings
+$clean_ext = 'auxlock figlist makefile xtr xdv run.xml synctex.gz';
+
+# Preview settings
+$preview_continuous_mode = 1;
+$sleep_time = 2;
+$max_repeat = 5;

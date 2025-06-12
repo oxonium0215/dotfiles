@@ -50,6 +50,8 @@ alias -g H='| head'
 alias -g G='| grep'
 alias -g GI='| grep -ri'
 
+alias sudoe='sudo env PATH=$PATH'
+
 ########################################
 # functions
 zle-cd() {
