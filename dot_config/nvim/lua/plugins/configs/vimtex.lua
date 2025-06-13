@@ -17,11 +17,11 @@ else
     vim.g.vimtex_view_method = "general"
 end
 
--- Enhanced mainfile detection
-vim.g.vimtex_main_file = 'main.tex'  -- Default main file name
+-- Enhanced mainfile detection for single-file projects
+-- Remove the default main file setting to let VimTeX auto-detect
 vim.g.vimtex_root_markers = {
     '.latexmkrc',
-    '.git',
+    -- Remove '.git' to prevent looking up to repository root
     'main.tex',
     'document.tex'
 }
@@ -44,14 +44,14 @@ end
 -- Configure latexmk with conditional mylatexformat support
 vim.g.vimtex_compiler_latexmk = {
     aux_dir = "aux",
-    out_dir = "out", 
+    out_dir = "out",
     callback = 1,
     continuous = 1,
     executable = "latexmk",
     hooks = {},
     options = {
         "-verbose",
-        "-file-line-error", 
+        "-file-line-error",
         "-synctex=1",
         "-interaction=nonstopmode",
         "-pdfdvi",
@@ -64,7 +64,7 @@ vim.g.vimtex_quickfix_mode = 0
 vim.g.vimtex_quickfix_open_on_warning = 0
 vim.g.vimtex_quickfix_ignore_filters = {
     'Underfull \\hbox',
-    'Overfull \\hbox', 
+    'Overfull \\hbox',
     'Package hyperref Warning',
     'Package otf Warning',
     'LaTeX Font Warning',
@@ -102,9 +102,9 @@ vim.g.vimtex_syntax_custom_cmds = {
     },
 }
 
--- Subfiles support
-vim.g.vimtex_subfile_start_local = 1
-vim.g.vimtex_include_search_enabled = 1
+-- Disable subfiles support for single-file projects
+vim.g.vimtex_subfile_start_local = 0
+vim.g.vimtex_include_search_enabled = 0
 
 -- Custom commands for VimTeX
 vim.api.nvim_create_user_command('VimtexCreateFormat', function()
@@ -131,8 +131,8 @@ vim.api.nvim_create_user_command('VimtexSetMain', function(opts)
     vim.b.vimtex_main = main_file
     print("Main file set to: " .. main_file)
     vim.cmd('VimtexReload')
-end, { 
-    nargs = '?', 
+end, {
+    nargs = '?',
     desc = "Manually set the main LaTeX file",
     complete = function()
         return vim.fn.glob("*.tex", false, true)
@@ -146,49 +146,51 @@ vim.api.nvim_create_autocmd("FileType", {
         -- Better Japanese text handling
         vim.opt_local.encoding = "utf-8"
         vim.opt_local.fileencoding = "utf-8"
-        
+
         -- Enhanced concealment for Japanese LaTeX
         vim.opt_local.conceallevel = 2
         vim.opt_local.concealcursor = "nc"
-        
+
         -- Better line wrapping for Japanese text
         vim.opt_local.linebreak = true
         vim.opt_local.wrap = true
         vim.opt_local.textwidth = 0
         vim.opt_local.wrapmargin = 0
-        
+
         -- Enhanced formatting for Japanese
         vim.opt_local.formatoptions = "tcqmMj"
-        
+
         -- Spell checking (disable for Japanese)
         vim.opt_local.spell = false
-        
-        -- Auto-detect main file
-        local current_file = vim.fn.expand("%:p")
-        local current_dir = vim.fn.expand("%:p:h")
-        
+
+        -- Auto-detect main file for single-file projects
+        local current_file = vim.fn.expand("%:t")  -- Use filename only, not full path
+
         -- Check if current file contains \documentclass or \begin{document}
-        local lines = vim.fn.readfile(current_file)
+        local lines = vim.fn.readfile(vim.fn.expand("%:p"))
         local has_documentclass = false
         local has_begin_document = false
-        
+
         for _, line in ipairs(lines) do
             if line:match("\\documentclass") then
                 has_documentclass = true
+                break  -- Early exit for efficiency
             end
             if line:match("\\begin{document}") then
                 has_begin_document = true
+                break  -- Early exit for efficiency
             end
         end
-        
+
         -- If current file looks like a main file, set it as such
         if has_documentclass or has_begin_document then
-            vim.b.vimtex_main = current_file
+            vim.b.vimtex_main = current_file  -- Use filename only
+            print("VimTeX: Main file set to " .. current_file)
         end
-        
+
         -- Custom key mappings for enhanced workflow
         local opts = { buffer = true, silent = true }
-        
+
         -- Quick compile with format check
         vim.keymap.set('n', '<localleader>lf', function()
             if has_myformat() then
@@ -198,21 +200,21 @@ vim.api.nvim_create_autocmd("FileType", {
             end
             vim.cmd('VimtexCompile')
         end, vim.tbl_extend('force', opts, { desc = "Compile with format awareness" }))
-        
+
         -- Quick format creation
-        vim.keymap.set('n', '<localleader>lF', '<cmd>VimtexCreateFormat<cr>', 
+        vim.keymap.set('n', '<localleader>lF', '<cmd>VimtexCreateFormat<cr>',
             vim.tbl_extend('force', opts, { desc = "Create mylatexformat" }))
-        
+
         -- Enhanced clean
-        vim.keymap.set('n', '<localleader>lC', '<cmd>VimtexCleanAll<cr>', 
+        vim.keymap.set('n', '<localleader>lC', '<cmd>VimtexCleanAll<cr>',
             vim.tbl_extend('force', opts, { desc = "Clean all auxiliary files" }))
-        
+
         -- Set main file manually
-        vim.keymap.set('n', '<localleader>lm', '<cmd>VimtexSetMain<cr>', 
+        vim.keymap.set('n', '<localleader>lm', '<cmd>VimtexSetMain<cr>',
             vim.tbl_extend('force', opts, { desc = "Set main file manually" }))
-        
+
         -- Reload VimTeX
-        vim.keymap.set('n', '<localleader>lr', '<cmd>VimtexReload<cr>', 
+        vim.keymap.set('n', '<localleader>lr', '<cmd>VimtexReload<cr>',
             vim.tbl_extend('force', opts, { desc = "Reload VimTeX" }))
     end,
 })
