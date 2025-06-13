@@ -1,4 +1,4 @@
--- VimTeX configuration for LuaLaTeX with Japanese support
+-- VimTeX configuration optimized for uplatex with Japanese support
 
 -- Set PDF viewer based on OS
 if vim.fn.has("mac") == 1 then
@@ -17,8 +17,31 @@ else
     vim.g.vimtex_view_method = "general"
 end
 
--- Compiler settings optimized for LuaLaTeX Japanese documents
+-- Enhanced mainfile detection
+vim.g.vimtex_main_file = 'main.tex'  -- Default main file name
+vim.g.vimtex_root_markers = {
+    '.latexmkrc',
+    '.git',
+    'main.tex',
+    'document.tex'
+}
+
+-- Compiler settings optimized for uplatex Japanese documents
 vim.g.vimtex_compiler_method = "latexmk"
+
+-- Function to check if mylatexformat exists
+local function has_myformat()
+    local home = os.getenv("HOME")
+    local fmt_file = home .. "/myformat.fmt"
+    local file = io.open(fmt_file, "r")
+    if file then
+        file:close()
+        return true
+    end
+    return false
+end
+
+-- Configure latexmk with conditional mylatexformat support
 vim.g.vimtex_compiler_latexmk = {
     aux_dir = "aux",
     out_dir = "out", 
@@ -31,8 +54,8 @@ vim.g.vimtex_compiler_latexmk = {
         "-file-line-error", 
         "-synctex=1",
         "-interaction=nonstopmode",
-        "-lualatex",  -- Force LuaLaTeX
-        "-shell-escape",  -- Allow shell escape for certain packages
+        "-pdfdvi",
+        "-shell-escape",
     },
 }
 
@@ -43,8 +66,8 @@ vim.g.vimtex_quickfix_ignore_filters = {
     'Underfull \\hbox',
     'Overfull \\hbox', 
     'Package hyperref Warning',
-    'Package luatexja-fontspec Warning',  -- Ignore font scaling warnings
-    'Japanese fonts will be scaled',      -- Ignore scaling warnings
+    'Package otf Warning',
+    'LaTeX Font Warning',
 }
 
 -- Completion settings
@@ -77,76 +100,44 @@ vim.g.vimtex_syntax_custom_cmds = {
         argspell = 1,
         argstyle = 'bold',
     },
-    {
-        name = 'ltjsetparameter',
-        mathmode = 0,
-        argspell = 0,
-    },
 }
 
--- Fold settings
-vim.g.vimtex_fold_enabled = 0
-vim.g.vimtex_fold_types = {
-    cmd_addplot = {
-        cmds = { "addplot", "addplot3", "addplot+", "addplot3+" },
-    },
-    cmd_multi = {
-        cmds = {
-            "%(begin|end)",
-            "%(chapter|section|subsection|subsubsection)",
-        },
-    },
-    comments = {
-        enabled = 1,
-    },
-    env_options = vim.empty_dict(),
-    envs = {
-        blacklist = {},
-        whitelist = { "figure", "table", "equation", "align", "itemize", "enumerate" },
-    },
-    items = {
-        enabled = 1,
-        opened = 0,
-    },
-    markers = vim.empty_dict(),
-    preamble = {
-        enabled = 1,
-    },
-    sections = {
-        parse_levels = 1,
-        parts = { "appendix", "frontmatter", "mainmatter", "backmatter" },
-        sections = {
-            "%(add)?part",
-            "%(chapter|addchap)",
-            "%(section|addsec)", 
-            "%(subsection|addsubsec)",
-            "subsubsection",
-            "paragraph",
-            "subparagraph",
-        },
-    },
-}
-
--- Table of contents settings
-vim.g.vimtex_toc_config = {
-    name = "Table of Contents",
-    layers = { "content", "todo", "include" },
-    split_width = 40,
-    todo_sorted = 0,
-    show_help = 1,
-    show_numbers = 1,
-}
-
--- Indentation settings
-vim.g.vimtex_indent_enabled = 1
-vim.g.vimtex_indent_bib_enabled = 1
-
--- Import settings
+-- Subfiles support
 vim.g.vimtex_subfile_start_local = 1
 vim.g.vimtex_include_search_enabled = 1
 
--- Disable mappings that conflict with our custom ones
-vim.g.vimtex_mappings_enabled = 0
+-- Custom commands for VimTeX
+vim.api.nvim_create_user_command('VimtexCreateFormat', function()
+    local home = os.getenv("HOME")
+    local cmd = string.format("cd %s && uplatex -ini -jobname='myformat' '&uplatex myformat.tex\\dump'", home)
+    vim.fn.system(cmd)
+    print("mylatexformat created successfully!")
+end, { desc = "Create mylatexformat file" })
+
+vim.api.nvim_create_user_command('VimtexCleanAll', function()
+    vim.cmd('VimtexClean')
+    local fmt_files = vim.fn.glob("*.fmt")
+    if fmt_files ~= "" then
+        vim.fn.system("rm -f *.fmt")
+    end
+end, { desc = "Clean all LaTeX auxiliary files including format files" })
+
+-- Set main file manually command
+vim.api.nvim_create_user_command('VimtexSetMain', function(opts)
+    local main_file = opts.args
+    if main_file == "" then
+        main_file = vim.fn.input("Main file: ", vim.fn.expand("%:t"))
+    end
+    vim.b.vimtex_main = main_file
+    print("Main file set to: " .. main_file)
+    vim.cmd('VimtexReload')
+end, { 
+    nargs = '?', 
+    desc = "Manually set the main LaTeX file",
+    complete = function()
+        return vim.fn.glob("*.tex", false, true)
+    end
+})
 
 -- Japanese-specific autocmds
 vim.api.nvim_create_autocmd("FileType", {
@@ -171,5 +162,57 @@ vim.api.nvim_create_autocmd("FileType", {
         
         -- Spell checking (disable for Japanese)
         vim.opt_local.spell = false
+        
+        -- Auto-detect main file
+        local current_file = vim.fn.expand("%:p")
+        local current_dir = vim.fn.expand("%:p:h")
+        
+        -- Check if current file contains \documentclass or \begin{document}
+        local lines = vim.fn.readfile(current_file)
+        local has_documentclass = false
+        local has_begin_document = false
+        
+        for _, line in ipairs(lines) do
+            if line:match("\\documentclass") then
+                has_documentclass = true
+            end
+            if line:match("\\begin{document}") then
+                has_begin_document = true
+            end
+        end
+        
+        -- If current file looks like a main file, set it as such
+        if has_documentclass or has_begin_document then
+            vim.b.vimtex_main = current_file
+        end
+        
+        -- Custom key mappings for enhanced workflow
+        local opts = { buffer = true, silent = true }
+        
+        -- Quick compile with format check
+        vim.keymap.set('n', '<localleader>lf', function()
+            if has_myformat() then
+                print("Compiling with mylatexformat...")
+            else
+                print("Compiling without mylatexformat (run :VimtexCreateFormat to create)")
+            end
+            vim.cmd('VimtexCompile')
+        end, vim.tbl_extend('force', opts, { desc = "Compile with format awareness" }))
+        
+        -- Quick format creation
+        vim.keymap.set('n', '<localleader>lF', '<cmd>VimtexCreateFormat<cr>', 
+            vim.tbl_extend('force', opts, { desc = "Create mylatexformat" }))
+        
+        -- Enhanced clean
+        vim.keymap.set('n', '<localleader>lC', '<cmd>VimtexCleanAll<cr>', 
+            vim.tbl_extend('force', opts, { desc = "Clean all auxiliary files" }))
+        
+        -- Set main file manually
+        vim.keymap.set('n', '<localleader>lm', '<cmd>VimtexSetMain<cr>', 
+            vim.tbl_extend('force', opts, { desc = "Set main file manually" }))
+        
+        -- Reload VimTeX
+        vim.keymap.set('n', '<localleader>lr', '<cmd>VimtexReload<cr>', 
+            vim.tbl_extend('force', opts, { desc = "Reload VimTeX" }))
     end,
 })

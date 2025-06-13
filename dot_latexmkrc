@@ -1,10 +1,22 @@
-# LaTeX Mk configuration optimized for LuaLaTeX with Japanese support
-$pdf_mode = 4;  # Use lualatex
+# LaTeX Mk configuration optimized for uplatex (faster than lualatex)
+$pdf_mode = 3;  # Use uplatex + dvipdfmx
 $postscript_mode = 0;
 $dvi_mode = 0;
 
-# LuaLaTeX command optimized for Japanese documents
-$lualatex = 'lualatex -synctex=1 -interaction=nonstopmode -file-line-error -halt-on-error --shell-escape %O %S';
+# Check for mylatexformat and use it if available
+my $home = $ENV{HOME};
+my $fmt_file = "$home/myformat.fmt";
+
+if (-e $fmt_file) {
+    $latex = "uplatex -fmt=$home/myformat -synctex=1 -interaction=nonstopmode -file-line-error -halt-on-error %O %S";
+    print "Using mylatexformat for faster compilation\n";
+} else {
+    $latex = 'uplatex -synctex=1 -interaction=nonstopmode -file-line-error -halt-on-error %O %S';
+    print "mylatexformat not found. Run 'uplatex -ini -jobname=\"myformat\" \"&uplatex myformat.tex\\dump\"' in $home for faster compilation\n";
+}
+
+# Configure dvipdfmx for PDF generation
+$dvipdf = 'dvipdfmx %O -o %D %S';
 
 # Use biber for bibliography
 $biber = 'biber %O --bblencoding=utf8 -u -U --output_safechars %B';
@@ -15,12 +27,12 @@ $aux_dir = 'aux';
 $out_dir = 'out';
 
 # Enhanced clean up settings
-$clean_ext = 'auxlock figlist makefile xtr xdv run.xml synctex.gz fls fdb_latexmk idx ind ilg glo gls glg nav snm vrb bak sav';
+$clean_ext = 'auxlock figlist makefile xtr xdv run.xml synctex.gz fls fdb_latexmk idx ind ilg glo gls glg nav snm vrb bak sav fmt';
 
-# Preview settings
+# Preview settings (optimized for speed)
 $preview_continuous_mode = 1;
-$sleep_time = 2;
-$max_repeat = 5;
+$sleep_time = 1;
+$max_repeat = 3;
 
 # Font settings for WSL
 if (-d '/mnt/c/Windows/Fonts') {
@@ -34,12 +46,12 @@ $warnings_as_errors = 0;
 $ENV{'LANG'} = 'C.UTF-8';
 $ENV{'LC_ALL'} = 'C.UTF-8';
 
-# Additional LuaTeX settings
+# Additional settings for faster compilation
 $ENV{'max_print_line'} = '10000';
 $ENV{'error_line'} = '254';
 $ENV{'half_error_line'} = '238';
 
-# Custom dependency tracking for Japanese documents
+# Custom dependency tracking
 add_cus_dep('glo', 'gls', 0, 'run_makeglossaries');
 add_cus_dep('acn', 'acr', 0, 'run_makeglossaries');
 add_cus_dep('alg', 'glg', 0, 'run_makeglossaries');
@@ -47,4 +59,11 @@ add_cus_dep('alg', 'glg', 0, 'run_makeglossaries');
 sub run_makeglossaries {
     my ($base_name, $path) = fileparse($_[0]);
     return system "makeglossaries", $base_name;
+}
+
+# Subfiles support
+add_cus_dep('subfiles', 'pdf', 0, 'compile_subfile');
+
+sub compile_subfile {
+    return system('latexmk', '-pdfdvi', $_[0]);  # Fixed: use -pdfdvi instead of -dvipdf
 }
