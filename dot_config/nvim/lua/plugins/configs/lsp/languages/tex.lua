@@ -11,7 +11,7 @@ return {
               build = {
                 executable = "latexmk",
                 args = {
-                  "-lualatex",
+                  "-pdfdvi",  -- Fixed: use -pdfdvi instead of -dvipdf
                   "-synctex=1",
                   "-interaction=nonstopmode",
                   "-file-line-error",
@@ -38,7 +38,7 @@ return {
                   "^Overfull \\\\hbox.*",
                   "^Underfull \\\\hbox.*",
                   ".*will be scaled.*",
-                  ".*luatexja-fontspec Warning.*"
+                  ".*otf Warning.*"
                 }
               },
               -- Enhanced Japanese support
