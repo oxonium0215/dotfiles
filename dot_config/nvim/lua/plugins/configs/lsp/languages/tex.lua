@@ -11,14 +11,14 @@ return {
               build = {
                 executable = "latexmk",
                 args = {
-                  "-pdfdvi",  -- Fixed: use -pdfdvi instead of -dvipdf
+                  "-lualatex",  -- Use LuaLaTeX engine
                   "-synctex=1",
                   "-interaction=nonstopmode",
                   "-file-line-error",
                   "%f"
                 },
                 onSave = true,
-                forwardSearchAfter = false,  -- Disable to avoid conflicts
+                forwardSearchAfter = false,
               },
               forwardSearch = {
                 executable = "SumatraPDF.exe",
@@ -38,13 +38,16 @@ return {
                   "^Overfull \\\\hbox.*",
                   "^Underfull \\\\hbox.*",
                   ".*will be scaled.*",
-                  ".*otf Warning.*"
+                  ".*fontspec Warning.*",
+                  ".*luatexja Warning.*",
+                  ".*luaotfload.*WARNING.*"
                 }
               },
-              -- Enhanced Japanese support
+              -- Enhanced LuaLaTeX support
               experimental = {
                 followPackageLinks = true,
-                mathEnvironments = { "align", "equation", "gather" }
+                mathEnvironments = { "align", "equation", "gather" },
+                verbatimEnvironments = { "luacode", "luacode*" }
               }
             }
           }
@@ -52,5 +55,5 @@ return {
       end
     }
   },
-  treesitter = { "latex", "bibtex" }
+  treesitter = { "latex", "bibtex", "lua" }  -- Added Lua for LuaLaTeX code blocks
 }
