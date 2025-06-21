@@ -1,18 +1,39 @@
-# LaTeX Mk configuration optimized for uplatex (faster than lualatex)
+# LaTeX Mk configuration optimized for uplatex with project-specific format files
 $pdf_mode = 3;  # Use uplatex + dvipdfmx
 $postscript_mode = 0;
 $dvi_mode = 0;
 
-# Check for mylatexformat and use it if available
-my $home = $ENV{HOME};
-my $fmt_file = "$home/myformat.fmt";
+# Function to check for project-specific format file
+sub check_project_format {
+    my $project_dir = getcwd();
+    my $fmt_file = "$project_dir/format.fmt";
+    return (-e $fmt_file) ? $fmt_file : undef;
+}
 
-if (-e $fmt_file) {
+# Function to check for global format file
+sub check_global_format {
+    my $home = $ENV{HOME};
+    my $fmt_file = "$home/myformat.fmt";
+    return (-e $fmt_file) ? $fmt_file : undef;
+}
+
+# Configure latex command with format file detection
+my $project_fmt = check_project_format();
+my $global_fmt = check_global_format();
+
+if ($project_fmt) {
+    my $project_dir = getcwd();
+    $latex = "uplatex -fmt=$project_dir/format -synctex=1 -interaction=nonstopmode -file-line-error -halt-on-error %O %S";
+    print "Using project-specific format file: $project_fmt\n";
+} elsif ($global_fmt) {
+    my $home = $ENV{HOME};
     $latex = "uplatex -fmt=$home/myformat -synctex=1 -interaction=nonstopmode -file-line-error -halt-on-error %O %S";
-    print "Using mylatexformat for faster compilation\n";
+    print "Using global format file: $global_fmt\n";
 } else {
     $latex = 'uplatex -synctex=1 -interaction=nonstopmode -file-line-error -halt-on-error %O %S';
-    print "mylatexformat not found. Run 'uplatex -ini -jobname=\"myformat\" \"&uplatex myformat.tex\\dump\"' in $home for faster compilation\n";
+    print "No format file found. For faster compilation:\n";
+    print "  - Project-specific: Run 'uplatex -ini -jobname=\"format\" \"&uplatex format.tex\\dump\"' in project directory\n";
+    print "  - Global: Run 'uplatex -ini -jobname=\"myformat\" \"&uplatex myformat.tex\\dump\"' in $ENV{HOME}\n";
 }
 
 # Configure dvipdfmx for PDF generation
@@ -26,8 +47,45 @@ $bibtex_use = 2;
 $aux_dir = 'aux';
 $out_dir = 'out';
 
-# Enhanced clean up settings
+# Enhanced clean up settings - include format files
 $clean_ext = 'auxlock figlist makefile xtr xdv run.xml synctex.gz fls fdb_latexmk idx ind ilg glo gls glg nav snm vrb bak sav fmt';
+
+# Custom dependency to auto-generate format file when format.tex changes
+add_cus_dep('tex', 'fmt', 0, 'compile_format');
+
+sub compile_format {
+    my $base = $_[0];
+    if ($base eq 'format') {
+        my $project_dir = getcwd();
+        return system("cd $project_dir && uplatex -ini -jobname='format' '&uplatex format.tex\\dump'");
+    }
+    return 0;
+}
+
+# Custom dependency to regenerate format.tex when main.tex changes
+add_cus_dep('tex', 'tex', 0, 'check_format_update');
+
+sub check_format_update {
+    my $base = $_[0];
+    if ($base eq 'main' || $base eq 'document' || $base eq 'thesis' || $base eq 'report') {
+        my $project_dir = getcwd();
+        my $main_file = "$base.tex";
+        my $format_file = "format.tex";
+        
+        # Check if format.tex exists and if main.tex is newer
+        if (-e $main_file) {
+            my $main_mtime = (stat($main_file))[9];
+            my $format_mtime = (-e $format_file) ? (stat($format_file))[9] : 0;
+            
+            if ($main_mtime > $format_mtime) {
+                print "Updating format.tex from $main_file...\n";
+                # This would typically call a script to extract preamble
+                # For now, we'll rely on the Neovim autocmd to handle this
+            }
+        }
+    }
+    return 0;
+}
 
 # Preview settings (optimized for speed)
 $preview_continuous_mode = 1;
@@ -65,5 +123,5 @@ sub run_makeglossaries {
 add_cus_dep('subfiles', 'pdf', 0, 'compile_subfile');
 
 sub compile_subfile {
-    return system('latexmk', '-pdfdvi', $_[0]);  # Fixed: use -pdfdvi instead of -dvipdf
+    return system('latexmk', '-pdfdvi', $_[0]);
 }
