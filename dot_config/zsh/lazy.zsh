@@ -32,6 +32,20 @@ export LESS_TERMCAP_so=$'\e[01;33m'
 export LESS_TERMCAP_ue=$'\e[0m'
 export LESS_TERMCAP_us=$'\e[1;4;31m'
 
+# LuaTeX Cache Environment Variables
+export TEXMFCACHE="$HOME/.cache/texlive"
+export TEXMFVAR="$HOME/.cache/texlive"
+export LUAOTFLOAD_CACHE_DIR="$HOME/.cache/luatex/luaotfload"
+export LUATEX_CACHE_DIR="$HOME/.cache/luatex"
+export LUAOTFLOAD_NAMES_DIR="$HOME/.cache/luatex/luaotfload/names"
+
+# Ensure cache directories exist on shell startup
+if [[ ! -d "$LUAOTFLOAD_CACHE_DIR" ]]; then
+    mkdir -p "$LUAOTFLOAD_CACHE_DIR/names"
+    mkdir -p "$LUAOTFLOAD_CACHE_DIR/fonts"
+    chmod -R 755 "$HOME/.cache/luatex"
+fi
+
 ########################################
 # alias
 alias lst='eza -ltr --color=auto --icons'

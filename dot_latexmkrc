@@ -1,3 +1,8 @@
+#!/usr/bin/env perl
+use File::Basename;
+use File::Path qw(make_path);
+use Cwd;
+
 # Global LaTeX Mk configuration for LuaLaTeX with Japanese support
 $pdf_mode = 4;  # Use lualatex
 $postscript_mode = 0;
@@ -14,6 +19,10 @@ $bibtex_use = 2;
 $aux_dir = 'aux';
 $out_dir = 'out';
 
+# Ensure directories exist
+make_path($aux_dir) unless -d $aux_dir;
+make_path($out_dir) unless -d $out_dir;
+
 # Clean up settings
 $clean_ext = 'auxlock figlist makefile run.xml synctex.gz fls fdb_latexmk idx ind ilg glo gls glg nav snm vrb bak sav fmt';
 
@@ -25,31 +34,63 @@ $max_repeat = 3;
 # Font settings for various systems
 if (-d '/mnt/c/Windows/Fonts') {
     $ENV{'OSFONTDIR'} = '/mnt/c/Windows/Fonts:/usr/local/share/fonts:/usr/share/fonts:/System/Library/Fonts';
+} elsif (-d '/System/Library/Fonts') {
+    # macOS
+    $ENV{'OSFONTDIR'} = '/System/Library/Fonts:/Library/Fonts:/usr/local/share/fonts';
 } else {
-    $ENV{'OSFONTDIR'} = '/usr/local/share/fonts:/usr/share/fonts:/System/Library/Fonts';
+    # Linux
+    $ENV{'OSFONTDIR'} = '/usr/local/share/fonts:/usr/share/fonts';
 }
 
+# CRITICAL FIX: Proper LuaTeX cache setup
+my $home = $ENV{HOME};
+my $cache_dir = "$home/.cache/luatex";
+my $texmf_cache = "$home/.cache/texlive";
+my $luaotfload_cache = "$cache_dir/luaotfload";
+
+# Create all necessary cache directories with proper permissions
+make_path($cache_dir, { mode => 0755 }) unless -d $cache_dir;
+make_path($texmf_cache, { mode => 0755 }) unless -d $texmf_cache;
+make_path($luaotfload_cache, { mode => 0755 }) unless -d $luaotfload_cache;
+
+# Set environment variables for LuaTeX caching
+$ENV{'TEXMFCACHE'} = $texmf_cache;
+$ENV{'TEXMFVAR'} = $texmf_cache;
+$ENV{'LUAOTFLOADPATH'} = $luaotfload_cache;
+
+# Additional LuaTeX environment variables
+$ENV{'LUATEX_CACHE_DIR'} = $cache_dir;
+$ENV{'LUAOTFLOAD_NAMES_DIR'} = "$luaotfload_cache/names";
+$ENV{'LUAOTFLOAD_CACHE_DIR'} = $luaotfload_cache;
+
+# Create subdirectories for LuaOTFLoad
+make_path("$luaotfload_cache/names", { mode => 0755 }) unless -d "$luaotfload_cache/names";
+make_path("$luaotfload_cache/fonts", { mode => 0755 }) unless -d "$luaotfload_cache/fonts";
+
 # LuaTeX optimizations
-$ENV{'TEXMFCACHE'} = $ENV{HOME} . '/.cache/luatex';
 $warnings_as_errors = 0;
 $ENV{'LANG'} = 'C.UTF-8';
 $ENV{'LC_ALL'} = 'C.UTF-8';
 $ENV{'max_print_line'} = '10000';
 $ENV{'error_line'} = '254';
 $ENV{'half_error_line'} = '238';
-$ENV{'LUATEX_COMPILE_TIME'} = '1';
 
-# Global format file support
+# For reproducible builds (commented out LUATEX_COMPILE_TIME as it can cause issues)
+$ENV{'SOURCE_DATE_EPOCH'} = '1672531200';  # Jan 1, 2023
+
+# Enhanced format file support with proper error checking
 sub check_global_format {
     my $home = $ENV{HOME};
-    my $fmt_file = "$home/lualatex-myformat.fmt";
+    my $fmt_dir = "$home/.cache/luatex/formats";
+    make_path($fmt_dir, { mode => 0755 }) unless -d $fmt_dir;
+    my $fmt_file = "$fmt_dir/lualatex-global.fmt";
     return (-e $fmt_file) ? $fmt_file : undef;
 }
 
 my $global_fmt = check_global_format();
 if ($global_fmt) {
-    my $home = $ENV{HOME};
-    $lualatex = "lualatex -fmt=$home/lualatex-myformat -synctex=1 -interaction=nonstopmode -file-line-error -halt-on-error %O %S";
+    my $fmt_dir = "$home/.cache/luatex/formats";
+    $lualatex = "lualatex -fmt=$fmt_dir/lualatex-global -synctex=1 -interaction=nonstopmode -file-line-error -halt-on-error %O %S";
     print "Using global LuaLaTeX format file: $global_fmt\n";
 }
 
@@ -60,5 +101,19 @@ add_cus_dep('alg', 'glg', 0, 'run_makeglossaries');
 
 sub run_makeglossaries {
     my ($base_name, $path) = fileparse($_[0]);
-    return system "makeglossaries", $base_name;
+    my $ret = system("makeglossaries", $base_name);
+    return $ret;
 }
+
+# Add index support
+add_cus_dep('idx', 'ind', 0, 'run_makeindex');
+sub run_makeindex {
+    my ($base_name, $path) = fileparse($_[0]);
+    return system("makeindex", "$base_name.idx");
+}
+
+# Print cache directory information for debugging
+print "LuaTeX cache directories:\n";
+print "  TEXMFCACHE: $ENV{TEXMFCACHE}\n";
+print "  LUAOTFLOAD_CACHE_DIR: $ENV{LUAOTFLOAD_CACHE_DIR}\n";
+print "  Permissions: " . sprintf("%o", (stat($cache_dir))[2] & 07777) . "\n" if -d $cache_dir;

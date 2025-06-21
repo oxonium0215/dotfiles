@@ -8,7 +8,7 @@ function M.setup_japanese_input()
     vim.api.nvim_set_keymap('n', 'w', '<Plug>(japanese-word-motion-w)', { noremap = false })
     vim.api.nvim_set_keymap('n', 'b', '<Plug>(japanese-word-motion-b)', { noremap = false })
     vim.api.nvim_set_keymap('n', 'e', '<Plug>(japanese-word-motion-e)', { noremap = false })
-    
+
     -- Japanese-aware text formatting
     vim.api.nvim_create_user_command('JapaneseFormat', function()
         local line = vim.fn.getline('.')
@@ -25,7 +25,7 @@ function M.setup_japanese_snippets()
     local s = ls.snippet
     local t = ls.text_node
     local i = ls.insert_node
-    
+
     ls.add_snippets("tex", {
         s("ruby", {
             t("\\ruby{"), i(1, "漢字"), t("}{"), i(2, "ふりがな"), t("}")
@@ -98,9 +98,9 @@ function M.setup_font_commands()
         local line = string.format("\\setmainjfont{%s}", font)
         vim.fn.append(vim.fn.line('.'), line)
     end, {
-        nargs = '?',
-        desc = "Set Japanese main font"
-    })
+    nargs = '?',
+    desc = "Set Japanese main font"
+})
 end
 
 return M

@@ -151,48 +151,29 @@ vim.api.nvim_create_autocmd("FileType", {
 -- Enhanced command to create project-specific latexmkrc
 vim.api.nvim_create_user_command('VimtexCreateProjectConfig', function()
     local project_dir = vim.fn.getcwd()
-    local latexmkrc_content = [[# Project-specific overrides for optimized compilation
-# This file overrides the global ~/.latexmkrc settings
-
-# Inherit global settings first
-do glob("~/.latexmkrc");
-
-# Project-specific format file optimization
-sub check_project_format {
-    my $project_dir = getcwd();
-    my $fmt_file = "$project_dir/lualatex-format.fmt";
-    return (-e $fmt_file) ? $fmt_file : undef;
-}
-
-# Override LuaLaTeX command with project-specific format if available
-my $project_fmt = check_project_format();
-if ($project_fmt) {
-    my $project_dir = getcwd();
-    $lualatex = "lualatex -fmt=$project_dir/lualatex-format -synctex=1 -interaction=nonstopmode -file-line-error -halt-on-error %O %S";
-    print "Using project-specific LuaLaTeX format file: $project_fmt\n";
-}
-
-# Project-specific format file compilation
-add_cus_dep('tex', 'fmt', 0, 'compile_lualatex_format');
-
-sub compile_lualatex_format {
-    my $base = $_[0];
-    if ($base eq 'lualatex-format') {
-        my $project_dir = getcwd();
-        return system("cd $project_dir && lualatex -ini -jobname='lualatex-format' '&lualatex lualatex-format.tex\\dump'");
-    }
-    return 0;
-}
-]]
+    local latexmkrc_content = [[# Project-specific overrides...]]
 
     local latexmkrc_file = project_dir .. "/.latexmkrc"
+
+    -- Check if file already exists
+    if vim.fn.filereadable(latexmkrc_file) == 1 then
+        local choice = vim.fn.confirm(
+            "Project .latexmkrc already exists. Overwrite?",
+            "&Yes\n&No", 2
+        )
+        if choice ~= 1 then
+            print("Operation cancelled")
+            return
+        end
+    end
+
     local file = io.open(latexmkrc_file, "w")
     if file then
         file:write(latexmkrc_content)
         file:close()
         print("Project-specific .latexmkrc created: " .. latexmkrc_file)
     else
-        print("Error: Could not create .latexmkrc file")
+        vim.notify("Error: Could not create .latexmkrc file", vim.log.levels.ERROR)
     end
 end, { desc = "Create project-specific .latexmkrc configuration" })
 
