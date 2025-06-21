@@ -1,48 +1,59 @@
-# LaTeX Mk configuration optimized for uplatex
-$pdf_mode = 3;  # Use uplatex + dvipdfmx
+# Global LaTeX Mk configuration for LuaLaTeX with Japanese support
+$pdf_mode = 4;  # Use lualatex
 $postscript_mode = 0;
 $dvi_mode = 0;
 
-# Simple latex command without format files
-$latex = 'uplatex -synctex=1 -interaction=nonstopmode -file-line-error -halt-on-error %O %S';
-
-# Configure dvipdfmx for PDF generation
-$dvipdf = 'dvipdfmx %O -o %D %S';
+# Default LuaLaTeX command
+$lualatex = 'lualatex -synctex=1 -interaction=nonstopmode -file-line-error -halt-on-error %O %S';
 
 # Use biber for bibliography
 $biber = 'biber %O --bblencoding=utf8 -u -U --output_safechars %B';
 $bibtex_use = 2;
 
-# Directory settings
+# Default directory settings (can be overridden by project-specific config)
 $aux_dir = 'aux';
 $out_dir = 'out';
 
-# Enhanced clean up settings - removed fmt from extensions
-$clean_ext = 'auxlock figlist makefile xtr xdv run.xml synctex.gz fls fdb_latexmk idx ind ilg glo gls glg nav snm vrb bak sav';
+# Clean up settings
+$clean_ext = 'auxlock figlist makefile run.xml synctex.gz fls fdb_latexmk idx ind ilg glo gls glg nav snm vrb bak sav fmt';
 
-# Preview settings (optimized for speed)
+# Preview settings
 $preview_continuous_mode = 1;
 $sleep_time = 1;
 $max_repeat = 3;
 
-# Font settings for WSL
+# Font settings for various systems
 if (-d '/mnt/c/Windows/Fonts') {
-    $ENV{'OSFONTDIR'} = '/mnt/c/Windows/Fonts:/usr/local/share/fonts:/usr/share/fonts';
+    $ENV{'OSFONTDIR'} = '/mnt/c/Windows/Fonts:/usr/local/share/fonts:/usr/share/fonts:/System/Library/Fonts';
+} else {
+    $ENV{'OSFONTDIR'} = '/usr/local/share/fonts:/usr/share/fonts:/System/Library/Fonts';
 }
 
-# Suppress common Japanese LaTeX warnings
+# LuaTeX optimizations
+$ENV{'TEXMFCACHE'} = $ENV{HOME} . '/.cache/luatex';
 $warnings_as_errors = 0;
-
-# Set proper encoding
 $ENV{'LANG'} = 'C.UTF-8';
 $ENV{'LC_ALL'} = 'C.UTF-8';
-
-# Additional settings for faster compilation
 $ENV{'max_print_line'} = '10000';
 $ENV{'error_line'} = '254';
 $ENV{'half_error_line'} = '238';
+$ENV{'LUATEX_COMPILE_TIME'} = '1';
 
-# Custom dependency tracking
+# Global format file support
+sub check_global_format {
+    my $home = $ENV{HOME};
+    my $fmt_file = "$home/lualatex-myformat.fmt";
+    return (-e $fmt_file) ? $fmt_file : undef;
+}
+
+my $global_fmt = check_global_format();
+if ($global_fmt) {
+    my $home = $ENV{HOME};
+    $lualatex = "lualatex -fmt=$home/lualatex-myformat -synctex=1 -interaction=nonstopmode -file-line-error -halt-on-error %O %S";
+    print "Using global LuaLaTeX format file: $global_fmt\n";
+}
+
+# Standard dependency tracking
 add_cus_dep('glo', 'gls', 0, 'run_makeglossaries');
 add_cus_dep('acn', 'acr', 0, 'run_makeglossaries');
 add_cus_dep('alg', 'glg', 0, 'run_makeglossaries');
@@ -50,11 +61,4 @@ add_cus_dep('alg', 'glg', 0, 'run_makeglossaries');
 sub run_makeglossaries {
     my ($base_name, $path) = fileparse($_[0]);
     return system "makeglossaries", $base_name;
-}
-
-# Subfiles support
-add_cus_dep('subfiles', 'pdf', 0, 'compile_subfile');
-
-sub compile_subfile {
-    return system('latexmk', '-pdfdvi', $_[0]);
 }

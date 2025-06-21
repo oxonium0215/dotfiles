@@ -1,4 +1,4 @@
--- Japanese text editing enhancements for LaTeX
+-- Japanese text editing enhancements for LuaLaTeX
 
 local M = {}
 
@@ -19,7 +19,7 @@ function M.setup_japanese_input()
     end, {})
 end
 
--- LaTeX-specific Japanese snippets
+-- LuaLaTeX-specific Japanese snippets
 function M.setup_japanese_snippets()
     local ls = require("luasnip")
     local s = ls.snippet
@@ -30,13 +30,22 @@ function M.setup_japanese_snippets()
         s("ruby", {
             t("\\ruby{"), i(1, "漢字"), t("}{"), i(2, "ふりがな"), t("}")
         }),
-        s("japanese", {
+        s("lualatex-japanese", {
             t({
-                "\\documentclass[12pt,a4paper]{article}",
+                "\\documentclass[12pt,a4paper]{ltjsarticle}",
                 "\\usepackage{luatexja}",
-                "\\usepackage[ipaex]{luatexja-preset}",
-                "\\setmainjfont{IPAexMincho}",
-                "\\setsansjfont{IPAexGothic}",
+                "\\usepackage[hiragino-pron]{luatexja-preset}",
+                "\\usepackage{luatexja-ruby}",
+                "\\usepackage{fontspec}",
+                "",
+                "% Japanese font settings",
+                "\\setmainjfont{Hiragino Mincho ProN}",
+                "\\setsansjfont{Hiragino Sans}",
+                "",
+                "% Math font",
+                "\\usepackage{unicode-math}",
+                "\\setmathfont{Latin Modern Math}",
+                "",
                 "\\begin{document}",
                 ""
             }),
@@ -45,7 +54,52 @@ function M.setup_japanese_snippets()
                 "",
                 "\\end{document}"
             })
+        }),
+        s("lualatex-minimal", {
+            t({
+                "\\documentclass{ltjsarticle}",
+                "\\usepackage{luatexja}",
+                "\\begin{document}",
+                ""
+            }),
+            i(1, "内容"),
+            t({
+                "",
+                "\\end{document}"
+            })
+        }),
+        s("textmc", {
+            t("\\textmc{"), i(1, "明朝"), t("}")
+        }),
+        s("textgt", {
+            t("\\textgt{"), i(1, "ゴシック"), t("}")
+        }),
+        s("luacode", {
+            t({
+                "\\begin{luacode}",
+                ""
+            }),
+            i(1, "-- Lua code here"),
+            t({
+                "",
+                "\\end{luacode}"
+            })
         })
+    })
+end
+
+-- LuaLaTeX specific font switching functions
+function M.setup_font_commands()
+    vim.api.nvim_create_user_command('SetJapaneseFont', function(opts)
+        local font = opts.args
+        if font == "" then
+            font = vim.fn.input("Font name: ", "Hiragino Mincho ProN")
+        end
+        local line = string.format("\\setmainjfont{%s}", font)
+        vim.fn.append(vim.fn.line('.'), line)
+    end, {
+        nargs = '?',
+        desc = "Set Japanese main font"
     })
 end
 

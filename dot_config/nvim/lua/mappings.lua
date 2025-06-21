@@ -170,6 +170,9 @@ M.vimtex = {
   {"n", "<leader>lk", "<cmd>VimtexStopAll<CR>", { desc = "LaTeX kill all processes" }},
   {"n", "<leader>lr", "<cmd>VimtexReload<CR>", { desc = "LaTeX reload" }},
   {"n", "<leader>la", "<cmd>VimtexContextMenu<CR>", { desc = "LaTeX context menu" }},
+  -- New format file commands
+  {"n", "<leader>lfp", "<cmd>VimtexCreateProjectFormat<CR>", { desc = "Create project format file" }},
+  {"n", "<leader>lfg", "<cmd>VimtexCreateGlobalFormat<CR>", { desc = "Create global format file" }},
 }
 
 M.toggleterm = {
