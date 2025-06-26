@@ -8,39 +8,12 @@ return {
                 return {
                     settings = {
                         texlab = {
-                            build = {
-                                executable = "latexmk",
-                                args = {
-                                    "-lualatex",  -- Use LuaLaTeX engine
-                                    "-synctex=1",
-                                    "-interaction=nonstopmode",
-                                    "-file-line-error",
-                                    "%f"
-                                },
-                                onSave = true,
-                                forwardSearchAfter = false,
-                            },
-                            forwardSearch = {
-                                executable = vim.fn.has('win32') == 1 and "SumatraPDF.exe" or
-                                vim.fn.has('mac') == 1 and "open" or "zathura",
-                                args = vim.fn.has('win32') == 1 and {
-                                    "-reuse-instance",
-                                    "-inverse-search",
-                                    "\"nvim --headless -c \\\"VimtexInverseSearch %l '%f'\\\"\"",
-                                    "%p"
-                                } or vim.fn.has('mac') == 1 and {
-                                    "-a", "Skim.app",
-                                    "%p"
-                                } or {
-                                    "--synctex-forward", "%l:1:%f",
-                                    "%p"
-                                }
-                            },
+                            -- Build and forward search are now handled by vimtex for better integration.
+                            -- This ensures a single, reliable system for compilation and viewing.
                             completion = {
                                 triggerCharacters = { "\\", "{", "}", "[", "]" }
                             },
                             diagnostics = {
-                                allowedPatterns = { ".*" },
                                 ignoredPatterns = {
                                     "^Overfull \\\\hbox.*",
                                     "^Underfull \\\\hbox.*",
@@ -50,7 +23,6 @@ return {
                                     ".*luaotfload.*WARNING.*"
                                 }
                             },
-                            -- Enhanced LuaLaTeX support
                             experimental = {
                                 followPackageLinks = true,
                                 mathEnvironments = { "align", "equation", "gather" },
@@ -62,5 +34,5 @@ return {
             end
         }
     },
-    treesitter = { "latex", "bibtex", "lua" }  -- Added Lua for LuaLaTeX code blocks
+    treesitter = { "latex", "bibtex", "lua" }
 }
