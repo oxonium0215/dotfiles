@@ -8,14 +8,14 @@ $pdf_mode = 4;  # Use lualatex
 $postscript_mode = 0;
 $dvi_mode = 0;
 
-# Default LuaLaTeX command
-$lualatex = 'lualatex -synctex=1 -interaction=nonstopmode -file-line-error -halt-on-error %O %S';
+# Default LuaLaTeX command (removed -halt-on-error for smoother continuous builds)
+$lualatex = 'lualatex -synctex=1 -interaction=nonstopmode -file-line-error %O %S';
 
 # Use biber for bibliography
 $biber = 'biber %O --bblencoding=utf8 -u -U --output_safechars %B';
 $bibtex_use = 2;
 
-# Default directory settings (can be overridden by project-specific config)
+# Default directory settings
 $aux_dir = 'aux';
 $out_dir = 'out';
 
@@ -23,8 +23,8 @@ $out_dir = 'out';
 make_path($aux_dir) unless -d $aux_dir;
 make_path($out_dir) unless -d $out_dir;
 
-# Clean up settings
-$clean_ext = 'auxlock figlist makefile run.xml synctex.gz fls fdb_latexmk idx ind ilg glo gls glg nav snm vrb bak sav fmt';
+# Clean up settings - Added more extensions for a thorough clean
+$clean_ext = 'auxlock figlist makefile run.xml synctex.gz fls fdb_latexmk idx ind ilg glo gls glg nav snm vrb bak sav fmt log bbl bcf blg toc lof lot';
 
 # Preview settings
 $preview_continuous_mode = 1;
@@ -70,50 +70,3 @@ make_path("$luaotfload_cache/fonts", { mode => 0755 }) unless -d "$luaotfload_ca
 # LuaTeX optimizations
 $warnings_as_errors = 0;
 $ENV{'LANG'} = 'C.UTF-8';
-$ENV{'LC_ALL'} = 'C.UTF-8';
-$ENV{'max_print_line'} = '10000';
-$ENV{'error_line'} = '254';
-$ENV{'half_error_line'} = '238';
-
-# For reproducible builds (commented out LUATEX_COMPILE_TIME as it can cause issues)
-$ENV{'SOURCE_DATE_EPOCH'} = '1672531200';  # Jan 1, 2023
-
-# Enhanced format file support with proper error checking
-sub check_global_format {
-    my $home = $ENV{HOME};
-    my $fmt_dir = "$home/.cache/luatex/formats";
-    make_path($fmt_dir, { mode => 0755 }) unless -d $fmt_dir;
-    my $fmt_file = "$fmt_dir/lualatex-global.fmt";
-    return (-e $fmt_file) ? $fmt_file : undef;
-}
-
-my $global_fmt = check_global_format();
-if ($global_fmt) {
-    my $fmt_dir = "$home/.cache/luatex/formats";
-    $lualatex = "lualatex -fmt=$fmt_dir/lualatex-global -synctex=1 -interaction=nonstopmode -file-line-error -halt-on-error %O %S";
-    print "Using global LuaLaTeX format file: $global_fmt\n";
-}
-
-# Standard dependency tracking
-add_cus_dep('glo', 'gls', 0, 'run_makeglossaries');
-add_cus_dep('acn', 'acr', 0, 'run_makeglossaries');
-add_cus_dep('alg', 'glg', 0, 'run_makeglossaries');
-
-sub run_makeglossaries {
-    my ($base_name, $path) = fileparse($_[0]);
-    my $ret = system("makeglossaries", $base_name);
-    return $ret;
-}
-
-# Add index support
-add_cus_dep('idx', 'ind', 0, 'run_makeindex');
-sub run_makeindex {
-    my ($base_name, $path) = fileparse($_[0]);
-    return system("makeindex", "$base_name.idx");
-}
-
-# Print cache directory information for debugging
-print "LuaTeX cache directories:\n";
-print "  TEXMFCACHE: $ENV{TEXMFCACHE}\n";
-print "  LUAOTFLOAD_CACHE_DIR: $ENV{LUAOTFLOAD_CACHE_DIR}\n";
-print "  Permissions: " . sprintf("%o", (stat($cache_dir))[2] & 07777) . "\n" if -d $cache_dir;
