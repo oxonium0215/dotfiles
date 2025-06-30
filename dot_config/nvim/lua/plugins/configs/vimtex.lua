@@ -8,6 +8,8 @@ vim.g.vimtex_compiler_latexmk = {
     aux_dir = 'aux',
 }
 
+vim.g.vimtex_syntax_conceal_disable = 1 -- Disable syntax concealment for better visibility
+
 -- Configure the PDF viewer. Vimtex automatically detects viewers and supports inverse search.
 vim.g.vimtex_view_method = 'general' -- Allows vimtex to auto-detect the best viewer
 if vim.fn.has('mac') == 1 then
