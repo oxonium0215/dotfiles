@@ -65,3 +65,20 @@ M.toggleTerm = function(direction)
 end
 
 return M
+    --------- lazy.nvim ---------------
+    M.echo "  Installing lazy.nvim & plugins ..."
+    local repo = "https://github.com/folke/lazy.nvim.git"
+    shell_call { "git", "clone", "--filter=blob:none", "--branch=stable", repo, install_path }
+    vim.opt.rtp:prepend(install_path)
+
+    -- install plugins
+    require("plugins")
+    M.echo "Setup finished!"
+end
+
+M.toggleTerm = function(direction)
+    local command = ":ToggleTerm direction=" .. direction
+    vim.cmd(command)
+end
+
+return M

@@ -1,21 +1,25 @@
+-- Enable faster Lua module loading
 vim.loader.enable()
-require("config")
-local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
 
--- bootstrap lazy.nvim!
-if not vim.loop.fs_stat(lazypath) then
-    require("core.utils").lazy(lazypath)
-end
-vim.opt.rtp:prepend(lazypath)
+-- Set leader key early
+vim.g.mapleader = " "
+vim.g.maplocalleader = "\\"
 
+-- Load core configuration
+require("core")
+
+-- Initialize lazy.nvim plugin manager
+require("core.lazy")
+
+-- Load configuration based on environment
 if vim.g.vscode then
-    require("vscode-config")
+    require("vscode")
 else
-    require("core.utils").set_mappings("general")
+    -- Load plugins and UI
     require("plugins")
-    -- colorschemeを設定
-    vim.cmd("colorscheme onedark")
+    
+    -- Set colorscheme after plugins are loaded
+    vim.schedule(function()
+        vim.cmd.colorscheme("onedark")
+    end)
 end
-
-require('core.japanese').setup_japanese_input()
-require('core.japanese').setup_japanese_snippets()
