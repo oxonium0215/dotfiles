@@ -300,6 +300,19 @@ local pluginlist = {
             return require("plugins.configs.others").gitsigns
         end,
     },
+    {
+        "NeogitOrg/neogit",
+        dependencies = {
+            "nvim-lua/plenary.nvim",         -- required
+            "sindrets/diffview.nvim",        -- optional - Diff integration
+            "nvim-telescope/telescope.nvim", -- optional
+        },
+        --keys = require("core.utils").generate_lazy_keys("neogit"),
+        cmd = "Neogit",
+        opts = function()
+            return require("plugins.configs.neogit")
+        end,
+    },
     -- ╭─────────────────────────────────────────────────────────────────────────────────╮
     -- │ ∘ cmp                                                                           │
     -- ╰─────────────────────────────────────────────────────────────────────────────────╯
