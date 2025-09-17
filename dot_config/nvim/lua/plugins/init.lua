@@ -34,6 +34,11 @@ local pluginlist = {
         keys = require("core.utils").generate_lazy_keys("nvimwindow"),
     },
     {
+        "kylechui/nvim-surround",
+        event = "VeryLazy",
+        opts = {},
+    },
+    {
         "m4xshen/hardtime.nvim",
         event = { "BufReadPost", "BufAdd", "BufNewFile" },
         dependencies = { "MunifTanjim/nui.nvim", "nvim-lua/plenary.nvim" },
