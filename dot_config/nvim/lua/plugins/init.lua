@@ -1,9 +1,9 @@
--- All plugins have lazy=true by default,to load a plugin on startup just lazy=false
--- List of all default plugins & their definitions
+local utils = require("core.utils")
+
 local pluginlist = {
-    -- ╭─────────────────────────────────────────────────────────────────────────────────╮
-    -- │ ∘ Other                                                                         │
-    -- ╰─────────────────────────────────────────────────────────────────────────────────╯
+    -- ╭──────────────────────────────────────────────────────────────────────────────╮
+    -- │ ∘ Profiling / Meta                                                           │
+    -- ╰──────────────────────────────────────────────────────────────────────────────╯
     {
         "dstein64/vim-startuptime",
         cmd = "StartupTime",
@@ -11,6 +11,10 @@ local pluginlist = {
             vim.g.startuptime_tries = 100
         end,
     },
+
+    -- ╭──────────────────────────────────────────────────────────────────────────────╮
+    -- │ ∘ Clipboard / Misc                                                           │
+    -- ╰──────────────────────────────────────────────────────────────────────────────╯
     {
         "EtiamNullam/deferred-clipboard.nvim",
         event = "VeryLazy",
@@ -31,7 +35,7 @@ local pluginlist = {
     },
     {
         "yorickpeterse/nvim-window",
-        keys = require("core.utils").generate_lazy_keys("nvimwindow"),
+        keys = utils.generate_lazy_keys("nvimwindow"),
     },
     {
         "kylechui/nvim-surround",
@@ -41,7 +45,7 @@ local pluginlist = {
     {
         "m4xshen/hardtime.nvim",
         event = { "BufReadPost", "BufAdd", "BufNewFile" },
-        dependencies = { "MunifTanjim/nui.nvim", "nvim-lua/plenary.nvim" },
+        dependencies = { "MunifTanjim/nui.nvim" }, -- removed plenary
         opts = {
             disable_mouse = false,
             disabled_filetypes = { "qf", "alpha", "NvimTree", "lazy", "mason", "oil", "toggleterm" },
@@ -51,20 +55,20 @@ local pluginlist = {
     {
         "MeanderingProgrammer/render-markdown.nvim",
         ft = { "markdown", "markdown.mdx", "Avante", "codecompanion" },
-        opts = { "markdown", "markdown.mdx", "Avante", "codecompanion" },
     },
-    -- Lua Library
-    { "nvim-lua/popup.nvim" },
-    { "nvim-lua/plenary.nvim" },
-    { "kkharji/sqlite.lua" },
-    { "MunifTanjim/nui.nvim" },
-    -- ╭─────────────────────────────────────────────────────────────────────────────────╮
-    -- │ ∘ LaTeX                                                                         │
-    -- ╰─────────────────────────────────────────────────────────────────────────────────╯
+
+    -- Core shared libraries (lazy by default)
+    { "nvim-lua/plenary.nvim", lazy = true },
+    { "kkharji/sqlite.lua", lazy = true },
+    { "MunifTanjim/nui.nvim", lazy = true },
+
+    -- ╭──────────────────────────────────────────────────────────────────────────────╮
+    -- │ ∘ LaTeX                                                                      │
+    -- ╰──────────────────────────────────────────────────────────────────────────────╯
     {
         "lervag/vimtex",
         ft = { "tex", "bib" },
-        keys = require("core.utils").generate_lazy_keys("vimtex"),
+        keys = utils.generate_lazy_keys("vimtex"),
         config = function()
             require("plugins.configs.vimtex")
         end,
@@ -74,28 +78,31 @@ local pluginlist = {
         ft = "tex",
         dependencies = { "hrsh7th/nvim-cmp", "lervag/vimtex" },
     },
-    -- ╭─────────────────────────────────────────────────────────────────────────────────╮
-    -- │ ∘ UI                                                                            │
-    -- ╰─────────────────────────────────────────────────────────────────────────────────╯
-    -- Startup screen
+
+    -- ╭──────────────────────────────────────────────────────────────────────────────╮
+    -- │ ∘ UI / Theming                                                               │
+    -- ╰──────────────────────────────────────────────────────────────────────────────╯
     {
         "goolord/alpha-nvim",
-        event = "BufWinEnter",
+        event = "VimEnter",
+        cond = function()
+            -- Only load alpha if no files are opened
+            return vim.fn.argc() == 0 and vim.fn.line2byte("$") == -1
+        end,
         dependencies = { "nvim-tree/nvim-web-devicons" },
         config = function()
             require("plugins.configs.alpha")
         end,
     },
-    -- Search
     {
         "VonHeikemen/searchbox.nvim",
-        keys = require("core.utils").generate_lazy_keys("searchbox"),
+        keys = utils.generate_lazy_keys("searchbox"),
         cmd = { "SearchBoxIncSearch", "SearchBoxReplace" },
         dependencies = { "MunifTanjim/nui.nvim" },
     },
     {
         "rcarriga/nvim-notify",
-        keys = require("core.utils").generate_lazy_keys("notify"),
+        keys = utils.generate_lazy_keys("notify"),
         opts = {
             stages = "static",
             timeout = 7000,
@@ -110,7 +117,16 @@ local pluginlist = {
             end,
         },
         init = function()
-            vim.notify = vim.schedule_wrap(require("notify"))
+            -- real module is loaded on first notify call
+            local orig
+            vim.notify = function(...)
+                local notify = require("notify")
+                if not orig then
+                    orig = notify
+                end
+                vim.notify = orig
+                return notify(...)
+            end
         end,
     },
     {
@@ -135,68 +151,34 @@ local pluginlist = {
             end
         end,
     },
-    -- Cmdline
-    --[[
-    {
-        "VonHeikemen/fine-cmdline.nvim",
-        keys = require("mappings").cmdline,
-        cmd = { "FineCmdline" },
-        config = function()
-            require('fine-cmdline').setup {
-                popup = {
-                    position = {
-                        row = '50%',
-                        col = '50%'
-                    }
-                }
-            }
-        end,
-        dependencies = {"MunifTanjim/nui.nvim"},
-    },
-    ]]
-    -- Font
     {
         "nvim-tree/nvim-web-devicons",
         enabled = function()
             return not os.getenv("DISABLE_DEVICONS") or os.getenv("DISABLE_DEVICONS") == "false"
         end,
     },
-    -- colorscheme
     {
-        -- {"EdenEast/nightfox.nvim", event = "BufWinEnter"},
-        {
-            "navarasu/onedark.nvim",
-            lazy = false,
-            priority = 1000,
-            opts = {
-                --transparent = true,
-                style = "darker",
-                lualine = {},
-            },
+        "navarasu/onedark.nvim",
+        lazy = false,
+        priority = 1000,
+        opts = {
+            style = "darker",
+            lualine = {},
         },
-        -- { "catppuccin/nvim", name = "catppuccin", event = "BufWinEnter" },
-        -- {"Mofiqul/vscode.nvim", event = "BufWinEnter"},
-        -- {"folke/tokyonight.nvim", event = "BufWinEnter"},
-        -- {"olivercederborg/poimandres.nvim", event = "BufWinEnter"},
-        -- {"projekt0n/github-nvim-theme", event = "BufWinEnter"},
     },
     {
         "akinsho/bufferline.nvim",
-        event = { "BufReadPost", "BufAdd", "BufNewFile" },
-        keys = require("core.utils").generate_lazy_keys("bufferline"),
+        event = { "BufReadPost" },
+        keys = utils.generate_lazy_keys("bufferline"),
         opts = function()
             return require("plugins.configs.bufferline")
         end,
-        dependencies = {
-            "famiu/bufdelete.nvim",
-        },
         config = function(_, opts)
             require("bufferline").setup(opts)
-            -- Fix bufferline when restoring a session
+            -- session restore fix
             vim.api.nvim_create_autocmd("BufAdd", {
                 callback = function()
                     vim.schedule(function()
-                        ---@diagnostic disable: undefined-global 
                         pcall(nvim_bufferline)
                     end)
                 end,
@@ -204,15 +186,19 @@ local pluginlist = {
         end,
     },
     {
+        "famiu/bufdelete.nvim",
+        cmd = { "Bdelete", "Bwipeout" },
+    },
+    {
         "nvim-lualine/lualine.nvim",
-        event = { "BufReadPost", "BufAdd", "BufNewFile" },
-        dependencies = {},
+        event = { "BufReadPost", "BufNewFile" },
         config = function()
             require("plugins.configs.lualine")
         end,
     },
     {
         "brenoprata10/nvim-highlight-colors",
+        -- Removed ft restriction per request (now global)
         event = "BufReadPost",
         opts = {
             render = "background",
@@ -222,81 +208,95 @@ local pluginlist = {
     },
     {
         "shellRaining/hlchunk.nvim",
-        event = { "BufReadPre", "BufNewFile" },
+        event = { "BufReadPost", "BufNewFile" },
         opts = function()
             return require("plugins.configs.hlchunk")
         end,
     },
-    -- {
-    --     "lukas-reineke/indent-blankline.nvim",
-    --     event = {"CursorHold", "CursorHoldI"},
-    --     keys = require("core.utils").generate_lazy_keys("blankline"),
-    --     main = "ibl",
-    --     opts = function()
-    --         require("plugins.configs.others").blankline()
-    --     end,
-    -- },
-    -- ╭─────────────────────────────────────────────────────────────────────────────────╮
-    -- │ ∘ Easymotion                                                                    │
-    -- ╰─────────────────────────────────────────────────────────────────────────────────╯
+
+    -- ╭──────────────────────────────────────────────────────────────────────────────╮
+    -- │ ∘ Motion                                                                     │
+    -- ╰──────────────────────────────────────────────────────────────────────────────╯
     {
         "rlane/pounce.nvim",
-        keys = require("core.utils").generate_lazy_keys("pounce"),
+        keys = utils.generate_lazy_keys("pounce"),
         cmd = { "Pounce", "PounceRepeat" },
     },
     {
         "phaazon/hop.nvim",
-        keys = require("core.utils").generate_lazy_keys("hop"),
+        keys = utils.generate_lazy_keys("hop"),
         branch = "v2",
         opts = {},
     },
-    -- ╭─────────────────────────────────────────────────────────────────────────────────╮
-    -- │ ∘ Treesitter                                                                    │
-    -- ╰─────────────────────────────────────────────────────────────────────────────────╯
+
+    -- ╭──────────────────────────────────────────────────────────────────────────────╮
+    -- │ ∘ Treesitter                                                                 │
+    -- ╰──────────────────────────────────────────────────────────────────────────────╯
     {
         "nvim-treesitter/nvim-treesitter",
-        cmd = { "TSInstall", "TSBufEnable", "TSBufDisable", "TSModuleInfo" },
         event = "BufReadPost",
-        dependencies = {
-            { "JoosepAlviste/nvim-ts-context-commentstring" },
-            { "nvim-treesitter/nvim-treesitter-refactor" },
-            { "nvim-treesitter/nvim-tree-docs" },
-            { "yioneko/nvim-yati" },
-        },
         build = ":TSUpdate",
         opts = function()
             return require("plugins.configs.treesitter")
         end,
+        dependencies = {
+            { "JoosepAlviste/nvim-ts-context-commentstring", event = "VeryLazy" },
+            { "nvim-treesitter/nvim-treesitter-refactor", cmd = { "TSCaptureUnderCursor" } },
+            { "nvim-treesitter/nvim-tree-docs", cmd = { "TSDoc" } },
+            { "yioneko/nvim-yati", ft = { "lua", "python", "javascript", "typescript", "go", "c", "cpp" } },
+        },
     },
     {
         "HiPhish/rainbow-delimiters.nvim",
-        event = "BufReadPost",
+        event = "VeryLazy",
         config = function()
             require("plugins.configs.rainbow-delimiters")
-            -- patch https://github.com/nvim-treesitter/nvim-treesitter/issues/1124
-            if vim.fn.expand("%:p") ~= "" then
-                vim.cmd.edit({ bang = true })
-            end
         end,
     },
-    -- ╭─────────────────────────────────────────────────────────────────────────────────╮
-    -- │ ∘ Git stuff                                                                     │
-    -- ╰─────────────────────────────────────────────────────────────────────────────────╯
+
+    -- ╭──────────────────────────────────────────────────────────────────────────────╮
+    -- │ ∘ Git                                                                        │
+    -- ╰──────────────────────────────────────────────────────────────────────────────╯
     {
         "lewis6991/gitsigns.nvim",
-        ft = { "gitcommit", "diff" },
-        event = { "CursorHold", "CursorHoldI" },
+        -- only load gitsigns the first time we detect the current buffer
+        -- resides (somewhere up the tree) inside a Git repository.
         init = function()
-            -- load gitsigns only when a git file is opened
-            vim.api.nvim_create_autocmd({ "BufRead" }, {
-                group = vim.api.nvim_create_augroup("GitSignsLazyLoad", { clear = true }),
-                callback = function()
-                    vim.fn.system("git -C " .. '"' .. vim.fn.expand("%:p:h") .. '"' .. " rev-parse")
-                    if vim.v.shell_error == 0 then
-                        vim.api.nvim_del_augroup_by_name("GitSignsLazyLoad")
-                        vim.schedule(function()
-                            require("lazy").load({ plugins = { "gitsigns.nvim" } })
-                        end)
+            local cache = {}
+            local function has_git(path)
+                if cache[path] ~= nil then
+                    return cache[path]
+                end
+                if path == "" then
+                    cache[path] = false
+                    return false
+                end
+                local git_entry = path .. "/.git"
+                if vim.loop.fs_stat(git_entry) then
+                    cache[path] = true
+                    return true
+                end
+                local parent = vim.fn.fnamemodify(path, ":h")
+                if parent == path or parent == "" then
+                    cache[path] = false
+                    return false
+                end
+                local res = has_git(parent)
+                cache[path] = res
+                return res
+            end
+
+            vim.api.nvim_create_autocmd("BufReadPre", {
+                group = vim.api.nvim_create_augroup("LazyLoadGitsigns", { clear = true }),
+                callback = function(args)
+                    local file = vim.api.nvim_buf_get_name(args.buf)
+                    if file == "" then
+                        return
+                    end
+                    local dir = vim.fn.fnamemodify(file, ":p:h")
+                    if has_git(dir) then
+                        vim.api.nvim_del_augroup_by_name("LazyLoadGitsigns")
+                        require("lazy").load({ plugins = { "gitsigns.nvim" } })
                     end
                 end,
             })
@@ -307,84 +307,99 @@ local pluginlist = {
     },
     {
         "NeogitOrg/neogit",
-        dependencies = {
-            "nvim-lua/plenary.nvim",         -- required
-            "sindrets/diffview.nvim",        -- optional - Diff integration
-            "nvim-telescope/telescope.nvim", -- optional
-        },
-        --keys = require("core.utils").generate_lazy_keys("neogit"),
         cmd = "Neogit",
+        dependencies = { "nvim-lua/plenary.nvim" },
         opts = function()
-            return require("plugins.configs.neogit")
+            local cfg = require("plugins.configs.neogit")
+            local ok_diff = pcall(require, "diffview")
+            local ok_tel = pcall(require, "telescope")
+            cfg.integrations = {
+                diffview = ok_diff,
+                telescope = ok_tel,
+            }
+            return cfg
         end,
     },
-    -- ╭─────────────────────────────────────────────────────────────────────────────────╮
-    -- │ ∘ cmp                                                                           │
-    -- ╰─────────────────────────────────────────────────────────────────────────────────╯
+    {
+        "sindrets/diffview.nvim",
+        cmd = { "DiffviewOpen", "DiffviewFileHistory" },
+        dependencies = { "nvim-lua/plenary.nvim" },
+    },
+
+    -- ╭──────────────────────────────────────────────────────────────────────────────╮
+    -- │ ∘ Completion & Snippets / Autopairs                                          │
+    -- ╰──────────────────────────────────────────────────────────────────────────────╯
+    {
+        "L3MON4D3/LuaSnip",
+        event = "InsertEnter",
+        dependencies = { "rafamadriz/friendly-snippets" },
+        build = (function()
+            if jit and jit.os and jit.os:lower() == "windows" then
+                return nil
+            end
+            return "make install_jsregexp"
+        end)(),
+        config = function()
+            require("plugins.configs.others").luasnip({
+                history = true,
+                updateevents = "TextChanged,TextChangedI",
+            })
+
+            vim.api.nvim_create_autocmd("FileType", {
+                group = vim.api.nvim_create_augroup("luasnip-lazy-load", { clear = true }),
+                pattern = "*",
+                callback = function()
+                    require("luasnip.loaders.from_vscode").lazy_load({
+                        paths = vim.api.nvim_get_runtime_file("snippets/" .. vim.bo.filetype, true),
+                    })
+                end,
+            })
+        end,
+    },
+    {
+        "windwp/nvim-autopairs",
+        event = "InsertEnter",
+        opts = {
+            fast_wrap = {},
+            disable_filetype = { "TelescopePrompt", "vim" },
+        },
+        config = function(_, opts)
+            require("nvim-autopairs").setup(opts)
+            local ok_cmp, cmp = pcall(require, "cmp")
+            if ok_cmp then
+                local cmp_autopairs = require("nvim-autopairs.completion.cmp")
+                cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
+            end
+        end,
+    },
     {
         "hrsh7th/nvim-cmp",
         event = "InsertEnter",
         dependencies = {
-            {
-                -- snippet plugin
-                "L3MON4D3/LuaSnip",
-                dependencies = "rafamadriz/friendly-snippets",
-                opts = {
-                    history = true,
-                    updateevents = "TextChanged,TextChangedI",
-                },
-                config = function(_, opts)
-                    require("plugins.configs.others").luasnip(opts)
-                end,
-            },
-            {
-                -- autopairing of (){}[] etc
-                "windwp/nvim-autopairs",
-                opts = {
-                    fast_wrap = {},
-                    disable_filetype = { "TelescopePrompt", "vim" },
-                },
-                config = function(_, opts)
-                    require("nvim-autopairs").setup(opts)
-
-                    -- setup cmp for autopairs
-                    local cmp_autopairs = require("nvim-autopairs.completion.cmp")
-                    require("cmp").event:on("confirm_done", cmp_autopairs.on_confirm_done())
-                end,
-            },
-            {
-                "hrsh7th/cmp-cmdline",     -- コマンドライン補完用
-                "hrsh7th/cmp-path",        -- パス補完用
-                "hrsh7th/cmp-buffer",      -- バッファ補完用
-                "hrsh7th/cmp-nvim-lua",    -- Lua補完用
-                "saadparwaiz1/cmp_luasnip", -- LuaSnip用
-                "hrsh7th/cmp-nvim-lsp",    -- lsp補完用
-                "hrsh7th/cmp-nvim-lsp-signature-help", -- 関数
-                "hrsh7th/cmp-emoji",       -- emoji用
-                "hrsh7th/cmp-calc",        -- 計算用
-                "ray-x/cmp-treesitter",    -- Treesitter用
-                "lukas-reineke/cmp-rg",    -- ripgrep用
-                "petertriho/cmp-git",
-                "lukas-reineke/cmp-under-comparator", -- 補完並び替え
-            },
+            "L3MON4D3/LuaSnip",
+            "hrsh7th/cmp-nvim-lsp",
+            "saadparwaiz1/cmp_luasnip",
+            { "hrsh7th/cmp-buffer", event = "InsertEnter" },
+            { "hrsh7th/cmp-path", event = "InsertEnter" },
+            { "hrsh7th/cmp-cmdline", event = "CmdlineEnter" },
+            "hrsh7th/cmp-calc",
+            "lukas-reineke/cmp-rg",
+            "petertriho/cmp-git",
+            { "lukas-reineke/cmp-under-comparator", event = "VeryLazy" },
+            { "onsails/lspkind-nvim", event = "InsertEnter" },
         },
         config = function()
-            return require("plugins.configs.cmp")
+            require("plugins.configs.cmp")
         end,
     },
-    {
-        "onsails/lspkind-nvim",
-        config = function()
-            require("plugins.configs.lspkind")
-        end,
-    },
-    -- ╭─────────────────────────────────────────────────────────────────────────────────╮
-    -- │ ∘ AI tools                                                                      │
-    -- ╰─────────────────────────────────────────────────────────────────────────────────╯
+
+    -- ╭──────────────────────────────────────────────────────────────────────────────╮
+    -- │ ∘ AI Tools                                                                   │
+    -- ╰──────────────────────────────────────────────────────────────────────────────╯
     {
         "olimorris/codecompanion.nvim",
         cmd = { "CodeCompanion", "CodeCompanionChat", "CodeCompanionAction" },
-        keys = require("core.utils").generate_lazy_keys("codecompanion"),
+        keys = utils.generate_lazy_keys("codecompanion"),
         opts = function()
             return require("plugins.configs.codecompanion")
         end,
@@ -395,7 +410,6 @@ local pluginlist = {
     },
     {
         "zbirenbaum/copilot.lua",
-        -- cmd = { "Copilot" },
         event = "InsertEnter",
         config = function()
             vim.defer_fn(function()
@@ -403,9 +417,10 @@ local pluginlist = {
             end, 100)
         end,
     },
-    -- ╭─────────────────────────────────────────────────────────────────────────────────╮
-    -- │ ∘ LSP & DAP                                                                     │
-    -- ╰─────────────────────────────────────────────────────────────────────────────────╯
+
+    -- ╭──────────────────────────────────────────────────────────────────────────────╮
+    -- │ ∘ LSP / Diagnostics / DAP                                                    │
+    -- ╰──────────────────────────────────────────────────────────────────────────────╯
     {
         "mason-org/mason.nvim",
         cmd = "Mason",
@@ -420,16 +435,16 @@ local pluginlist = {
     {
         "mason-org/mason-lspconfig.nvim",
         event = "BufReadPre",
-        config = function()
-            require("plugins.configs.lsp").setup()
-        end,
         dependencies = {
             "neovim/nvim-lspconfig",
-            "mason.nvim",
+            "mason-org/mason.nvim",
             "jay-babu/mason-null-ls.nvim",
             "folke/neoconf.nvim",
             "folke/neodev.nvim",
         },
+        config = function()
+            require("plugins.configs.lsp").setup()
+        end,
     },
     {
         "jay-babu/mason-null-ls.nvim",
@@ -452,32 +467,22 @@ local pluginlist = {
             require("plugins.configs.null-ls")
         end,
     },
-    -- {
-    --     "rachartier/tiny-inline-diagnostic.nvim",
-    --     event = "VeryLazy",
-    --     priority = 1000,
-    --     opts = function()
-    --         return require("plugins.configs.tiny-inline-diagnostic")
-    --     end
-    -- },
     {
         "folke/trouble.nvim",
-        keys = require("core.utils").generate_lazy_keys("trouble"),
+        keys = utils.generate_lazy_keys("trouble"),
+        cmd = { "Trouble" },
         opts = function()
             return require("plugins.configs.trouble")
         end,
-        cmd = { "Trouble" },
     },
     {
         "mfussenegger/nvim-dap",
-        keys = require("core.utils").generate_lazy_keys("dap"),
+        keys = utils.generate_lazy_keys("dap"),
         dependencies = {
-            -- Creates a beautiful debugger UI
             {
                 "rcarriga/nvim-dap-ui",
                 dependencies = { "nvim-neotest/nvim-nio" },
             },
-            -- Installs the debug adapters for you
             "mason-org/mason.nvim",
             "jay-babu/mason-nvim-dap.nvim",
         },
@@ -491,94 +496,109 @@ local pluginlist = {
         event = { "CursorHold", "CursorHoldI" },
         opts = {},
     },
-    -- ╭─────────────────────────────────────────────────────────────────────────────────╮
-    -- │ ∘ Fuzzy finder                                                                  │
-    -- ╰─────────────────────────────────────────────────────────────────────────────────╯
-    -- {
-    --     "ibhagwan/fzf-lua",
-    --     dependencies = { "nvim-tree/nvim-web-devicons" },
-    --     opts = function()
-    --         require("plugins.configs.fzf")
-    --     end
-    -- },
+
+    -- ╭──────────────────────────────────────────────────────────────────────────────╮
+    -- │ ∘ Fuzzy Finder & Telescope Extensions                                        │
+    -- ╰──────────────────────────────────────────────────────────────────────────────╯
     {
         "nvim-telescope/telescope.nvim",
-        dependencies = {
-            {
-                "nvim-lua/plenary.nvim",
-            },
-            {
-                "Allianaab2m/telescope-kensaku.nvim",
-                config = function()
-                    require("telescope").load_extension("kensaku")
-                end,
-            },
-            {
-                "nvim-treesitter/nvim-treesitter",
-            },
-            {
-                "nvim-telescope/telescope-github.nvim",
-                config = function()
-                    require("telescope").load_extension("gh")
-                end,
-            },
-            {
-                "nvim-telescope/telescope-ui-select.nvim",
-                config = function()
-                    require("telescope").load_extension("ui-select")
-                end,
-            },
-            {
-                "LinArcX/telescope-changes.nvim",
-                config = function()
-                    require("telescope").load_extension("changes")
-                end,
-            },
-            {
-                "nvim-telescope/telescope-live-grep-args.nvim",
-                config = function()
-                    require("telescope").load_extension("live_grep_args")
-                end,
-            },
-            {
-                "nvim-telescope/telescope-smart-history.nvim",
-                config = function()
-                    require("telescope").load_extension("smart_history")
-                end,
-                build = function()
-                    os.execute("mkdir -p " .. vim.fn.stdpath("state") .. "databases/")
-                end,
-            },
-            {
-                "nvim-telescope/telescope-symbols.nvim",
-            },
-            {
-                "debugloop/telescope-undo.nvim",
-                config = function()
-                    require("telescope").load_extension("undo")
-                end,
-            },
-        },
         cmd = "Telescope",
-        keys = require("core.utils").generate_lazy_keys("telescope"),
+        keys = utils.generate_lazy_keys("telescope"),
+        dependencies = {
+            "nvim-lua/plenary.nvim",
+        },
         opts = function()
             return require("plugins.configs.telescope")
         end,
         config = function(_, opts)
-            local telescope = require("telescope")
-            telescope.setup(opts)
-            -- load extensions
-            for _, ext in ipairs(opts.extensions_list) do
-                telescope.load_extension(ext)
-            end
+            require("telescope").setup(opts)
         end,
     },
-    -- ╭─────────────────────────────────────────────────────────────────────────────────╮
-    -- │ ∘ Filer & Terminal                                                              │
-    -- ╰─────────────────────────────────────────────────────────────────────────────────╯
+    {
+        "Allianaab2m/telescope-kensaku.nvim",
+        dependencies = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" },
+        ft = { "text", "markdown", "gitcommit" },
+        config = function()
+            pcall(function()
+                require("telescope").load_extension("kensaku")
+            end)
+        end,
+    },
+    {
+        "nvim-telescope/telescope-github.nvim",
+        dependencies = { "nvim-telescope/telescope.nvim" },
+        cmd = "Telescope",
+        config = function()
+            pcall(function()
+                require("telescope").load_extension("gh")
+            end)
+        end,
+    },
+    {
+        "nvim-telescope/telescope-ui-select.nvim",
+        dependencies = { "nvim-telescope/telescope.nvim" },
+        event = "VeryLazy",
+        config = function()
+            pcall(function()
+                require("telescope").load_extension("ui-select")
+            end)
+        end,
+    },
+    {
+        "LinArcX/telescope-changes.nvim",
+        dependencies = { "nvim-telescope/telescope.nvim" },
+        cmd = "Telescope",
+        config = function()
+            pcall(function()
+                require("telescope").load_extension("changes")
+            end)
+        end,
+    },
+    {
+        "nvim-telescope/telescope-live-grep-args.nvim",
+        dependencies = { "nvim-telescope/telescope.nvim" },
+        cmd = "Telescope",
+        config = function()
+            pcall(function()
+                require("telescope").load_extension("live_grep_args")
+            end)
+        end,
+    },
+    {
+        "nvim-telescope/telescope-smart-history.nvim",
+        dependencies = { "nvim-telescope/telescope.nvim", "kkharji/sqlite.lua" },
+        event = "VeryLazy",
+        build = function()
+            os.execute("mkdir -p " .. vim.fn.stdpath("state") .. "databases/")
+        end,
+        config = function()
+            pcall(function()
+                require("telescope").load_extension("smart_history")
+            end)
+        end,
+    },
+    {
+        "nvim-telescope/telescope-symbols.nvim",
+        dependencies = { "nvim-telescope/telescope.nvim" },
+        cmd = "Telescope",
+    },
+    {
+        "debugloop/telescope-undo.nvim",
+        dependencies = { "nvim-telescope/telescope.nvim" },
+        cmd = "Telescope",
+        config = function()
+            pcall(function()
+                require("telescope").load_extension("undo")
+            end)
+        end,
+    },
+
+    -- ╭──────────────────────────────────────────────────────────────────────────────╮
+    -- │ ∘ File Managers / Terminal                                                   │
+    -- ╰──────────────────────────────────────────────────────────────────────────────╯
     {
         "nvim-tree/nvim-tree.lua",
-        keys = require("core.utils").generate_lazy_keys("nvimtree"),
+        keys = utils.generate_lazy_keys("nvimtree"),
         cmd = {
             "NvimTreeToggle",
             "NvimTreeOpen",
@@ -592,7 +612,7 @@ local pluginlist = {
     },
     {
         "stevearc/oil.nvim",
-        keys = require("core.utils").generate_lazy_keys("oil"),
+        keys = utils.generate_lazy_keys("oil"),
         cmd = { "Oil" },
         opts = require("plugins.configs.oil"),
         dependencies = {
@@ -601,7 +621,7 @@ local pluginlist = {
     },
     {
         "akinsho/toggleterm.nvim",
-        keys = require("core.utils").generate_lazy_keys("toggleterm"),
+        keys = utils.generate_lazy_keys("toggleterm"),
         cmd = {
             "ToggleTerm",
             "ToggleTermSetName",
@@ -612,22 +632,21 @@ local pluginlist = {
         },
         opts = require("plugins.configs.toggleterm"),
     },
-    -- ╭─────────────────────────────────────────────────────────────────────────────────╮
-    -- │ ∘ Code Runner & Live server                                                     │
-    -- ╰─────────────────────────────────────────────────────────────────────────────────╯
+
+    -- ╭──────────────────────────────────────────────────────────────────────────────╮
+    -- │ ∘ Code Runner / Tasks / Live Server                                          │
+    -- ╰──────────────────────────────────────────────────────────────────────────────╯
     {
         "michaelb/sniprun",
         branch = "master",
         cmd = { "SnipRun" },
         build = "sh install.sh",
-        -- do 'sh install.sh 1' if you want to force compile locally
-        -- (instead of fetching a binary from the github release). Requires Rust >= 1.65
         opts = {
             display = { "Terminal", "NvimNotifyErr" },
             display_options = {
-                terminal_scrollback = vim.o.scrollback, -- change terminal display scrollback lines
-                terminal_line_number = false, -- whether show line number in terminal window
-                terminal_signcolumn = false, -- whether show signcolumn in terminal window
+                terminal_scrollback = vim.o.scrollback,
+                terminal_line_number = false,
+                terminal_signcolumn = false,
                 terminal_width = 35,
             },
             inline_messages = 0,
@@ -636,13 +655,11 @@ local pluginlist = {
     },
     {
         "stevearc/overseer.nvim",
-        keys = require("core.utils").generate_lazy_keys("overseer"),
+        keys = utils.generate_lazy_keys("overseer"),
         cmd = { "OverseerRun" },
         opts = {
             templates = { "builtin", "user.cpp_build", "user.run_script" },
-            strategy = {
-                "toggleterm",
-            },
+            strategy = { "toggleterm" },
         },
         dependencies = {
             "mfussenegger/nvim-dap",
