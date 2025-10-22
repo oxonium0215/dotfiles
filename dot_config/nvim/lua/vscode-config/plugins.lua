@@ -5,29 +5,23 @@ local pluginlist = {
     -- │ ∘ Other                                                                         │
     -- ╰─────────────────────────────────────────────────────────────────────────────────╯
     {
+        "kylechui/nvim-surround",
+        event = "VeryLazy",
+        opts = {},
+    },
+    {
         "m4xshen/hardtime.nvim",
         event = { "BufReadPost", "BufAdd", "BufNewFile" },
         dependencies = { "MunifTanjim/nui.nvim", "nvim-lua/plenary.nvim" },
         opts = {
             disable_mouse = false,
-            disabled_filetypes = { "qf", "alpha", "NvimTree", "lazy", "mason", "oil", "toggleterm" },
+            disabled_filetypes = { "qf", "lazy", "mason", "toggleterm" },
             max_count = 10,
         },
     },
-    -- Lua Library
     { "nvim-lua/plenary.nvim" },
-    { "kkharji/sqlite.lua" },
     { "MunifTanjim/nui.nvim" },
-    -- ╭─────────────────────────────────────────────────────────────────────────────────╮
-    -- │ ∘ UI                                                                            │
-    -- ╰─────────────────────────────────────────────────────────────────────────────────╯
-    -- Font
-    {
-        "nvim-tree/nvim-web-devicons",
-        enabled = function()
-            return not os.getenv("DISABLE_DEVICONS") or os.getenv("DISABLE_DEVICONS") == "false"
-        end,
-    },
+
     -- ╭─────────────────────────────────────────────────────────────────────────────────╮
     -- │ ∘ Easymotion                                                                    │
     -- ╰─────────────────────────────────────────────────────────────────────────────────╯
@@ -43,16 +37,63 @@ local pluginlist = {
         opts = {},
     },
     -- ╭─────────────────────────────────────────────────────────────────────────────────╮
-    -- │ ∘ Filer & Terminal                                                              │
+    -- │ ∘ Treesitter                                                                    │
     -- ╰─────────────────────────────────────────────────────────────────────────────────╯
     {
-        "stevearc/oil.nvim",
-        keys = require("core.utils").generate_lazy_keys("oil"),
-        cmd = { "Oil" },
-        opts = {},
+        "nvim-treesitter/nvim-treesitter",
+        cmd = { "TSInstall", "TSBufEnable", "TSBufDisable", "TSModuleInfo" },
+        event = "BufReadPost",
         dependencies = {
-            "nvim-tree/nvim-web-devicons",
+            { "JoosepAlviste/nvim-ts-context-commentstring" },
+            { "nvim-treesitter/nvim-treesitter-refactor" },
+            { "nvim-treesitter/nvim-tree-docs" },
+            { "yioneko/nvim-yati" },
         },
+        build = ":TSUpdate",
+        opts = function()
+            return require("plugins.configs.treesitter")
+        end,
+    },
+    -- ╭─────────────────────────────────────────────────────────────────────────────────╮
+    -- │ ∘ Git stuff                                                                     │
+    -- ╰─────────────────────────────────────────────────────────────────────────────────╯
+    {
+        "lewis6991/gitsigns.nvim",
+        ft = { "gitcommit", "diff" },
+        event = { "CursorHold", "CursorHoldI" },
+        init = function()
+            -- load gitsigns only when a git file is opened
+            vim.api.nvim_create_autocmd({ "BufRead" }, {
+                group = vim.api.nvim_create_augroup("GitSignsLazyLoad", { clear = true }),
+                callback = function()
+                    vim.fn.system("git -C " .. '"' .. vim.fn.expand("%:p:h") .. '"' .. " rev-parse")
+                    if vim.v.shell_error == 0 then
+                        vim.api.nvim_del_augroup_by_name("GitSignsLazyLoad")
+                        vim.schedule(function()
+                            require("lazy").load({ plugins = { "gitsigns.nvim" } })
+                        end)
+                    end
+                end,
+            })
+        end,
+        opts = function()
+            return require("plugins.configs.others").gitsigns
+        end,
+    },
+    -- ╭─────────────────────────────────────────────────────────────────────────────────╮
+    -- │ ∘ AI tools                                                                      │
+    -- ╰─────────────────────────────────────────────────────────────────────────────────╯
+    {
+        "olimorris/codecompanion.nvim",
+        cmd = { "CodeCompanion", "CodeCompanionChat", "CodeCompanionAction" },
+        keys = require("core.utils").generate_lazy_keys("codecompanion"),
+        opts = function()
+            return require("plugins.configs.codecompanion")
+        end,
+        config = function(_, opts)
+            require("plugins.codecompanion.fidget-spinner"):init()
+            require("codecompanion").setup(opts)
+        end,
     },
 }
 

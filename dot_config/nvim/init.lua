@@ -15,7 +15,7 @@ else
     require("plugins")
     -- colorschemeを設定
     vim.cmd("colorscheme onedark")
+    require('core.japanese').setup_japanese_input()
+    require('core.japanese').setup_japanese_snippets()
 end
 
-require('core.japanese').setup_japanese_input()
-require('core.japanese').setup_japanese_snippets()
