@@ -223,9 +223,8 @@ local pluginlist = {
         cmd = { "Pounce", "PounceRepeat" },
     },
     {
-        "phaazon/hop.nvim",
+        "smoka7/hop.nvim",
         keys = utils.generate_lazy_keys("hop"),
-        branch = "v2",
         opts = {},
     },
 
