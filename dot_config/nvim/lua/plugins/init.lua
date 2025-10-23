@@ -331,6 +331,7 @@ local pluginlist = {
     -- ╰──────────────────────────────────────────────────────────────────────────────╯
     {
         "L3MON4D3/LuaSnip",
+        version = "2.*",
         event = "InsertEnter",
         dependencies = { "rafamadriz/friendly-snippets" },
         build = (function()
