@@ -53,6 +53,12 @@ M.bufferline = {
   {"n", "<S-l>", "<Cmd>BufferLineCycleNext<CR>", { desc = "Next buffer" }},
 }
 
+M.dropbar = {
+    {"n", "<leader>;", "<cmd>lua require('dropbar.api').pick()<CR>", { desc = "Dropbar pick" }},
+    {"n", "[;", "<cmd>lua require('dropbar.api').goto_context_start<CR>", { desc = "Dropbar goto context start" }},
+    {"n", "];", "<cmd>lua require('dropbar.api').select_next_context<CR>", { desc = "Dropbar goto context end" }},
+}
+
 M.lspconfig = {
   {"n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", { desc = "LSP declaration" }},
   {"n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", { desc = "LSP definition" }},
