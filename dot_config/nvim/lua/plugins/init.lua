@@ -190,6 +190,11 @@ local pluginlist = {
         cmd = { "Bdelete", "Bwipeout" },
     },
     {
+        "Bekaboo/dropbar.nvim",
+        event = { "BufReadPost", "BufNewFile" },
+        keys = utils.generate_lazy_keys("dropbar"),
+    },
+    {
         "nvim-lualine/lualine.nvim",
         event = { "BufReadPost", "BufNewFile" },
         config = function()
