@@ -59,6 +59,12 @@ M.dropbar = {
     {"n", "];", "<cmd>lua require('dropbar.api').select_next_context<CR>", { desc = "Dropbar goto context end" }},
 }
 
+M.aerial = {
+    {"n", "{", "<cmd>AerialPrev<CR>", { desc = "Aerial prev" }},
+    {"n", "}", "<cmd>AerialNext<CR>", { desc = "Aerial next" }},
+    {"n", "<leader>a", "<cmd>AerialToggle!<CR>", { desc = "Aerial toggle" }},
+}
+
 M.lspconfig = {
   {"n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", { desc = "LSP declaration" }},
   {"n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", { desc = "LSP definition" }},

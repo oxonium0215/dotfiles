@@ -202,6 +202,11 @@ local pluginlist = {
         end,
     },
     {
+        "stevearc/aerial.nvim",
+        keys = utils.generate_lazy_keys("aerial"),
+        opts = {},
+    },
+    {
         "brenoprata10/nvim-highlight-colors",
         -- Removed ft restriction per request (now global)
         event = "BufReadPost",
