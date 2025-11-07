@@ -9,6 +9,7 @@ export PATH=$HOME/.local/bin:$PATH
 export PATH=$HOME/bin:/usr/local/bin:$PATH
 export PATH=$HOME/.local/bin:$PATH
 export PATH=$HOME/.local/share/bob/nvim-bin:$PATH
+export PATH=$HOME/.pixi/bin:$PATH
 export PATH=/snap/bin:$PATH
 
 export PATH="$PATH:/usr/local/texlive/2025/bin/x86_64-linux"
