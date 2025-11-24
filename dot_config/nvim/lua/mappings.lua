@@ -33,10 +33,9 @@ M.general = {
   {"x", "p", 'p:let @+=@0<CR>:let @"=@0<CR>', { desc = "Dont copy replaced text", silent = true }},
 
   --  Redirect change operations to the blackhole to avoid spoiling 'y' register content
--- Redirect change/delete operations to the blackhole register
-{{"n", "v"}, "c", '"_c', { desc = "Redirect change to blackhole", silent = true }},
-{{"n", "v"}, "d", '"_d', { desc = "Redirect delete to blackhole", silent = true }},
-{{"n", "v"}, "D", '"_D', { desc = "Redirect delete to blackhole (to EOL)", silent = true }},
+  {{"n", "v"}, "c", '"_c', { desc = "Redirect change to blackhole", silent = true }},
+  {{"n", "v"}, "d", '"_d', { desc = "Redirect delete to blackhole", silent = true }},
+  {{"n", "v"}, "D", '"_D', { desc = "Redirect delete to blackhole (to EOL)", silent = true }},
 
   -- Comment
   {"n", "<leader>/", "gcc", { desc = "Toggle Comment", remap = true }},
