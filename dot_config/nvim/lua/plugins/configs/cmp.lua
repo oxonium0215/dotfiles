@@ -8,10 +8,7 @@ cmp.setup({
         completeopt = "menu,menuone,preview,noselect",
     },
 
-    window = {
-        completeion = cmp.config.window.bordered(),
-        documentation = cmp.config.window.bordered(),
-    },
+    window = {},
     snippet = {
         expand = function(args)
             require("luasnip").lsp_expand(args.body)

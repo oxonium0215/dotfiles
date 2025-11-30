@@ -1,3 +1,3 @@
-require("neoconf").setup({
-    local_settings = ".nvim/neoconf.json",
-})
+return {
+  local_settings = ".nvim/neoconf.json",
+}

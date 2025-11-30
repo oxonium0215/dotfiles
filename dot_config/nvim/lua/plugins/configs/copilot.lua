@@ -16,7 +16,7 @@ vim.api.nvim_command("highlight link CopilotAnnotation LineNr")
 vim.api.nvim_command("highlight link CopilotSuggestion LineNr")
 
 vim.keymap.set("i", "<C-E>", function()
-	require("cmp").mapping.abort()
+	require("cmp").abort()
 	require("copilot.suggestion").accept()
 end, {
 	desc = "[copilot] accept suggestion",

@@ -1,6 +1,6 @@
 return {
   lsp = {
-    servers = { "tsserver" },
+    servers = { "ts_ls" },
     formatters = { "prettier" },
     linters = { "eslint_d" }
   },

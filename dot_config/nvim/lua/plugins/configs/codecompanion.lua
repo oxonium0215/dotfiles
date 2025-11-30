@@ -1,7 +1,7 @@
 return {
     display = {
         chat = {
-            auto_sctoll = false,
+            auto_scroll = false,
             show_header_separator = true,
         },
     },

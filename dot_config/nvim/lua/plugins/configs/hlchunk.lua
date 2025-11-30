@@ -17,7 +17,7 @@ local opts = {
     },
     indent = {
         enable = true,
-        notity= true,
+        notify = true,
         chars = {
             "│",
         },

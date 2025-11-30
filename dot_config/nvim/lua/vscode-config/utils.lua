@@ -22,18 +22,21 @@ M.generate_lazy_keys = function(section)
   for _, mapping in ipairs(mappings) do
     local mode = mapping[1]
     local lhs = mapping[2]
-    local rhs = mapping[3]
-    local opts = mapping[4] or {}
-    if type(mode) == "table" then
-      mode = table.concat(mode, "")
+  local rhs = mapping[3]
+  local opts = mapping[4] or {}
+  if type(mode) == "table" then
+    mode = table.concat(mode, "")
+  end
+  if type(rhs) == "function" then
+    local fn = rhs
+    rhs = function(...)
+      return fn(...)
     end
-    if type(rhs) == "function" then
-      rhs = function() rhs() end
-    end
-    local lazy_key = {
-      lhs,
-      rhs,
-      mode = mode,
+  end
+  local lazy_key = {
+    lhs,
+    rhs,
+    mode = mode,
     }
     for key, value in pairs(opts) do
       lazy_key[key] = value

@@ -10,6 +10,7 @@ local colors = {
     yellow = "#e0af68",
     blue = "#7aa2f7",
     magenta = "#bb9af7",
+    violet = "#a9a1e1",
     red = "#f7768e",
     cyan = "#7dcfff",
     orange = "#ff9e64"
@@ -20,6 +21,36 @@ local copilot_colors = {
     ["Warning"] = {fg = colors.red, bg = colors.bg},
     ["InProgress"] = {fg = colors.yellow, bg = colors.bg}
 }
+
+local navic_warned = false
+
+local function navic_available()
+    local ok, navic = pcall(require, "nvim-navic")
+    if not ok then
+        if not navic_warned then
+            vim.notify("nvim-navic not available; skipping breadcrumbs", vim.log.levels.WARN)
+            navic_warned = true
+        end
+        return nil
+    end
+    if not navic.is_available() then
+        return nil
+    end
+    return navic
+end
+
+local function navic_location()
+    local navic = navic_available()
+    if not navic then
+        return ""
+    end
+    local ok, location = pcall(navic.get_location)
+    if ok then
+        return location
+    end
+    return ""
+end
+
 local conditions = {
     buffer_not_empty = function()
         return vim.fn.empty(vim.fn.expand("%:t")) ~= 1
@@ -74,11 +105,9 @@ local config = {
                 symbols = {modified = "  ", readonly = "", unnamed = ""}
             },
             {
-                function()
-                    return require("nvim-navic").get_location()
-                end,
+                navic_location,
                 cond = function()
-                    return package.loaded["nvim-navic"] and require("nvim-navic").is_available()
+                    return navic_available() ~= nil
                 end,
                 color = {fg = colors.grey, bg = colors.bg}
             },
@@ -100,19 +129,18 @@ local config = {
             {"%="},
             {
                 function()
-                    local msg = "No Active Lsp"
-                    local buf_ft = vim.api.nvim_buf_get_option(0, "filetype")
-                    local clients = vim.lsp.get_clients()
-                    if next(clients) == nil then
-                        return msg
+                    local clients = vim.lsp.get_clients({ bufnr = 0 })
+                    if not clients or #clients == 0 then
+                        return "No Active Lsp"
                     end
+                    local names, seen = {}, {}
                     for _, client in ipairs(clients) do
-                        local filetypes = client.config.filetypes
-                        if filetypes and vim.fn.index(filetypes, buf_ft) ~= -1 then
-                            return client.name
+                        if not seen[client.name] then
+                            seen[client.name] = true
+                            table.insert(names, client.name)
                         end
                     end
-                    return msg
+                    return table.concat(names, ", ")
                 end,
                 icon = " LSP:",
                 color = {fg = "#ffffff", gui = "bold"}

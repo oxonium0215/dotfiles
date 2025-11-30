@@ -2,7 +2,6 @@ return {
     lsp = {
         servers = { "texlab" },
         formatters = { "latexindent" },
-        linters = { "chktex" },
         setup = {
             texlab = function()
                 return {
