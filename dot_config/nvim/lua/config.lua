@@ -1,10 +1,16 @@
 local icons = require("core.icons")
+local uv = vim.uv or vim.loop
+
+-- Default: enable format-on-save toggle unless user overrides before this loads
+if vim.g.autoformat_enabled == nil then
+  vim.g.autoformat_enabled = true
+end
 
 -- highlight on search
 vim.o.hlsearch = false
 
--- show line number
-vim.wo.number = true
+-- show line number globally
+vim.opt.number = true
 
 -- enable mouse mode
 vim.o.mouse = 'a'
@@ -19,7 +25,7 @@ vim.opt.startofline = true
 vim.o.ignorecase = true
 vim.o.smartcase = true
 
-vim.wo.signcolumn = 'yes'
+vim.opt.signcolumn = 'yes'
 
 -- Decrease update time
 vim.o.updatetime = 250
@@ -75,23 +81,19 @@ local signs = {
 
 -- Configure diagnostic display
 vim.diagnostic.config({
+  signs = {
+    text = signs,
+  },
   virtual_text = {
     prefix = function(diagnostic)
       return signs[diagnostic.severity]
     end,
   },
+  underline = true,
+  update_in_insert = true,
+  severity_sort = true,
+  float = { border = "rounded" },
 })
-
--- Use diagnostic icons for sign definitions
-for name, icon in pairs({
-  Error = diagnostic_icons.Error,
-  Warn = diagnostic_icons.Warning,
-  Info = diagnostic_icons.Information,
-  Hint = diagnostic_icons.Hint,
-}) do
-  local hl = "DiagnosticSign" .. name
-  vim.fn.sign_define(hl, { text = icon, numhl = hl, texthl = hl })
-end
 
 -- disable some default providers
 for _, provider in ipairs { "node", "perl", "python3", "ruby" } do
@@ -99,7 +101,7 @@ for _, provider in ipairs { "node", "perl", "python3", "ruby" } do
 end
 
 -- add binaries installed by mason.nvim to path
-local is_windows = vim.loop.os_uname().sysname == "Windows_NT"
+local is_windows = uv.os_uname().sysname == "Windows_NT"
 vim.env.PATH = vim.fn.stdpath "data" .. "/mason/bin" .. (is_windows and ";" or ":") .. vim.env.PATH
 
 vim.g.did_install_default_menus = 1

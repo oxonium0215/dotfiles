@@ -41,17 +41,17 @@ local pluginlist = {
     -- ╰─────────────────────────────────────────────────────────────────────────────────╯
     {
         "nvim-treesitter/nvim-treesitter",
-        cmd = { "TSInstall", "TSBufEnable", "TSBufDisable", "TSModuleInfo" },
-        event = "BufReadPost",
+        branch = "main",
+        lazy = false,
         dependencies = {
             { "JoosepAlviste/nvim-ts-context-commentstring" },
-            { "nvim-treesitter/nvim-treesitter-refactor" },
-            { "nvim-treesitter/nvim-tree-docs" },
-            { "yioneko/nvim-yati" },
+            { "nvim-treesitter/nvim-treesitter-refactor", enabled = false }, -- incompatible with TS main
+            { "nvim-treesitter/nvim-tree-docs", enabled = false }, -- incompatible with TS main
+            { "yioneko/nvim-yati", enabled = false }, -- incompatible with TS main
         },
         build = ":TSUpdate",
-        opts = function()
-            return require("plugins.configs.treesitter")
+        config = function()
+            require("plugins.configs.treesitter").setup()
         end,
     },
     -- ╭─────────────────────────────────────────────────────────────────────────────────╮

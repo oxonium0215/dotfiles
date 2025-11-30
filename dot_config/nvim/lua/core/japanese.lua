@@ -2,12 +2,89 @@
 
 local M = {}
 
+local function segment_positions(line)
+    local ok, tinysegmenter = pcall(require, "tinysegmenter")
+    if not ok then
+        return nil
+    end
+
+    local segments = tinysegmenter.segment(line)
+    if type(segments) ~= "table" then
+        return nil
+    end
+
+    local spans, search_from = {}, 1
+    for _, segment in ipairs(segments) do
+        local token = tostring(segment)
+        local s, e = string.find(line, token, search_from, true)
+        if not s or not e then
+            return nil
+        end
+        table.insert(spans, { start = s - 1, finish = e })
+        search_from = e + 1
+    end
+
+    return spans
+end
+
+local function jump_segment(kind)
+    local cursor = vim.api.nvim_win_get_cursor(0)
+    local row, col = cursor[1], cursor[2]
+    local line = vim.api.nvim_get_current_line()
+    local spans = segment_positions(line)
+
+    if not spans or #spans == 0 then
+        vim.cmd("normal! " .. kind)
+        return
+    end
+
+    local target
+    if kind == "w" then
+        for i, span in ipairs(spans) do
+            if col < span.start then
+                target = span.start
+                break
+            elseif col >= span.start and col < span.finish and spans[i + 1] then
+                target = spans[i + 1].start
+                break
+            end
+        end
+    elseif kind == "b" then
+        for _, span in ipairs(spans) do
+            if span.start < col then
+                target = span.start
+            elseif col <= span.start then
+                break
+            end
+        end
+    elseif kind == "e" then
+        for _, span in ipairs(spans) do
+            if col <= span.finish - 1 then
+                target = span.finish - 1
+                break
+            end
+        end
+    end
+
+    if target then
+        vim.api.nvim_win_set_cursor(0, { row, target })
+    else
+        vim.cmd("normal! " .. kind)
+    end
+end
+
 -- Setup Japanese input method integration
 function M.setup_japanese_input()
-    -- Enhanced Japanese text object motions
-    vim.api.nvim_set_keymap('n', 'w', '<Plug>(japanese-word-motion-w)', { noremap = false })
-    vim.api.nvim_set_keymap('n', 'b', '<Plug>(japanese-word-motion-b)', { noremap = false })
-    vim.api.nvim_set_keymap('n', 'e', '<Plug>(japanese-word-motion-e)', { noremap = false })
+    local opts = { silent = true }
+    vim.keymap.set("n", "<Plug>(japanese-word-motion-w)", function()
+        jump_segment("w")
+    end, opts)
+    vim.keymap.set("n", "<Plug>(japanese-word-motion-b)", function()
+        jump_segment("b")
+    end, opts)
+    vim.keymap.set("n", "<Plug>(japanese-word-motion-e)", function()
+        jump_segment("e")
+    end, opts)
 
     -- Japanese-aware text formatting
     vim.api.nvim_create_user_command('JapaneseFormat', function()

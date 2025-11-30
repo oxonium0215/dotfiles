@@ -10,11 +10,6 @@ local function shell_call(args)
     assert(vim.v.shell_error == 0, "External call failed with error code: " .. vim.v.shell_error .. "\n" .. output)
 end
 
-M.load_config = function()
-    local config = require "core.default_config"
-    return config
-end
-
 M.set_mappings = function(section, extra_opts)
     local mappings = require("mappings")[section]
     if not mappings then
@@ -34,8 +29,8 @@ M.generate_lazy_keys = function(section)
   if not mappings then
       error("Invalid mappings section: " .. tostring(section))
   end
-  local lazy_keys = {}
-  for _, mapping in ipairs(mappings) do
+    local lazy_keys = {}
+    for _, mapping in ipairs(mappings) do
     local mode = mapping[1]
     local lhs = mapping[2]
     local rhs = mapping[3]
@@ -44,7 +39,10 @@ M.generate_lazy_keys = function(section)
       mode = table.concat(mode, "")
     end
     if type(rhs) == "function" then
-      rhs = function() rhs() end
+      local fn = rhs
+      rhs = function(...)
+        return fn(...)
+      end
     end
     local lazy_key = {
       lhs,

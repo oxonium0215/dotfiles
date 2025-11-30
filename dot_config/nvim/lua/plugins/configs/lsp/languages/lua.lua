@@ -7,7 +7,7 @@ return {
         return {
           settings = {
             Lua = {
-              runtime = { version = "LusJit" },
+              runtime = { version = "LuaJIT" },
               diagnostics = { globals = { "vim" } },
               workspace = {
                 library = {
@@ -23,7 +23,7 @@ return {
               format = {
                 enable = true,
                 defaultConfig = {
-                  indent_style = "tab",
+                  indent_style = "space",
                   indent_size = "2",
                 }
               },

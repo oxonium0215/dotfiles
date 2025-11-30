@@ -25,6 +25,7 @@ local opts = {
         separator_style = "thin",
         themable = true,
         diagnostics = "nvim_lsp",
+        diagnostics_update_in_insert = false,
 --        diagnostics_indicator = function(_, _, diag)
 --            local icons = require('core.icons').get('diagnostics')
 --            local ret = (diag.error and icons.Error .. diag.error .. " " or "")

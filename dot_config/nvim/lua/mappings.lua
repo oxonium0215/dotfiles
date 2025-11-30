@@ -27,7 +27,7 @@ M.general = {
   {"n", "<leader>ds", vim.diagnostic.setloclist, { desc = "LSP Diagnostic loclist" }},
 
   -- buffer
-  {"n", "<leader>b", "<cmd>enew<CR>", { desc = "buffer new" }},
+  {"n", "<leader>bn", "<cmd>enew<CR>", { desc = "buffer new" }},
   -- Don't copy the replaced text after pasting in visual mode
   -- https://vim.fandom.com/wiki/Replace_a_word_with_yanked_text#Alternative_mapping_for_paste
   {"x", "p", 'p:let @+=@0<CR>:let @"=@0<CR>', { desc = "Dont copy replaced text", silent = true }},
@@ -74,7 +74,7 @@ M.lspconfig = {
   {"n", "<leader>ra", "<cmd>lua vim.lsp.buf.rename()<CR>", { desc = "LSP rename" }},
   {"n", "<leader>ca", "<cmd>lua vim.lsp.buf.code_action()<CR>", { desc = "LSP code action" }},
   {"n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", { desc = "LSP references" }},
-  {"n", "<leader>f", "<cmd>lua smart_format()<CR>", { desc = "Format current buffer" }},
+  {"n", "<leader>f", "<cmd>lua require('plugins.configs.lsp').smart_format()<CR>", { desc = "Format current buffer" }},
   {"n", "[d", "<cmd>lua vim.diagnostic.goto_prev { float = { border = 'rounded' } }<CR>", { desc = "Goto prev" }},
   {"n", "]d", "<cmd>lua vim.diagnostic.goto_next { float = { border = 'rounded' } }<CR>", { desc = "Goto next" }},
   {"n", "<leader>q", "<cmd>lua vim.diagnostic.setloclist()<CR>", { desc = "Diagnostic setloclist" }},
@@ -99,6 +99,7 @@ M.dap = {
   {"n", "<F3>", "<cmd>lua require('dap').step_out()<CR>", { desc = "Debug: Step Out" }},
   {"n", "<leader>b", "<cmd>lua require('dap').toggle_breakpoint()<CR>", { desc = "Debug: Toggle Breakpoint" }},
   {"n", "<leader>B", "<cmd>lua require('dap').set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>", { desc = "Debug: Set Breakpoint with Condition" }},
+  {"n", "<F7>", "<cmd>lua require('dapui').toggle()<CR>", { desc = "Debug: Toggle UI" }},
 }
 
 M.codecompanion = {

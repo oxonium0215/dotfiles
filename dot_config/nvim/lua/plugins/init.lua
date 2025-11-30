@@ -1,4 +1,5 @@
 local utils = require("core.utils")
+local uv = vim.uv or vim.loop
 
 local pluginlist = {
     -- ╭──────────────────────────────────────────────────────────────────────────────╮
@@ -56,11 +57,24 @@ local pluginlist = {
         "MeanderingProgrammer/render-markdown.nvim",
         ft = { "markdown", "markdown.mdx", "Avante", "codecompanion" },
     },
+    {
+        "sirasagi62/tinysegmenter.nvim",
+        lazy = false,
+    },
 
     -- Core shared libraries (lazy by default)
     { "nvim-lua/plenary.nvim", lazy = true },
     { "kkharji/sqlite.lua", lazy = true },
     { "MunifTanjim/nui.nvim", lazy = true },
+
+    -- ╭──────────────────────────────────────────────────────────────────────────────╮
+    -- │ ∘ Indentation                                                                │
+    -- ╰──────────────────────────────────────────────────────────────────────────────╯
+    {
+        "nmac427/guess-indent.nvim",
+        event = { "BufReadPost", "BufNewFile" },
+        opts = {},
+    },
 
     -- ╭──────────────────────────────────────────────────────────────────────────────╮
     -- │ ∘ LaTeX                                                                      │
@@ -175,11 +189,17 @@ local pluginlist = {
         end,
         config = function(_, opts)
             require("bufferline").setup(opts)
+            local function refresh_bufferline()
+                local ok, bufferline = pcall(require, "bufferline")
+                if ok then
+                    bufferline.setup(opts)
+                end
+            end
             -- session restore fix
             vim.api.nvim_create_autocmd("BufAdd", {
                 callback = function()
                     vim.schedule(function()
-                        pcall(nvim_bufferline)
+                        refresh_bufferline()
                     end)
                 end,
             })
@@ -193,6 +213,9 @@ local pluginlist = {
         "Bekaboo/dropbar.nvim",
         event = { "BufReadPost", "BufNewFile" },
         keys = utils.generate_lazy_keys("dropbar"),
+    },
+    {
+        "SmiteshP/nvim-navic",
     },
     {
         "nvim-lualine/lualine.nvim",
@@ -243,18 +266,26 @@ local pluginlist = {
     -- ╰──────────────────────────────────────────────────────────────────────────────╯
     {
         "nvim-treesitter/nvim-treesitter",
-        -- branch = "main",
-        event = "BufReadPost",
-        cmd = { "TSInstall", "TSUpdate", "TSUninstall" },
+        branch = "main",
+        lazy = false,
         build = ":TSUpdate",
-        opts = function()
-            return require("plugins.configs.treesitter")
+        config = function()
+            require("plugins.configs.treesitter").setup()
         end,
         dependencies = {
             { "JoosepAlviste/nvim-ts-context-commentstring", event = "VeryLazy" },
-            { "nvim-treesitter/nvim-treesitter-refactor", cmd = { "TSCaptureUnderCursor" } },
-            { "nvim-treesitter/nvim-tree-docs", cmd = { "TSDoc" } },
-            { "yioneko/nvim-yati", ft = { "lua", "python", "javascript", "typescript", "go", "c", "cpp" } },
+            {
+                "nvim-treesitter/nvim-treesitter-refactor",
+                enabled = false, -- incompatible with Treesitter main rewrite
+            },
+            {
+                "nvim-treesitter/nvim-tree-docs",
+                enabled = false, -- incompatible with Treesitter main rewrite
+            },
+            {
+                "yioneko/nvim-yati",
+                enabled = false, -- incompatible with Treesitter main rewrite
+            },
         },
     },
     {
@@ -283,7 +314,7 @@ local pluginlist = {
                     return false
                 end
                 local git_entry = path .. "/.git"
-                if vim.loop.fs_stat(git_entry) then
+                if uv.fs_stat(git_entry) then
                     cache[path] = true
                     return true
                 end
@@ -356,6 +387,11 @@ local pluginlist = {
                 history = true,
                 updateevents = "TextChanged,TextChangedI",
             })
+
+            local ok_japanese, japanese = pcall(require, "core.japanese")
+            if ok_japanese and japanese.setup_japanese_snippets then
+                japanese.setup_japanese_snippets()
+            end
 
             vim.api.nvim_create_autocmd("FileType", {
                 group = vim.api.nvim_create_augroup("luasnip-lazy-load", { clear = true }),
@@ -434,6 +470,15 @@ local pluginlist = {
     -- │ ∘ LSP / Diagnostics / DAP                                                    │
     -- ╰──────────────────────────────────────────────────────────────────────────────╯
     {
+        "folke/lazydev.nvim",
+        ft = "lua",
+        opts = {
+            library = {
+                { path = vim.fn.stdpath("data") .. "/lazy/lazy.nvim/lua/lazy", words = { "lazy" } },
+            },
+        },
+    },
+    {
         "mason-org/mason.nvim",
         cmd = "Mason",
         opts = function()
@@ -452,7 +497,6 @@ local pluginlist = {
             "mason-org/mason.nvim",
             "jay-babu/mason-null-ls.nvim",
             "folke/neoconf.nvim",
-            "folke/neodev.nvim",
         },
         config = function()
             require("plugins.configs.lsp").setup()
@@ -466,8 +510,10 @@ local pluginlist = {
             "nvimtools/none-ls.nvim",
         },
         config = function()
+            local lsp = require("plugins.configs.lsp")
             require("mason-null-ls").setup({
-                automatic_installation = true,
+                ensure_installed = lsp.null_ls_ensure,
+                automatic_installation = false,
                 handlers = {},
             })
         end,
@@ -475,8 +521,11 @@ local pluginlist = {
     {
         "nvimtools/none-ls.nvim",
         event = "BufReadPre",
-        config = function()
-            require("plugins.configs.null-ls")
+        opts = function()
+            return require("plugins.configs.null-ls")
+        end,
+        config = function(_, opts)
+            require("null-ls").setup(opts)
         end,
     },
     {
@@ -490,6 +539,7 @@ local pluginlist = {
     {
         "mfussenegger/nvim-dap",
         keys = utils.generate_lazy_keys("dap"),
+        event = "VeryLazy",
         dependencies = {
             {
                 "rcarriga/nvim-dap-ui",
@@ -499,7 +549,7 @@ local pluginlist = {
             "jay-babu/mason-nvim-dap.nvim",
         },
         config = function()
-            require("plugins.configs.dap")
+            require("plugins.configs.dap").setup()
         end,
     },
     {
@@ -581,7 +631,8 @@ local pluginlist = {
         dependencies = { "nvim-telescope/telescope.nvim", "kkharji/sqlite.lua" },
         event = "VeryLazy",
         build = function()
-            os.execute("mkdir -p " .. vim.fn.stdpath("state") .. "databases/")
+            local dir = vim.fs.joinpath(vim.fn.stdpath("state"), "databases")
+            os.execute("mkdir -p " .. dir .. "/")
         end,
         config = function()
             pcall(function()

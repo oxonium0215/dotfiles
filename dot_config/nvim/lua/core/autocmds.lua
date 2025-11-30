@@ -1,6 +1,8 @@
 local augroup = vim.api.nvim_create_augroup
 local autocmd = vim.api.nvim_create_autocmd
 
+local config_root = vim.fn.stdpath("config")
+
 local groups = {
     general = augroup("GeneralSettings", { clear = true }),
     nvimtree = augroup("NvimTreeClose", { clear = true }),
@@ -21,18 +23,28 @@ end
 create_autocmd({ "BufReadPost", "BufNewFile" }, {
   once = true,
   callback = function()
-    if vim.fn.has("win32") == 1 or vim.fn.has("wsl") == 1 then
-      vim.g.clipboard = {
-        copy = {
-          ["+"] = "win32yank.exe -i --crlf",
-          ["*"] = "win32yank.exe -i --crlf",
-        },
-        paste = {
-          ["+"] = "win32yank.exe -o --lf",
-          ["*"] = "win32yank.exe -o --lf",
-        },
-      }
-    elseif vim.fn.has("unix") == 1 then
+    local provider_set = false
+    if vim.fn.has("macunix") == 1 or vim.fn.has("mac") == 1 then
+      provider_set = true -- use built-in mac clipboard provider
+    end
+
+    if not provider_set and (vim.fn.has("win32") == 1 or vim.fn.has("wsl") == 1) then
+      if vim.fn.executable("win32yank.exe") == 1 then
+        vim.g.clipboard = {
+          copy = {
+            ["+"] = "win32yank.exe -i --crlf",
+            ["*"] = "win32yank.exe -i --crlf",
+          },
+          paste = {
+            ["+"] = "win32yank.exe -o --lf",
+            ["*"] = "win32yank.exe -o --lf",
+          },
+        }
+        provider_set = true
+      end
+    end
+
+    if not provider_set and vim.fn.has("unix") == 1 then
       if vim.fn.executable("xclip") == 1 then
         vim.g.clipboard = {
           copy = {
@@ -44,6 +56,7 @@ create_autocmd({ "BufReadPost", "BufNewFile" }, {
             ["*"] = "xclip -selection clipboard -o",
           },
         }
+        provider_set = true
       elseif vim.fn.executable("xsel") == 1 then
         vim.g.clipboard = {
           copy = {
@@ -55,9 +68,12 @@ create_autocmd({ "BufReadPost", "BufNewFile" }, {
             ["*"] = "xsel --clipboard --output",
           },
         }
+        provider_set = true
       end
     end
-    vim.opt.clipboard = "unnamedplus"
+    if provider_set then
+      vim.opt.clipboard = "unnamedplus"
+    end
   end,
   group = "general",
   desc = "Lazy load clipboard",
@@ -89,7 +105,12 @@ create_autocmd("FileType", {
     pattern = filetypes_to_close,
     callback = function(event)
         vim.bo[event.buf].buflisted = false
-        vim.api.nvim_buf_set_keymap(event.buf, "n", "q", "<CMD>close<CR>", { silent = true })
+        vim.keymap.set("n", "q", "<cmd>close<cr>", {
+            buffer = event.buf,
+            silent = true,
+            noremap = true,
+            nowait = true,
+        })
     end,
     group = "close_ft",
     desc = "Close specific filetypes with <q>",
@@ -110,8 +131,11 @@ create_autocmd("BufRead", {
 
 -- Buffer-related Autocommands
 create_autocmd("BufWritePost", {
-    pattern = "$VIM_PATH/{*.vim,*.yaml,vimrc}",
-    command = "nested source $MYVIMRC | redraw",
+    pattern = config_root .. "/**/*.vim",
+    callback = function()
+        vim.cmd("silent! source $MYVIMRC")
+        vim.cmd("redraw")
+    end,
     group = "bufs",
     desc = "Reload vim config automatically",
 })
@@ -207,13 +231,6 @@ create_autocmd("FileType", {
     command = "setlocal formatoptions-=cro",
     group = "ft",
     desc = "Disable auto-commenting on newline",
-})
-
-create_autocmd("FileType", {
-    pattern = "c,cpp",
-    command = "nnoremap <leader>h :ClangdSwitchSourceHeaderVSplit<CR>",
-    group = "ft",
-    desc = "Set keymap for switching between source and header in C/C++",
 })
 
 -- Yank Highlight Autocommand

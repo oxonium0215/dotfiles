@@ -1,11 +1,112 @@
-return {
-  auto_install = false,
-  ensure_installed = {},
+local langs = require("plugins.configs.lsp.langs")
 
-  highlight = {
-    enable = true,
-    use_languagetree = true,
-  },
+local ts = require("nvim-treesitter")
+local ts_config = require("nvim-treesitter.config")
 
-  indent = { enable = true },
-}
+local managed = ts_config.norm_languages(
+  vim.list_extend({ "vim", "vimdoc", "query" }, langs.collect_parsers()),
+  { unsupported = true }
+)
+
+local managed_set = {}
+for _, lang in ipairs(managed) do
+  managed_set[lang] = true
+end
+
+local function installed_set()
+  local set = {}
+  for _, lang in ipairs(ts_config.get_installed("parsers")) do
+    set[lang] = true
+  end
+  return set
+end
+
+local installed = installed_set()
+local installs_in_progress = {}
+local failed_installs = {}
+
+local function enable_for_buffer(bufnr, lang)
+  if not (bufnr and vim.api.nvim_buf_is_valid(bufnr)) then
+    return
+  end
+
+  local current_lang = vim.treesitter.language.get_lang(vim.bo[bufnr].filetype)
+  if not current_lang or current_lang ~= lang then
+    return
+  end
+
+  local ok = pcall(vim.treesitter.start, bufnr, lang)
+  if ok then
+    vim.bo[bufnr].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+  end
+end
+
+local function ensure_parser(lang, bufnr)
+  if not lang then
+    return
+  end
+
+  if installed[lang] then
+    enable_for_buffer(bufnr, lang)
+    return
+  end
+
+  if not managed_set[lang] then
+    return
+  end
+
+  local task = installs_in_progress[lang]
+  if not task then
+    local ok
+    ok, task = pcall(ts.install, { lang })
+    if not ok then
+      vim.schedule(function()
+        vim.notify(
+          string.format("nvim-treesitter: failed to install parser '%s': %s", lang, task),
+          vim.log.levels.WARN
+        )
+      end)
+      return
+    end
+    installs_in_progress[lang] = task
+  end
+
+  task:await(function(err, success)
+    installs_in_progress[lang] = nil
+    if err or not success then
+      if not failed_installs[lang] then
+        failed_installs[lang] = true
+        vim.schedule(function()
+          vim.notify(
+            string.format("nvim-treesitter: parser install failed for '%s'", lang),
+            vim.log.levels.WARN
+          )
+        end)
+      end
+      return
+    end
+
+    installed = installed_set()
+    failed_installs[lang] = nil
+    vim.schedule(function()
+      enable_for_buffer(bufnr, lang)
+    end)
+  end)
+end
+
+local M = {}
+
+function M.setup()
+  local group = vim.api.nvim_create_augroup("TreesitterMainBranch", { clear = true })
+
+  vim.api.nvim_create_autocmd("FileType", {
+    group = group,
+    callback = function(event)
+      installed = installed_set()
+      local lang = vim.treesitter.language.get_lang(event.match)
+      ensure_parser(lang, event.buf)
+    end,
+  })
+end
+
+return M
