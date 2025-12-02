@@ -26,8 +26,17 @@ end
 M.smart_format = smart_format
 
 local function enable_inlay_hints(bufnr)
-  if vim.lsp.inlay_hint and vim.lsp.inlay_hint.enable then
-    vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+  local ih = vim.lsp.inlay_hint
+  if type(ih) == "function" then
+    ih(bufnr, true)
+    return
+  end
+  if type(ih) == "table" and ih.enable then
+    -- Handle both 0.10 (`enable(enable, opts)`) and 0.11 (`enable(bufnr, enable)`) signatures
+    local ok = pcall(ih.enable, bufnr, true)
+    if not ok then
+      pcall(ih.enable, true, { bufnr = bufnr })
+    end
   end
 end
 
@@ -66,9 +75,16 @@ local function setup_servers()
   local server_setups = langs.server_setups()
   local servers = langs.collect_servers()
   local mlsp = require("mason-lspconfig")
-  local mapping = require("mason-lspconfig.mappings").get_all().lspconfig_to_package or {}
+  local mlsp_mapping = require("mason-lspconfig.mappings").get_all()
+  local lsp_to_package = (mlsp_mapping and mlsp_mapping.lspconfig_to_package) or {}
+  local registry = require("mason-registry")
+
+  local function resolve_package(server)
+    return lsp_to_package[server] or server
+  end
+
   servers = vim.tbl_filter(function(name)
-    return mapping[name] ~= nil
+    return lsp_to_package[name] ~= nil
   end, servers)
 
   mlsp.setup({
@@ -77,6 +93,7 @@ local function setup_servers()
   })
 
   for _, server_name in ipairs(servers) do
+    local pkg_name = resolve_package(server_name)
     local opts = {
       on_attach = M.on_attach,
       capabilities = M.capabilities,
@@ -129,9 +146,11 @@ local function setup_servers()
             vim.lsp.start(cfg, { bufnr = event.buf })
           end
 
-          if not require("mason-registry").is_installed(server_name) then
-            require("core.lazy_install").install({ server_name }, function()
-              vim.schedule(start_server)
+          if not registry.is_installed(pkg_name) then
+            require("core.lazy_install").install({ pkg_name }, function(results)
+              if results and results[pkg_name] then
+                vim.schedule(start_server)
+              end
             end)
           else
             start_server()

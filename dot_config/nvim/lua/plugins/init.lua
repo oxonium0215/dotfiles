@@ -267,7 +267,8 @@ local pluginlist = {
     {
         "nvim-treesitter/nvim-treesitter",
         branch = "main",
-        lazy = false,
+        event = { "BufReadPre", "BufNewFile" },
+        cmd = { "TSInstall", "TSUpdate", "TSInstallSync", "TSUpdateSync", "TSUninstall", "TSModuleInfo" },
         build = ":TSUpdate",
         config = function()
             require("plugins.configs.treesitter").setup()
