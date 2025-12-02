@@ -1,14 +1,5 @@
 local M = {}
-
 local cache
-
-M.exec_requirements = {
-  gopls = "go",
-  gofumpt = "go",
-  csharpier = "dotnet",
-  ["r_language_server"] = "R",
-  ["r-languageserver"] = "R",
-}
 
 local function dedupe(list)
   local seen, result = {}, {}
@@ -21,12 +12,35 @@ local function dedupe(list)
   return result
 end
 
+local function merge_requirements(target, requirements)
+  if not requirements then
+    return
+  end
+
+  for tool, runtime in pairs(requirements) do
+    if tool and runtime then
+      target[tool] = runtime
+    end
+  end
+end
+
+local function collect_exec_requirements(configs)
+  local requirements = {}
+  for _, config in pairs(configs or {}) do
+    merge_requirements(requirements, config.requirements)
+    if config.lsp then
+      merge_requirements(requirements, config.lsp.requirements)
+    end
+  end
+  return requirements
+end
+
 ---Load per-language configs from the languages directory (cached)
 ---@return table<string, table>
 function M.all()
-  if cache then
-    return cache
-  end
+  -- if cache then
+  --   return cache
+  -- end
 
   cache = {}
   local base = vim.fn.stdpath("config") .. "/lua/plugins/configs/lsp/languages"
@@ -44,8 +58,8 @@ function M.all()
   return cache
 end
 
-local function has_exec(name)
-  local req = M.exec_requirements[name]
+local function has_exec(name, requirements)
+  local req = requirements[name]
   if not req then
     return true
   end
@@ -56,22 +70,28 @@ local warned_exec = {}
 
 ---@return string[]
 function M.collect_servers()
+  local configs = M.all()
+  local requirements = collect_exec_requirements(configs)
   local servers = {}
-  for _, config in pairs(M.all()) do
+  for _, config in pairs(configs) do
     local lsp = config.lsp
     if lsp and lsp.servers then
       vim.list_extend(servers, lsp.servers)
     end
   end
   servers = dedupe(servers)
-  servers = vim.tbl_filter(has_exec, servers)
+  servers = vim.tbl_filter(function(name)
+    return has_exec(name, requirements)
+  end, servers)
   return servers
 end
 
 ---@return string[]
 function M.collect_null_ls_sources()
+  local configs = M.all()
+  local requirements = collect_exec_requirements(configs)
   local sources = {}
-  for _, config in pairs(M.all()) do
+  for _, config in pairs(configs) do
     local lsp = config.lsp
     if lsp then
       if lsp.formatters then
@@ -92,22 +112,22 @@ function M.collect_null_ls_sources()
   local filtered = {}
   for _, source in ipairs(sources) do
     if registry.has_package(source) then
-      local req = M.exec_requirements[source]
+      local req = requirements[source]
       local has_runtime = true
       if req and vim.fn.executable(req) ~= 1 then
         has_runtime = false
         if not warned_exec[source] then
-          warned_exec[source] = true
-          vim.schedule(function()
-            vim.notify(
-              string.format(
-                "Skipping %s: missing required runtime '%s' in PATH for mason-null-ls installation.",
-                source,
-                req
-              ),
-              vim.log.levels.WARN
-            )
-          end)
+          -- warned_exec[source] = true
+          -- vim.schedule(function()
+          --   vim.notify(
+          --     string.format(
+          --       "Skipping %s: missing required runtime '%s' in PATH for mason-null-ls installation.",
+          --       source,
+          --       req
+          --     ),
+          --     vim.log.levels.WARN
+          --   )
+          -- end)
         end
       end
 
@@ -141,6 +161,10 @@ function M.server_setups()
     end
   end
   return setups
+end
+
+function M.exec_requirements()
+  return collect_exec_requirements(M.all())
 end
 
 return M

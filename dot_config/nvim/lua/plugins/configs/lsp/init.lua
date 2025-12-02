@@ -72,7 +72,7 @@ local function setup_servers()
   end, servers)
 
   mlsp.setup({
-    ensure_installed = servers,
+    -- ensure_installed = servers, -- Removed for lazy loading
     automatic_installation = false,
   })
 
@@ -114,17 +114,28 @@ local function setup_servers()
           if #vim.lsp.get_clients({ bufnr = event.buf, name = server_name }) > 0 then
             return
           end
-          local cfg = vim.deepcopy(config)
-          cfg.on_attach = cfg.on_attach or M.on_attach
-          cfg.capabilities = cfg.capabilities or M.capabilities
-          if type(cfg.root_dir) == "function" then
-            cfg.root_dir = cfg.root_dir(vim.api.nvim_buf_get_name(event.buf))
+
+          local function start_server()
+            local cfg = vim.deepcopy(config)
+            cfg.on_attach = cfg.on_attach or M.on_attach
+            cfg.capabilities = cfg.capabilities or M.capabilities
+            if type(cfg.root_dir) == "function" then
+              cfg.root_dir = cfg.root_dir(vim.api.nvim_buf_get_name(event.buf))
+            end
+            cfg.name = cfg.name or server_name
+            if cfg.root_dir == nil and cfg.cmd == nil then
+              return
+            end
+            vim.lsp.start(cfg, { bufnr = event.buf })
           end
-          cfg.name = cfg.name or server_name
-          if cfg.root_dir == nil and cfg.cmd == nil then
-            return
+
+          if not require("mason-registry").is_installed(server_name) then
+            require("core.lazy_install").install({ server_name }, function()
+              vim.schedule(start_server)
+            end)
+          else
+            start_server()
           end
-          vim.lsp.start(cfg, { bufnr = event.buf })
         end,
       })
     end
