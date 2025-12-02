@@ -5,6 +5,7 @@ local mason_settings = require("mason.settings")
 local mason_path = require("mason-core.path")
 
 M.ensure = { "codelldb" }
+M.filetypes = { "c", "cpp", "rust" }
 
 local function configure(dap)
   local ok, codelldb = pcall(mason_registry.get_package, "codelldb")

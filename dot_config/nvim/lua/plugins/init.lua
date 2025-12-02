@@ -512,7 +512,7 @@ local pluginlist = {
         config = function()
             local lsp = require("plugins.configs.lsp")
             require("mason-null-ls").setup({
-                ensure_installed = lsp.null_ls_ensure,
+                -- ensure_installed = lsp.null_ls_ensure, -- Removed for lazy loading
                 automatic_installation = false,
                 handlers = {},
             })

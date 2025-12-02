@@ -8,7 +8,7 @@ local function setup_mason_handlers(lang_modules)
   local handlers = languages.handlers(lang_modules)
 
   mason_dap.setup({
-    ensure_installed = ensure,
+    -- ensure_installed = ensure, -- Removed for lazy loading
     handlers = vim.tbl_extend("force", {
       function(config)
         mason_dap.default_setup(config)

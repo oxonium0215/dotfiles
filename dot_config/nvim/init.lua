@@ -17,4 +17,5 @@ else
     -- colorschemeを設定
     vim.cmd("colorscheme onedark")
     require('core.japanese').setup_japanese_input()
+    require("core.lazy_install").setup()
 end
