@@ -227,11 +227,7 @@ function M.get_tools(filetype)
     return ok
   end
 
-  local all_langs = lsp_langs.all()
-
-  -- Check if there's a config matching the filetype directly
-  if all_langs[filetype] then
-    local config = all_langs[filetype]
+  for _, config in pairs(lsp_langs.matching_configs(filetype)) do
     if config.lsp then
       if config.lsp.servers then
         for _, server in ipairs(config.lsp.servers) do
@@ -301,10 +297,24 @@ function M.setup()
   ensure_registry()
 
   local function ensure_current(bufnr)
-    local ft = vim.bo[bufnr or 0].filetype
-    if ft ~= "" then
-      M.ensure_for_filetype(ft)
+    local buf = bufnr or 0
+    local bo = vim.bo[buf]
+    local ft = bo.filetype
+
+    if ft == "" or bo.buftype == "prompt" then
+      return
     end
+
+    -- Prevent re-entrancy / nesting loops on FileType
+    if vim.b[buf].__lazy_install_running then
+      return
+    end
+    vim.b[buf].__lazy_install_running = true
+
+    vim.schedule(function()
+      pcall(M.ensure_for_filetype, ft)
+      vim.b[buf].__lazy_install_running = nil
+    end)
   end
 
   vim.api.nvim_create_autocmd("FileType", {
