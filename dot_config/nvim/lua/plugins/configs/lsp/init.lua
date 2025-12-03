@@ -2,6 +2,7 @@ local M = {}
 
 local utils = require("core.utils")
 local langs = require("plugins.configs.lsp.langs")
+local runtime_warned = {}
 
 local function smart_format(opts)
   local bufnr = opts and opts.bufnr or vim.api.nvim_get_current_buf()
@@ -78,6 +79,7 @@ local function setup_servers()
   local mlsp_mapping = require("mason-lspconfig.mappings").get_all()
   local lsp_to_package = (mlsp_mapping and mlsp_mapping.lspconfig_to_package) or {}
   local registry = require("mason-registry")
+  local exec_requirements = langs.exec_requirements()
 
   local function resolve_package(server)
     return lsp_to_package[server] or server
@@ -132,7 +134,32 @@ local function setup_servers()
             return
           end
 
+          local function has_required_runtime()
+            local req = exec_requirements[server_name] or exec_requirements[pkg_name]
+            if not req then
+              return true
+            end
+            local ok = vim.fn.executable(req) == 1
+            if not ok then
+              local key = (pkg_name or server_name or "?") .. "::" .. req
+              if not runtime_warned[key] then
+                runtime_warned[key] = true
+                vim.schedule(function()
+                  vim.notify(
+                    string.format("Missing runtime '%s' for %s; skipping start until it is installed.", req, server_name),
+                    vim.log.levels.WARN
+                  )
+                end)
+              end
+            end
+            return ok
+          end
+
           local function start_server()
+            if not has_required_runtime() then
+              return
+            end
+
             local cfg = vim.deepcopy(config)
             cfg.on_attach = cfg.on_attach or M.on_attach
             cfg.capabilities = cfg.capabilities or M.capabilities
@@ -146,9 +173,13 @@ local function setup_servers()
             vim.lsp.start(cfg, { bufnr = event.buf })
           end
 
+          if not has_required_runtime() then
+            return
+          end
+
           if not registry.is_installed(pkg_name) then
             require("core.lazy_install").install({ pkg_name }, function(results)
-              if results and results[pkg_name] then
+              if results and results[pkg_name] and has_required_runtime() then
                 vim.schedule(start_server)
               end
             end)
@@ -181,8 +212,5 @@ function M.setup()
   setup_servers()
   setup_formatting()
 end
-
-M.null_ls_ensure = langs.collect_null_ls_sources()
-M.treesitter_parsers = langs.collect_parsers()
 
 return M

@@ -1,5 +1,6 @@
 local M = {}
 local cache
+local server_filetype_cache = {}
 
 local function dedupe(list)
   local seen, result = {}, {}
@@ -38,9 +39,9 @@ end
 ---Load per-language configs from the languages directory (cached)
 ---@return table<string, table>
 function M.all()
-  -- if cache then
-  --   return cache
-  -- end
+  if cache then
+    return cache
+  end
 
   cache = {}
   local base = vim.fn.stdpath("config") .. "/lua/plugins/configs/lsp/languages"
@@ -58,12 +59,53 @@ function M.all()
   return cache
 end
 
-local function has_exec(name, requirements)
-  local req = requirements[name]
-  if not req then
-    return true
+function M.reload()
+  cache = nil
+  server_filetype_cache = {}
+end
+
+local function get_server_filetypes(server)
+  if server_filetype_cache[server] then
+    return server_filetype_cache[server]
   end
-  return vim.fn.executable(req) == 1
+
+  -- Use the config module directly to avoid the deprecated lspconfig framework lookup
+  local ok_cfg, cfg = pcall(require, "lspconfig.configs." .. server)
+  if ok_cfg and cfg and cfg.default_config then
+    local fts = cfg.default_config.filetypes or cfg.filetypes
+    if type(fts) == "table" then
+      server_filetype_cache[server] = fts
+      return fts
+    end
+  end
+
+  return nil
+end
+
+---@param filetype string
+---@return table<string, table>
+function M.matching_configs(filetype)
+  local matches = {}
+  local all_langs = M.all()
+
+  for name, config in pairs(all_langs) do
+    if name == filetype then
+      matches[name] = config
+    else
+      local lsp = config.lsp
+      if lsp and lsp.servers then
+        for _, server in ipairs(lsp.servers) do
+          local fts = get_server_filetypes(server)
+          if fts and vim.tbl_contains(fts, filetype) then
+            matches[name] = config
+            break
+          end
+        end
+      end
+    end
+  end
+
+  return matches
 end
 
 local warned_exec = {}
@@ -71,7 +113,6 @@ local warned_exec = {}
 ---@return string[]
 function M.collect_servers()
   local configs = M.all()
-  local requirements = collect_exec_requirements(configs)
   local servers = {}
   for _, config in pairs(configs) do
     local lsp = config.lsp
@@ -79,11 +120,7 @@ function M.collect_servers()
       vim.list_extend(servers, lsp.servers)
     end
   end
-  servers = dedupe(servers)
-  servers = vim.tbl_filter(function(name)
-    return has_exec(name, requirements)
-  end, servers)
-  return servers
+  return dedupe(servers)
 end
 
 ---@return string[]
