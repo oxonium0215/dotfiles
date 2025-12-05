@@ -7,7 +7,7 @@ SAVEHIST=100000
 # source ~/proxy_scripts/shudo.sh
 
 # 日本語ファイル名を表示可能にする
-export LANG=ja_JP.UTF-8
+export LANG=ja_JP.utf8
 setopt print_eight_bit
 # beep を無効にする
 setopt no_beep
