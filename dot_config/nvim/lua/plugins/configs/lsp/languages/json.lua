@@ -1,7 +1,7 @@
 return {
   lsp = {
     servers = { "jsonls" },
-    formatters = { "fixjson" }
+    formatters = { "fixjson" },
   },
-  treesitter = { "json" }
+  treesitter = { "json" },
 }

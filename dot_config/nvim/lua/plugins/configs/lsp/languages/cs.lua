@@ -6,5 +6,5 @@ return {
       csharpier = "dotnet",
     },
   },
-  treesitter = { "c_sharp" }
+  treesitter = { "c_sharp" },
 }

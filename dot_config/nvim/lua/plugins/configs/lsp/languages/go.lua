@@ -7,5 +7,5 @@ return {
       gofumpt = "go",
     },
   },
-  treesitter = { "go" }
+  treesitter = { "go" },
 }

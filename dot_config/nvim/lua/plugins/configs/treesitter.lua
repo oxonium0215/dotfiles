@@ -86,10 +86,7 @@ local function ensure_parser(lang, bufnr)
     if not ok then
       pending_buffers[lang] = nil
       vim.schedule(function()
-        vim.notify(
-          string.format("nvim-treesitter: failed to install parser '%s': %s", lang, task),
-          vim.log.levels.WARN
-        )
+        vim.notify(string.format("nvim-treesitter: failed to install parser '%s': %s", lang, task), vim.log.levels.WARN)
       end)
       return
     end
@@ -105,10 +102,7 @@ local function ensure_parser(lang, bufnr)
       if not failed_installs[lang] then
         failed_installs[lang] = true
         vim.schedule(function()
-          vim.notify(
-            string.format("nvim-treesitter: parser install failed for '%s'", lang),
-            vim.log.levels.WARN
-          )
+          vim.notify(string.format("nvim-treesitter: parser install failed for '%s'", lang), vim.log.levels.WARN)
         end)
       end
       return

@@ -1,7 +1,7 @@
 return {
   lsp = {
     servers = { "taplo" },
-    formatters = { "taplo" }
+    formatters = { "taplo" },
   },
-  treesitter = { "toml" }
+  treesitter = { "toml" },
 }

@@ -1,7 +1,7 @@
 return {
   lsp = {
     servers = { "yamlls" },
-    formatters = { "yamlfmt" }
+    formatters = { "yamlfmt" },
   },
-  treesitter = { "yaml" }
+  treesitter = { "yaml" },
 }

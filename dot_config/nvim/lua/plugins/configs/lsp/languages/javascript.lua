@@ -2,7 +2,7 @@ return {
   lsp = {
     servers = { "ts_ls" },
     formatters = { "prettier" },
-    linters = { "eslint_d" }
+    linters = { "eslint_d" },
   },
-  treesitter = { "javascript" }
+  treesitter = { "javascript" },
 }

@@ -2,7 +2,7 @@ return {
   lsp = {
     servers = { "ansiblels" },
     formatters = { "yamlfmt" },
-    linters = { "ansible-lint" }
+    linters = { "ansible-lint" },
   },
-  treesitter = { "yaml" }
+  treesitter = { "yaml" },
 }

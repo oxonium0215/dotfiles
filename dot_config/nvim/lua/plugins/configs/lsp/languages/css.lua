@@ -1,7 +1,7 @@
 return {
   lsp = {
     servers = { "cssls" },
-    formatters = { "prettier" }
+    formatters = { "prettier" },
   },
-  treesitter = { "css" }
+  treesitter = { "css" },
 }

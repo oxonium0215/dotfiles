@@ -1,6 +1,6 @@
 return {
   lsp = {
-    servers = { "zls" }
+    servers = { "zls" },
   },
-  treesitter = { "zig" }
+  treesitter = { "zig" },
 }
