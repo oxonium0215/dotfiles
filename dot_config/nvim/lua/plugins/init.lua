@@ -115,39 +115,13 @@ local pluginlist = {
     dependencies = { "MunifTanjim/nui.nvim" },
   },
   {
-    "rcarriga/nvim-notify",
-    keys = utils.generate_lazy_keys("notify"),
-    opts = {
-      stages = "static",
-      timeout = 7000,
-      max_height = function()
-        return math.floor(vim.o.lines * 0.75)
-      end,
-      max_width = function()
-        return math.floor(vim.o.columns * 0.75)
-      end,
-      on_open = function(win)
-        vim.api.nvim_win_set_config(win, { zindex = 100 })
-      end,
-    },
-    init = function()
-      -- real module is loaded on first notify call
-      local orig
-      vim.notify = function(...)
-        local notify = require("notify")
-        if not orig then
-          orig = notify
-        end
-        vim.notify = orig
-        return notify(...)
-      end
-    end,
-  },
-  {
     "j-hui/fidget.nvim",
     event = "VeryLazy",
+    keys = utils.generate_lazy_keys("fidget"),
     opts = {
-      notification = {},
+      notification = {
+        override_vim_notify = true,
+      },
     },
   },
   {
