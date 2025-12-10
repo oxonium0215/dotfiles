@@ -33,9 +33,24 @@ M.general = {
   { "x", "p", 'p:let @+=@0<CR>:let @"=@0<CR>', { desc = "Dont copy replaced text", silent = true } },
 
   --  Redirect change operations to the blackhole to avoid spoiling 'y' register content
-  { { "n", "v" }, "c", '"_c', { desc = "Redirect change to blackhole", silent = true } },
-  { { "n", "v" }, "d", '"_d', { desc = "Redirect delete to blackhole", silent = true } },
-  { { "n", "v" }, "D", '"_D', { desc = "Redirect delete to blackhole (to EOL)", silent = true } },
+  {
+    { "n", "v" },
+    "c",
+    '"_c',
+    { desc = "Redirect change to blackhole", silent = true },
+  },
+  {
+    { "n", "v" },
+    "d",
+    '"_d',
+    { desc = "Redirect delete to blackhole", silent = true },
+  },
+  {
+    { "n", "v" },
+    "D",
+    '"_D',
+    { desc = "Redirect delete to blackhole (to EOL)", silent = true },
+  },
 
   -- Comment
   { "n", "<leader>/", "gcc", { desc = "Toggle Comment", remap = true } },
@@ -54,8 +69,18 @@ M.bufferline = {
 
 M.dropbar = {
   { "n", "<leader>;", "<cmd>lua require('dropbar.api').pick()<CR>", { desc = "Dropbar pick" } },
-  { "n", "[;", "<cmd>lua require('dropbar.api').goto_context_start<CR>", { desc = "Dropbar goto context start" } },
-  { "n", "];", "<cmd>lua require('dropbar.api').select_next_context<CR>", { desc = "Dropbar goto context end" } },
+  {
+    "n",
+    "[;",
+    "<cmd>lua require('dropbar.api').goto_context_start<CR>",
+    { desc = "Dropbar goto context start" },
+  },
+  {
+    "n",
+    "];",
+    "<cmd>lua require('dropbar.api').select_next_context<CR>",
+    { desc = "Dropbar goto context end" },
+  },
 }
 
 M.aerial = {
@@ -80,11 +105,36 @@ M.lspconfig = {
     "<cmd>lua require('plugins.configs.lsp').smart_format()<CR>",
     { desc = "Format current buffer" },
   },
-  { "n", "[d", "<cmd>lua vim.diagnostic.goto_prev { float = { border = 'rounded' } }<CR>", { desc = "Goto prev" } },
-  { "n", "]d", "<cmd>lua vim.diagnostic.goto_next { float = { border = 'rounded' } }<CR>", { desc = "Goto next" } },
-  { "n", "<leader>q", "<cmd>lua vim.diagnostic.setloclist()<CR>", { desc = "Diagnostic setloclist" } },
-  { "n", "<leader>wa", "<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>", { desc = "Add workspace folder" } },
-  { "n", "<leader>wr", "<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>", { desc = "Remove workspace folder" } },
+  {
+    "n",
+    "[d",
+    "<cmd>lua vim.diagnostic.goto_prev { float = { border = 'rounded' } }<CR>",
+    { desc = "Goto prev" },
+  },
+  {
+    "n",
+    "]d",
+    "<cmd>lua vim.diagnostic.goto_next { float = { border = 'rounded' } }<CR>",
+    { desc = "Goto next" },
+  },
+  {
+    "n",
+    "<leader>q",
+    "<cmd>lua vim.diagnostic.setloclist()<CR>",
+    { desc = "Diagnostic setloclist" },
+  },
+  {
+    "n",
+    "<leader>wa",
+    "<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>",
+    { desc = "Add workspace folder" },
+  },
+  {
+    "n",
+    "<leader>wr",
+    "<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>",
+    { desc = "Remove workspace folder" },
+  },
   {
     "n",
     "<leader>wl",
@@ -180,6 +230,10 @@ M.notify = {
     end,
     { desc = "Dismiss All Notifications" },
   },
+}
+
+M.fidget = {
+  { "n", "<leader>h", "<cmd>Fidget history<CR>", { desc = "Fidget LSP History" } },
 }
 
 M.nvimwindow = {
