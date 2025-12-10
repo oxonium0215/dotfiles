@@ -7,5 +7,5 @@ return {
     },
     -- formatters intentionally empty; mason does not ship styler
   },
-  treesitter = { "r" }
+  treesitter = { "r" },
 }

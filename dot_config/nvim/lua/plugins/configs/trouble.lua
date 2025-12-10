@@ -1,7 +1,7 @@
 return {
-    modes = {
-        lsp = {
-            win = { position = "right" },
-        },
+  modes = {
+    lsp = {
+      win = { position = "right" },
     },
+  },
 }

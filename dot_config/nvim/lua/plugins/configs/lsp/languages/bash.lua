@@ -2,7 +2,7 @@ return {
   lsp = {
     servers = { "bashls" },
     formatters = { "shfmt" },
-    linters = { "shellcheck" }
+    linters = { "shellcheck" },
   },
-  treesitter = { "bash" }
+  treesitter = { "bash" },
 }

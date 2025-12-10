@@ -13,11 +13,11 @@ return {
 
   performance = {
     cache = {
-    enabled = true,
-    path = vim.fn.stdpath("cache") .. "/lazy/cache",
-    -- To cache all modules, set this to `{}`, but that is not recommended.
-    disable_events = { "UIEnter", "BufReadPre" },
-    ttl = 3600 * 24 * 2, -- keep unused modules for up to 2 days
+      enabled = true,
+      path = vim.fn.stdpath("cache") .. "/lazy/cache",
+      -- To cache all modules, set this to `{}`, but that is not recommended.
+      disable_events = { "UIEnter", "BufReadPre" },
+      ttl = 3600 * 24 * 2, -- keep unused modules for up to 2 days
     },
     reset_packpath = true, -- reset the package path to improve startup time
     rtp = {

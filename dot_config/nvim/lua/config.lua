@@ -13,7 +13,7 @@ vim.o.hlsearch = false
 vim.opt.number = true
 
 -- enable mouse mode
-vim.o.mouse = 'a'
+vim.o.mouse = "a"
 
 -- save undo history
 vim.o.undofile = true
@@ -25,14 +25,14 @@ vim.opt.startofline = true
 vim.o.ignorecase = true
 vim.o.smartcase = true
 
-vim.opt.signcolumn = 'yes'
+vim.opt.signcolumn = "yes"
 
 -- Decrease update time
 vim.o.updatetime = 250
 vim.o.timeoutlen = 400
 
 -- Set completeopt to have a better completion experience
-vim.o.completeopt = 'menuone,noselect'
+vim.o.completeopt = "menuone,noselect"
 
 -- Indenting
 vim.opt.expandtab = true
@@ -54,7 +54,7 @@ vim.opt.numberwidth = 2
 vim.opt.ruler = false
 
 -- disable nvim intro
-vim.opt.shortmess:append "sI"
+vim.opt.shortmess:append("sI")
 
 vim.opt.splitbelow = true
 vim.opt.splitright = true
@@ -64,7 +64,7 @@ vim.opt.termguicolors = true
 
 -- go to previous/next line with h,l,left arrow and right arrow
 -- when cursor reaches end/beginning of line
-vim.opt.whichwrap:append "<>[]hl"
+vim.opt.whichwrap:append("<>[]hl")
 
 vim.g.mapleader = " "
 
@@ -74,9 +74,9 @@ local diagnostic_icons = icons.get("diagnostics")
 -- Define icons for each diagnostic severity using icons.get
 local signs = {
   [vim.diagnostic.severity.ERROR] = diagnostic_icons.Error,
-  [vim.diagnostic.severity.WARN]  = diagnostic_icons.Warning,
-  [vim.diagnostic.severity.INFO]  = diagnostic_icons.Information,
-  [vim.diagnostic.severity.HINT]  = diagnostic_icons.Hint,
+  [vim.diagnostic.severity.WARN] = diagnostic_icons.Warning,
+  [vim.diagnostic.severity.INFO] = diagnostic_icons.Information,
+  [vim.diagnostic.severity.HINT] = diagnostic_icons.Hint,
 }
 
 -- Configure diagnostic display
@@ -96,13 +96,13 @@ vim.diagnostic.config({
 })
 
 -- disable some default providers
-for _, provider in ipairs { "node", "perl", "python3", "ruby" } do
+for _, provider in ipairs({ "node", "perl", "python3", "ruby" }) do
   vim.g["loaded_" .. provider .. "_provider"] = 0
 end
 
 -- add binaries installed by mason.nvim to path
 local is_windows = uv.os_uname().sysname == "Windows_NT"
-vim.env.PATH = vim.fn.stdpath "data" .. "/mason/bin" .. (is_windows and ";" or ":") .. vim.env.PATH
+vim.env.PATH = vim.fn.stdpath("data") .. "/mason/bin" .. (is_windows and ";" or ":") .. vim.env.PATH
 
 vim.g.did_install_default_menus = 1
 

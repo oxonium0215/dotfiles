@@ -2,7 +2,7 @@ return {
   lsp = {
     servers = { "pyright" },
     formatters = { "black" },
-    linters = { "flake8" }
+    linters = { "flake8" },
   },
-  treesitter = { "python" }
+  treesitter = { "python" },
 }

@@ -146,7 +146,11 @@ local function setup_servers()
                 runtime_warned[key] = true
                 vim.schedule(function()
                   vim.notify(
-                    string.format("Missing runtime '%s' for %s; skipping start until it is installed.", req, server_name),
+                    string.format(
+                      "Missing runtime '%s' for %s; skipping start until it is installed.",
+                      req,
+                      server_name
+                    ),
                     vim.log.levels.WARN
                   )
                 end)
