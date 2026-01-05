@@ -138,3 +138,25 @@ function _update_vcs_info_msg() {
     RPROMPT="${vcs_info_msg_0_}"
 }
 add-zsh-hook precmd _update_vcs_info_msg
+
+# SSH Agent Forwarding for Bitwarden
+# Run only in WSL
+if grep -qE "(Microsoft|WSL)" /proc/version; then
+    export SSH_AUTH_SOCK=$HOME/.ssh/agent.sock
+    
+    # Check if socket exists and is listening, if not create it
+    if ! ss -a | grep -q "$SSH_AUTH_SOCK"; then
+        rm -f "$SSH_AUTH_SOCK"
+        (setsid socat UNIX-LISTEN:$SSH_AUTH_SOCK,fork EXEC:"/mnt/c/Users/yuoki/bin/npiperelay.exe -ei -s //./pipe/openssh-ssh-agent",nofork &) >/dev/null 2>&1
+        # Wait a moment for socat to start
+        sleep 0.5
+    fi
+
+    # Fallback check
+    # ssh-add -l returns 2 if it cannot connect to the agent
+    ssh-add -l >/dev/null 2>&1
+    if [ $? -eq 2 ]; then
+        echo "Bitwarden SSH Agent connection failed. Falling back to standard SSH agent."
+        unset SSH_AUTH_SOCK
+    fi
+fi
