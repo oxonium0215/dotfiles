@@ -142,21 +142,61 @@ add-zsh-hook precmd _update_vcs_info_msg
 # SSH Agent Forwarding for Bitwarden
 # Run only in WSL
 if grep -qE "(Microsoft|WSL)" /proc/version; then
-    export SSH_AUTH_SOCK=$HOME/.ssh/agent.sock
     
-    # Check if socket exists and is listening, if not create it
-    if ! ss -a | grep -q "$SSH_AUTH_SOCK"; then
-        rm -f "$SSH_AUTH_SOCK"
-        (setsid socat UNIX-LISTEN:$SSH_AUTH_SOCK,fork EXEC:"/mnt/c/Users/yuoki/bin/npiperelay.exe -ei -s //./pipe/openssh-ssh-agent",nofork &) >/dev/null 2>&1
-        # Wait a moment for socat to start
-        sleep 0.5
-    fi
+    # Store the original prompt to restore later
+    # We capture it at the time this script runs (deferred)
+    _BW_ORIGINAL_PROMPT="$PROMPT"
 
-    # Fallback check
-    # ssh-add -l returns 2 if it cannot connect to the agent
-    ssh-add -l >/dev/null 2>&1
-    if [ $? -eq 2 ]; then
-        echo "Bitwarden SSH Agent connection failed. Falling back to standard SSH agent."
-        unset SSH_AUTH_SOCK
+    function _bw_restore_prompt() {
+        PROMPT="$_BW_ORIGINAL_PROMPT"
+        # Unhook myself
+        autoload -Uz add-zsh-hook
+        add-zsh-hook -d preexec _bw_restore_prompt
+        # Also remove from precmd if it was there (just in case)
+        add-zsh-hook -d precmd _bw_inject_warning
+    }
+
+    function _bw_inject_warning() {
+        if [[ -n "$_BW_WARN_MSG" ]]; then
+            # Inject warning at the TOP of the prompt
+            PROMPT="$_BW_WARN_MSG
+$PROMPT"
+            unset _BW_WARN_MSG
+            
+            # Register preexec to restore the prompt after the next command
+            autoload -Uz add-zsh-hook
+            add-zsh-hook preexec _bw_restore_prompt
+            
+            # Remove this injection hook so it only happens once
+            add-zsh-hook -d precmd _bw_inject_warning
+        fi
+    }
+
+    function _schedule_bw_warning() {
+        export _BW_WARN_MSG="$1"
+        autoload -Uz add-zsh-hook
+        add-zsh-hook precmd _bw_inject_warning
+    }
+
+    # Check dependencies
+    if ! command -v socat >/dev/null 2>&1; then
+        _schedule_bw_warning "%F{yellow}Warning: 'socat' is not installed. Bitwarden SSH Agent forwarding is disabled.%f"
+    elif ! command -v npiperelay.exe >/dev/null 2>&1; then
+        _schedule_bw_warning "%F{yellow}Warning: 'npiperelay.exe' is not found in PATH. Bitwarden SSH Agent forwarding is disabled.%f"
+    else
+        export SSH_AUTH_SOCK=$HOME/.ssh/agent.sock
+
+        if ! ss -a | grep -q "$SSH_AUTH_SOCK"; then
+            rm -f "$SSH_AUTH_SOCK"
+            NPIPERELAY_BIN=$(command -v npiperelay.exe)
+            (setsid socat UNIX-LISTEN:$SSH_AUTH_SOCK,fork EXEC:"$NPIPERELAY_BIN -ei -s //./pipe/openssh-ssh-agent",nofork &) >/dev/null 2>&1
+            sleep 0.5
+        fi
+
+        ssh-add -l >/dev/null 2>&1
+        if [ $? -eq 2 ]; then
+            _schedule_bw_warning "%F{red}Bitwarden SSH Agent connection failed. Fallback to standard SSH agent.%f"
+            unset SSH_AUTH_SOCK
+        fi
     fi
 fi
