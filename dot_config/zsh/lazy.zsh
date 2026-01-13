@@ -12,6 +12,7 @@ export PATH=$HOME/.local/share/bob/nvim-bin:$PATH
 export PATH=$HOME/.pixi/bin:$PATH
 export PATH=$HOME/.bun/bin:$PATH
 export PATH=/snap/bin:$PATH
+export PATH=/usr/local/cuda/bin:$PATH
 
 export PATH="$PATH:/usr/local/texlive/2025/bin/x86_64-linux"
 export MANPATH="$MANPATH:/usr/local/texlive/2025/texmf-dist/doc/man"
