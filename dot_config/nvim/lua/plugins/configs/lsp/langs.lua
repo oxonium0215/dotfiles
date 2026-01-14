@@ -47,7 +47,7 @@ function M.all()
   local base = vim.fn.stdpath("config") .. "/lua/plugins/configs/lsp/languages"
 
   for _, file in ipairs(vim.fn.globpath(base, "*.lua", false, true)) do
-    local lang = file:match("([^/]+)%.lua$")
+    local lang = vim.fn.fnamemodify(file, ":t:r")
     if lang then
       local ok, config = pcall(require, "plugins.configs.lsp.languages." .. lang)
       if ok and type(config) == "table" then

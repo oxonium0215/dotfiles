@@ -22,7 +22,7 @@ function M.load()
   cache = {}
   local base = vim.fn.stdpath("config") .. "/lua/plugins/configs/dap/languages"
   for _, file in ipairs(vim.fn.globpath(base, "*.lua", false, true)) do
-    local name = file:match("([^/]+)%.lua$")
+    local name = vim.fn.fnamemodify(file, ":t:r")
     if name and name ~= "init" then
       local ok, mod = pcall(require, "plugins.configs.dap.languages." .. name)
       if ok and type(mod) == "table" then
