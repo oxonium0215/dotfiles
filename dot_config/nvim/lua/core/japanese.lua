@@ -2,13 +2,23 @@
 
 local M = {}
 
+local _tinysegmenter = nil
+local _cache = { line = nil, spans = nil }
+
 local function segment_positions(line)
-  local ok, tinysegmenter = pcall(require, "tinysegmenter")
-  if not ok then
-    return nil
+  if _cache.line == line then
+    return _cache.spans
   end
 
-  local segments = tinysegmenter.segment(line)
+  if not _tinysegmenter then
+    local ok, lib = pcall(require, "tinysegmenter")
+    if not ok then
+      return nil
+    end
+    _tinysegmenter = lib
+  end
+
+  local segments = _tinysegmenter.segment(line)
   if type(segments) ~= "table" then
     return nil
   end
@@ -20,10 +30,30 @@ local function segment_positions(line)
     if not s or not e then
       return nil
     end
-    table.insert(spans, { start = s - 1, finish = e })
+
+    -- Calculate the start byte offset of the last character in the token
+    local last_char_offset = 0
+    local i = #token
+    while i > 0 do
+      local b = string.byte(token, i)
+      -- 0xxxxxxx (ASCII) or 11xxxxxx (Multi-byte start)
+      if b < 0x80 or b >= 0xC0 then
+        last_char_offset = i - 1
+        break
+      end
+      i = i - 1
+    end
+
+    table.insert(spans, {
+      start = s - 1,
+      finish = e,
+      last_char_pos = (s - 1) + last_char_offset,
+    })
     search_from = e + 1
   end
 
+  _cache.line = line
+  _cache.spans = spans
   return spans
 end
 
@@ -31,6 +61,19 @@ local function jump_segment(kind)
   local cursor = vim.api.nvim_win_get_cursor(0)
   local row, col = cursor[1], cursor[2]
   local line = vim.api.nvim_get_current_line()
+
+  -- Get character at cursor
+  -- Note: col is 0-indexed byte offset. 
+  -- We use string.sub to get the character at current position.
+  -- To handle multi-byte characters, we look at the byte under cursor.
+  local char_at_cursor = line:sub(col + 1, col + 4):match("^([%z\1-\127\194-\244][\128-\191]*)")
+
+  -- Check if the character at cursor is Japanese
+  if not char_at_cursor or not char_at_cursor:match("[ぁ-んァ-ヴー一-龯、-◯！-～]") then
+    vim.cmd("normal! " .. kind)
+    return
+  end
+
   local spans = segment_positions(line)
 
   if not spans or #spans == 0 then
@@ -59,8 +102,8 @@ local function jump_segment(kind)
     end
   elseif kind == "e" then
     for _, span in ipairs(spans) do
-      if col <= span.finish - 1 then
-        target = span.finish - 1
+      if col < span.last_char_pos then
+        target = span.last_char_pos
         break
       end
     end
