@@ -338,16 +338,17 @@ function M.setup()
     end,
   })
 
-  vim.api.nvim_create_autocmd("VimEnter", {
-    group = group,
-    callback = function()
-      vim.schedule(function()
-        if vim.api.nvim_buf_is_valid(0) then
-          ensure_current(0)
-        end
-      end)
-    end,
-  })
+  -- vim.api.nvim_create_autocmd("VimEnter", {
+  --   group = group,
+  --   callback = function()
+  --     -- Defer the initial check by 500ms to allow UI to render first
+  --     vim.defer_fn(function()
+  --       if vim.api.nvim_buf_is_valid(0) then
+  --         ensure_current(0)
+  --       end
+  --     end, 500)
+  --   end,
+  -- })
 end
 
 return M

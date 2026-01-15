@@ -276,48 +276,7 @@ local pluginlist = {
   -- ╰──────────────────────────────────────────────────────────────────────────────╯
   {
     "lewis6991/gitsigns.nvim",
-    -- only load gitsigns the first time we detect the current buffer
-    -- resides (somewhere up the tree) inside a Git repository.
-    init = function()
-      local cache = {}
-      local function has_git(path)
-        if cache[path] ~= nil then
-          return cache[path]
-        end
-        if path == "" then
-          cache[path] = false
-          return false
-        end
-        local git_entry = path .. "/.git"
-        if uv.fs_stat(git_entry) then
-          cache[path] = true
-          return true
-        end
-        local parent = vim.fn.fnamemodify(path, ":h")
-        if parent == path or parent == "" then
-          cache[path] = false
-          return false
-        end
-        local res = has_git(parent)
-        cache[path] = res
-        return res
-      end
-
-      vim.api.nvim_create_autocmd("BufReadPre", {
-        group = vim.api.nvim_create_augroup("LazyLoadGitsigns", { clear = true }),
-        callback = function(args)
-          local file = vim.api.nvim_buf_get_name(args.buf)
-          if file == "" then
-            return
-          end
-          local dir = vim.fn.fnamemodify(file, ":p:h")
-          if has_git(dir) then
-            vim.api.nvim_del_augroup_by_name("LazyLoadGitsigns")
-            require("lazy").load({ plugins = { "gitsigns.nvim" } })
-          end
-        end,
-      })
-    end,
+    event = { "BufReadPost", "BufNewFile" },
     opts = function()
       return require("plugins.configs.others").gitsigns
     end,
