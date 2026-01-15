@@ -55,6 +55,11 @@ M.general = {
   -- Comment
   { "n", "<leader>/", "gcc", { desc = "Toggle Comment", remap = true } },
   { "v", "<leader>/", "gc", { desc = "Toggle comment", remap = true } },
+
+  -- Japanese Word Motion
+  { "n", "w", "<Plug>(japanese-word-motion-w)", { desc = "Japanese aware w" } },
+  { "n", "b", "<Plug>(japanese-word-motion-b)", { desc = "Japanese aware b" } },
+  { "n", "e", "<Plug>(japanese-word-motion-e)", { desc = "Japanese aware e" } },
 }
 
 M.bufferline = {
