@@ -1,11 +1,15 @@
 local M = {}
 
-local registry = require("mason-registry")
 local install_in_progress = {}
 local warned_runtime = {}
-local registry_ready = registry.sources:is_all_installed()
+local registry_ready = false
+local registry_checked = false
 local registry_refreshing = false
 local registry_waiters = {}
+
+local function get_registry()
+  return require("mason-registry")
+end
 
 local function run_registry_waiters(ok)
   local waiters = registry_waiters
@@ -18,6 +22,12 @@ local function run_registry_waiters(ok)
 end
 
 local function ensure_registry(callback)
+  local registry = get_registry()
+  if not registry_checked then
+    registry_ready = registry.sources:is_all_installed()
+    registry_checked = true
+  end
+
   if registry_ready then
     if callback then
       callback(true)
@@ -80,6 +90,7 @@ local function complete_install(pkg_name, success)
 end
 
 local function install_package(pkg_name, callback)
+  local registry = get_registry()
   if registry.is_installed(pkg_name) then
     if callback then
       callback(true)
@@ -135,6 +146,7 @@ function M.install(packages, callback)
       return
     end
 
+    local registry = get_registry()
     local unique = dedupe(packages)
     if #unique == 0 then
       if callback then
@@ -182,6 +194,7 @@ end
 ---@param filetype string
 ---@return string[]
 function M.get_tools(filetype)
+  local registry = get_registry()
   local tools = {}
   local seen = {}
 
@@ -294,7 +307,6 @@ end
 
 function M.setup()
   local group = vim.api.nvim_create_augroup("LazyInstallTools", { clear = true })
-  ensure_registry()
 
   local function ensure_current(bufnr)
     local buf = bufnr or 0
