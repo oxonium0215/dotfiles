@@ -93,7 +93,16 @@ chpwd() {
 # どこからでも参照できるディレクトリパス
 cdpath=(~)
 # others
-eval "$(rtx activate zsh)"
+if command -v mise >/dev/null 2>&1; then
+  eval "$(mise activate zsh)"
+else
+  schedule_warning "%F{yellow}Warning: 'mise' is not installed. Tool version management is disabled.%f"
+fi
+
+# Check for 'zf' which is used in zle-cd
+if ! command -v zf >/dev/null 2>&1; then
+  schedule_warning "%F{yellow}Warning: 'zf' is not installed. 'Ctrl+j' (zle-cd) will not work.%f"
+fi
 
 ########################################
 # 補完
@@ -137,47 +146,11 @@ add-zsh-hook precmd _update_vcs_info_msg
 # SSH Agent Forwarding for Bitwarden
 # Run only in WSL
 if grep -qE "(Microsoft|WSL)" /proc/version; then
-    
-    # Store the original prompt to restore later
-    # We capture it at the time this script runs (deferred)
-    _BW_ORIGINAL_PROMPT="$PROMPT"
-
-    function _bw_restore_prompt() {
-        PROMPT="$_BW_ORIGINAL_PROMPT"
-        # Unhook myself
-        autoload -Uz add-zsh-hook
-        add-zsh-hook -d preexec _bw_restore_prompt
-        # Also remove from precmd if it was there (just in case)
-        add-zsh-hook -d precmd _bw_inject_warning
-    }
-
-    function _bw_inject_warning() {
-        if [[ -n "$_BW_WARN_MSG" ]]; then
-            # Inject warning at the TOP of the prompt
-            PROMPT="$_BW_WARN_MSG
-$PROMPT"
-            unset _BW_WARN_MSG
-            
-            # Register preexec to restore the prompt after the next command
-            autoload -Uz add-zsh-hook
-            add-zsh-hook preexec _bw_restore_prompt
-            
-            # Remove this injection hook so it only happens once
-            add-zsh-hook -d precmd _bw_inject_warning
-        fi
-    }
-
-    function _schedule_bw_warning() {
-        export _BW_WARN_MSG="$1"
-        autoload -Uz add-zsh-hook
-        add-zsh-hook precmd _bw_inject_warning
-    }
-
     # Check dependencies
     if ! command -v socat >/dev/null 2>&1; then
-        _schedule_bw_warning "%F{yellow}Warning: 'socat' is not installed. Bitwarden SSH Agent forwarding is disabled.%f"
+        schedule_warning "%F{yellow}Warning: 'socat' is not installed. Bitwarden SSH Agent forwarding is disabled.%f"
     elif ! command -v npiperelay.exe >/dev/null 2>&1; then
-        _schedule_bw_warning "%F{yellow}Warning: 'npiperelay.exe' is not found in PATH. Bitwarden SSH Agent forwarding is disabled.%f"
+        schedule_warning "%F{yellow}Warning: 'npiperelay.exe' is not found in PATH. Bitwarden SSH Agent forwarding is disabled.%f"
     else
         export SSH_AUTH_SOCK=$HOME/.ssh/agent.sock
 
@@ -190,7 +163,7 @@ $PROMPT"
 
         ssh-add -l >/dev/null 2>&1
         if [ $? -eq 2 ]; then
-            _schedule_bw_warning "%F{red}Bitwarden SSH Agent connection failed. Fallback to standard SSH agent.%f"
+            schedule_warning "%F{red}Bitwarden SSH Agent connection failed. Fallback to standard SSH agent.%f"
             unset SSH_AUTH_SOCK
         fi
     fi

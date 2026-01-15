@@ -81,6 +81,36 @@ esac
 PROMPT="%(?.%{${fg[green]}%}.%{${fg[red]}%})%n${reset_color}@${fg[blue]}%m${reset_color}(%*%) %~
 %# "
 
+# Warning injection mechanism (used by deferred scripts)
+_ZSH_WARNINGS=()
+
+function _zsh_restore_prompt() {
+    PROMPT="$_ZSH_ORIGINAL_PROMPT"
+    add-zsh-hook -d preexec _zsh_restore_prompt
+    add-zsh-hook -d precmd _zsh_inject_warnings
+}
+
+function _zsh_inject_warnings() {
+    if [[ ${#_ZSH_WARNINGS[@]} -gt 0 ]]; then
+        _ZSH_ORIGINAL_PROMPT="$PROMPT"
+        local combined_warnings=""
+        for msg in "${_ZSH_WARNINGS[@]}"; do
+            combined_warnings+="${msg}"$'\n'
+        done
+        PROMPT="${combined_warnings}${PROMPT}"
+        _ZSH_WARNINGS=()
+        
+        add-zsh-hook preexec _zsh_restore_prompt
+        add-zsh-hook -d precmd _zsh_inject_warnings
+    fi
+}
+
+function schedule_warning() {
+    _ZSH_WARNINGS+=("$1")
+    autoload -Uz add-zsh-hook
+    add-zsh-hook precmd _zsh_inject_warnings
+}
+
 # setup Deno
 export DENO_INSTALL="$HOME/.deno"
 export PATH=$DENO_INSTALL/bin:$PATH
