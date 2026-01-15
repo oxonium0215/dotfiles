@@ -59,7 +59,7 @@ local pluginlist = {
   },
   {
     "sirasagi62/tinysegmenter.nvim",
-    lazy = false,
+    event = "VeryLazy",
   },
 
   -- Core shared libraries (lazy by default)
