@@ -4,10 +4,9 @@ export LANG=en_US.UTF-8
 export PNPM_HOME="$HOME/.local/share/pnpm"
 export PATH=$PNPM_HOME:$PATH
 export PATH=$HOME/go/bin:$PATH
-export PARH=$HOME/.cargo/bin:$PATH
+export PATH=$HOME/.cargo/bin:$PATH
 export PATH=$HOME/.local/bin:$PATH
 export PATH=$HOME/bin:/usr/local/bin:$PATH
-export PATH=$HOME/.local/bin:$PATH
 export PATH=$HOME/.local/share/bob/nvim-bin:$PATH
 export PATH=$HOME/.pixi/bin:$PATH
 export PATH=$HOME/.bun/bin:$PATH
@@ -100,7 +99,11 @@ eval "$(rtx activate zsh)"
 # 補完
 # 補完機能を有効にする
 autoload -Uz compinit
-compinit
+if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.m-1) ]]; then
+  compinit -C
+else
+  compinit
+fi
 # 補完で小文字でも大文字にマッチさせる
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 # ../ の後は今いるディレクトリを補完しない
@@ -114,28 +117,19 @@ zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin \
 zstyle ':completion:*:processes' command 'ps x -o pid,s,args'
 
 ########################################
-# git設定
-RPROMPT="%{${fg[blue]}%}[%~]%{${reset_color}%}"
+# git設定 (vcs_info)
 autoload -Uz vcs_info
+autoload -Uz add-zsh-hook
 setopt prompt_subst
+
 zstyle ':vcs_info:git:*' check-for-changes true
 zstyle ':vcs_info:git:*' stagedstr "%F{yellow}!"
 zstyle ':vcs_info:git:*' unstagedstr "%F{red}+"
 zstyle ':vcs_info:*' formats "%F{green}%c%u[%b]%f"
-zstyle ':vcs_info:*' actionformats '[%b|%a]'
-precmd () { vcs_info }
-RPROMPT=$RPROMPT'${vcs_info_msg_0_}'
-
-########################################
-# vcs_info
-autoload -Uz vcs_info
-autoload -Uz add-zsh-hook
-
-zstyle ':vcs_info:*' formats '%F{green}(%s)-[%b]%f'
-zstyle ':vcs_info:*' actionformats '%F{red}(%s)-[%b|%a]%f'
+zstyle ':vcs_info:*' actionformats "%F{red}%c%u[%b|%a]%f"
 
 function _update_vcs_info_msg() {
-    LANG=en_US.UTF-8 vcs_info
+    vcs_info
     RPROMPT="${vcs_info_msg_0_}"
 }
 add-zsh-hook precmd _update_vcs_info_msg

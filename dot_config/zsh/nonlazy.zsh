@@ -7,7 +7,7 @@ SAVEHIST=100000
 # source ~/proxy_scripts/shudo.sh
 
 # 日本語ファイル名を表示可能にする
-export LANG=ja_JP.utf8
+export LANG=en_US.UTF-8
 setopt print_eight_bit
 # beep を無効にする
 setopt no_beep
@@ -85,5 +85,4 @@ PROMPT="%(?.%{${fg[green]}%}.%{${fg[red]}%})%n${reset_color}@${fg[blue]}%m${rese
 export DENO_INSTALL="$HOME/.deno"
 export PATH=$DENO_INSTALL/bin:$PATH
 
-zmodload zsh/zpty
 
