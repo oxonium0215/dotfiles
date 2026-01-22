@@ -242,8 +242,8 @@ M.fidget = {
 }
 
 M.nvimwindow = {
-  { "n", "<C-w>", "<cmd>lua require('nvim-window').pick()<CR>", { desc = "Window picker", silent = true } },
-  { "t", "<C-w>", "<cmd>lua require('nvim-window').pick()<CR>", { desc = "Window picker", silent = true } },
+  { "n", "<leader>ww", "<cmd>lua require('nvim-window').pick()<CR>", { desc = "Window picker", silent = true } },
+  { "t", "<leader>ww", "<cmd>lua require('nvim-window').pick()<CR>", { desc = "Window picker", silent = true } },
 }
 
 M.fzf = {
