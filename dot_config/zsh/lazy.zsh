@@ -154,15 +154,24 @@ if grep -qE "(Microsoft|WSL)" /proc/version; then
     else
         export SSH_AUTH_SOCK=$HOME/.ssh/agent.sock
 
-        if ! ss -a | grep -q "$SSH_AUTH_SOCK"; then
+        if ! ss -xl | grep -q "$SSH_AUTH_SOCK"; then
             rm -f "$SSH_AUTH_SOCK"
             NPIPERELAY_BIN=$(command -v npiperelay.exe)
             (setsid socat UNIX-LISTEN:$SSH_AUTH_SOCK,fork EXEC:"$NPIPERELAY_BIN -ei -s //./pipe/openssh-ssh-agent",nofork &) >/dev/null 2>&1
-            sleep 0.5
+            
+            # Wait for socket to be created (max 0.5s)
+            local i
+            for i in {1..10}; do
+                if [[ -S "$SSH_AUTH_SOCK" ]]; then
+                    break
+                fi
+                sleep 0.05
+            done
         fi
 
-        ssh-add -l >/dev/null 2>&1
-        if [ $? -eq 2 ]; then
+        timeout 1s ssh-add -l >/dev/null 2>&1
+        local ret=$?
+        if [ $ret -eq 2 ] || [ $ret -eq 124 ]; then
             schedule_warning "%F{red}Bitwarden SSH Agent connection failed. Fallback to standard SSH agent.%f"
             unset SSH_AUTH_SOCK
         fi
