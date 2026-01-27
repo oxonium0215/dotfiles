@@ -105,8 +105,8 @@ local is_windows = uv.os_uname().sysname == "Windows_NT"
 vim.env.PATH = vim.fn.stdpath("data") .. "/mason/bin" .. (is_windows and ";" or ":") .. vim.env.PATH
 
 -- set font for gui clients
-if vim.fn.has('gui_running') == 1 then
-  vim.o.guifont = "HackGen Console NF:h14"
+if vim.fn.has("gui_running") == 1 then
+  vim.o.guifont = "Staged Mono NF:h14"
 end
 
 vim.g.did_install_default_menus = 1
