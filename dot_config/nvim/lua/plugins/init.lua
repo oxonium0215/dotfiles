@@ -486,12 +486,6 @@ local pluginlist = {
       require("plugins.configs.dap").setup()
     end,
   },
-  {
-    "zeioth/garbage-day.nvim",
-    dependencies = "neovim/nvim-lspconfig",
-    event = { "CursorHold", "CursorHoldI" },
-    opts = {},
-  },
 
   -- ╭──────────────────────────────────────────────────────────────────────────────╮
   -- │ ∘ Fuzzy Finder & Telescope Extensions                                        │

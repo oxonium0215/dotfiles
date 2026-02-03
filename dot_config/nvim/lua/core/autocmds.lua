@@ -262,3 +262,44 @@ create_autocmd({ "CursorHold", "CursorHoldI" }, {
     end
   end,
 })
+
+-- ╭──────────────────────────────────────────────────────────────────────────────╮
+-- │ LSP Idle Timeout - Stop inactive LSP servers to free RAM                     │
+-- ╰──────────────────────────────────────────────────────────────────────────────╯
+local lsp_idle = augroup("LspIdleTimeout", { clear = true })
+local lsp_idle_timer = nil
+local lsp_idle_timeout = 1000 * 60 * 15 -- 15 minutes
+
+autocmd("FocusLost", {
+  group = lsp_idle,
+  callback = function()
+    if lsp_idle_timer then
+      lsp_idle_timer:stop()
+    end
+    lsp_idle_timer = vim.defer_fn(function()
+      local clients = vim.lsp.get_clients()
+      for _, client in ipairs(clients) do
+        client:stop()
+      end
+      if #clients > 0 then
+        vim.notify(
+          string.format("Stopped %d idle LSP client(s) to free RAM", #clients),
+          vim.log.levels.INFO
+        )
+      end
+    end, lsp_idle_timeout)
+  end,
+  desc = "Start timer to stop LSP servers after focus lost",
+})
+
+autocmd("FocusGained", {
+  group = lsp_idle,
+  callback = function()
+    if lsp_idle_timer then
+      lsp_idle_timer:stop()
+      lsp_idle_timer = nil
+    end
+    -- LSP will be restarted automatically by existing FileType autocmd
+  end,
+  desc = "Cancel LSP idle timer on focus gained",
+})
