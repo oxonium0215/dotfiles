@@ -1,0 +1,91 @@
+#!/bin/bash
+# Install system packages required for dotfiles
+# This script runs once before chezmoi applies the dotfiles
+
+set -euo pipefail
+
+echo "==> Installing system packages..."
+
+{{ if eq .chezmoi.os "darwin" -}}
+# macOS: Install packages via Homebrew
+if ! command -v brew &>/dev/null; then
+    echo "Installing Homebrew..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
+
+# Install essential packages
+brew install \
+    zsh \
+    git \
+    curl \
+    mise \
+    rustup
+
+# Initialize rustup if not already done
+if [[ ! -d "$HOME/.rustup" ]]; then
+    rustup-init -y --no-modify-path
+fi
+
+{{ else if eq .chezmoi.os "linux" -}}
+# Linux: Detect package manager and install packages
+
+install_packages_apt() {
+    sudo apt-get update
+    sudo apt-get install -y \
+        zsh \
+        git \
+        curl \
+        build-essential \
+        pkg-config \
+        libssl-dev \
+        socat
+}
+
+install_packages_dnf() {
+    sudo dnf install -y \
+        zsh \
+        git \
+        curl \
+        gcc \
+        gcc-c++ \
+        make \
+        openssl-devel \
+        socat
+}
+
+install_packages_pacman() {
+    sudo pacman -Syu --noconfirm \
+        zsh \
+        git \
+        curl \
+        base-devel \
+        openssl \
+        socat
+}
+
+# Detect package manager
+if command -v apt-get &>/dev/null; then
+    install_packages_apt
+elif command -v dnf &>/dev/null; then
+    install_packages_dnf
+elif command -v pacman &>/dev/null; then
+    install_packages_pacman
+else
+    echo "Warning: Unknown package manager. Please install packages manually."
+fi
+
+# Install mise if not present
+if ! command -v mise &>/dev/null; then
+    echo "Installing mise..."
+    curl https://mise.run | sh
+fi
+
+# Install rustup if not present
+if ! command -v rustup &>/dev/null; then
+    echo "Installing rustup..."
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
+fi
+
+{{ end -}}
+
+echo "==> System packages installed successfully."

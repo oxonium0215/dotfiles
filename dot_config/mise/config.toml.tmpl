@@ -1,0 +1,47 @@
+# mise global configuration
+# Managed by chezmoi
+
+[settings]
+# Trust all config files in home directory
+trusted_config_paths = ["~"]
+# Automatically install tools when entering a directory with .mise.toml
+auto_install = true
+# Generate shims for compatibility with editors/IDEs
+experimental = true
+
+[tools]
+# Language runtimes
+node = "lts"
+bun = "latest"
+deno = "latest"
+go = "latest"
+python = "latest"
+
+# Python package manager
+uv = "latest"
+
+# CLI tools (using aqua backend for pre-built binaries when available)
+eza = "latest"
+ripgrep = "latest"
+fd = "latest"
+fzf = "latest"
+sccache = "latest"
+
+# Neovim version manager
+"cargo:bob-nvim" = "latest"
+
+# Tools that need to be compiled from source via cargo
+# Note: Rust must be installed via rustup before these can be built
+"cargo:sheldon" = "latest"
+"cargo:zf" = "latest"
+"cargo:tree-sitter-cli" = "latest"
+"cargo:cargo-update" = "latest"
+
+{{ if eq .chezmoi.os "linux" -}}
+# TinyTeX for LaTeX (Linux only - macOS uses MacTeX)
+tinytex = "latest"
+{{ end -}}
+
+[env]
+# Ensure mise shims are in PATH for non-interactive shells
+_.path = ["~/.local/share/mise/shims"]

@@ -26,3 +26,6 @@ unset sheldon_cache sheldon_toml
 source $ZSHRC_DIR/nonlazy.zsh
 zsh-defer source $ZSHRC_DIR/lazy.zsh
 zsh-defer unfunction source
+
+# Load machine-specific local configuration (not managed by chezmoi)
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
