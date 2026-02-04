@@ -1,0 +1,123 @@
+#!/bin/bash
+# Setup TinyTeX and install LaTeX packages
+# This script runs once after mise setup (only on Linux)
+
+{{ if eq .chezmoi.os "linux" -}}
+set -euo pipefail
+
+# Skip TinyTeX setup if environment variable is set (for Docker testing)
+if [[ "${SKIP_TEXLIVE_SETUP:-false}" == "true" ]]; then
+    echo "==> Skipping TinyTeX setup (SKIP_TEXLIVE_SETUP=true)"
+    exit 0
+fi
+
+echo "==> Setting up TinyTeX and LaTeX packages..."
+
+# TinyTeX can be installed in different locations:
+# 1. Standard location: $HOME/.TinyTeX
+# 2. mise-managed: $HOME/.local/share/mise/installs/tinytex/<version>
+
+TINYTEX_BASE=""
+ARCH_DIR="x86_64-linux"
+
+# Check standard location first
+if [[ -d "$HOME/.TinyTeX" ]]; then
+    TINYTEX_BASE="$HOME/.TinyTeX"
+# Check mise installation
+elif command -v mise &>/dev/null; then
+    MISE_TINYTEX=$(mise where tinytex 2>/dev/null || true)
+    if [[ -n "$MISE_TINYTEX" && -d "$MISE_TINYTEX" ]]; then
+        TINYTEX_BASE="$MISE_TINYTEX"
+    fi
+fi
+
+if [[ -z "$TINYTEX_BASE" ]]; then
+    echo "Warning: TinyTeX is not installed. Skipping LaTeX package installation."
+    echo "Please run 'mise install tinytex' to install TinyTeX."
+    exit 0
+fi
+
+echo "Found TinyTeX at: $TINYTEX_BASE"
+
+# Find tlmgr binary - check both standard and mise layouts
+TLMGR=""
+# Standard layout: bin/<arch>/tlmgr
+for bin_dir in "$TINYTEX_BASE/bin"/*; do
+    if [[ -x "$bin_dir/tlmgr" ]]; then
+        TLMGR="$bin_dir/tlmgr"
+        break
+    fi
+done
+
+if [[ -z "$TLMGR" ]]; then
+    echo "Error: tlmgr not found in TinyTeX installation."
+    exit 1
+fi
+
+echo "Using tlmgr: $TLMGR"
+
+# Update tlmgr itself first
+echo "Updating tlmgr..."
+"$TLMGR" update --self || true
+
+# Install essential LaTeX packages
+# These match the packages from the original TeXLive 2025 installation
+echo "Installing LaTeX packages..."
+
+PACKAGES=(
+    # Core collections
+    collection-luatex
+    collection-langjapanese
+    collection-fontsextra
+    collection-mathscience
+    collection-pictures
+    
+    # Build tools
+    latexmk
+    
+    # Common packages
+    amsmath
+    geometry
+    graphicx
+    hyperref
+    xcolor
+    booktabs
+    fancyhdr
+    titlesec
+    enumitem
+    listings
+    algorithm2e
+    biblatex
+    biber
+    
+    # Japanese support
+    luatexja
+    haranoaji
+    
+    # TikZ and diagrams
+    tikz-cd
+    pgfplots
+)
+
+for pkg in "${PACKAGES[@]}"; do
+    echo "Installing $pkg..."
+    "$TLMGR" install "$pkg" 2>/dev/null || echo "  (already installed or not found)"
+done
+
+# Create cache directories for LuaTeX
+echo "Creating LuaTeX cache directories..."
+mkdir -p "$HOME/.cache/texlive"
+mkdir -p "$HOME/.cache/luatex/luaotfload/names"
+mkdir -p "$HOME/.cache/luatex/luaotfload/fonts"
+chmod -R 755 "$HOME/.cache/luatex"
+
+echo "==> TinyTeX setup completed successfully."
+echo ""
+echo "Note: If you had a previous TeXLive installation at /usr/local/texlive,"
+echo "you can now safely remove it to free up disk space."
+
+{{ else -}}
+# macOS: Assume MacTeX is installed via Homebrew Cask or installer
+echo "==> macOS detected. Using system MacTeX installation."
+echo "If MacTeX is not installed, please install it from https://tug.org/mactex/"
+{{ end -}}

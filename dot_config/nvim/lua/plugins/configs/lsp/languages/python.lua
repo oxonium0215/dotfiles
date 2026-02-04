@@ -1,8 +1,8 @@
 return {
   lsp = {
     servers = { "pyright" },
-    formatters = { "black" },
-    linters = { "flake8" },
+    formatters = { "ruff_format" },
+    linters = { "ruff" },
   },
   treesitter = { "python" },
 }

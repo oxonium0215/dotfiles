@@ -1,3 +1,19 @@
+# Compiled zsh files
 *.zwc
+
+# Documentation
 README.md
+LICENSE
+
+# Old setup script (replaced by chezmoi run_once scripts)
 setup.sh
+
+# Machine-specific local config (should not be managed by chezmoi)
+.zshrc.local
+
+# Generated files (created by sheldon)
+dot_config/zsh/sheldon/sheldon.zsh
+
+# Testing files (not part of dotfiles)
+Dockerfile
+test/

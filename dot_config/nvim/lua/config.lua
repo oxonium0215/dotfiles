@@ -100,9 +100,19 @@ for _, provider in ipairs({ "node", "perl", "python3", "ruby" }) do
   vim.g["loaded_" .. provider .. "_provider"] = 0
 end
 
--- add binaries installed by mason.nvim to path
+-- add mise shims and mason binaries to path
 local is_windows = uv.os_uname().sysname == "Windows_NT"
-vim.env.PATH = vim.fn.stdpath("data") .. "/mason/bin" .. (is_windows and ";" or ":") .. vim.env.PATH
+local path_separator = is_windows and ";" or ":"
+local home = vim.env.HOME or vim.fn.expand("~")
+
+-- mise shims (for tools managed by mise: node, python, etc.)
+local mise_shims = home .. "/.local/share/mise/shims"
+if vim.fn.isdirectory(mise_shims) == 1 then
+  vim.env.PATH = mise_shims .. path_separator .. vim.env.PATH
+end
+
+-- mason binaries (for LSP servers, formatters, linters)
+vim.env.PATH = vim.fn.stdpath("data") .. "/mason/bin" .. path_separator .. vim.env.PATH
 
 -- set font for gui clients
 if vim.fn.has("gui_running") == 1 then
