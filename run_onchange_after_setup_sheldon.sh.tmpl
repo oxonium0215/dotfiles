@@ -1,0 +1,15 @@
+#!/bin/bash
+# plugins.toml hash: {{ include "dot_config/zsh/sheldon/plugins.toml" | sha256sum }}
+
+set -euo pipefail
+
+# This script runs only when dot_config/zsh/sheldon/plugins.toml changes
+
+if command -v sheldon &>/dev/null; then
+    SHELDON_CONFIG="$HOME/.config/zsh/sheldon/plugins.toml"
+    if [[ -f "$SHELDON_CONFIG" ]]; then
+        echo "sheldon configuration changed. Regenerating plugin cache..."
+        sheldon --config-file "$SHELDON_CONFIG" lock
+        sheldon --config-file "$SHELDON_CONFIG" source > "$HOME/.config/zsh/sheldon/sheldon.zsh"
+    fi
+fi
