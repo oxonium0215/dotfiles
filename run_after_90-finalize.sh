@@ -6,16 +6,7 @@ set -euo pipefail
 
 echo "==> Finalizing dotfiles setup..."
 
-# Generate sheldon plugin cache if sheldon is available
-if command -v sheldon &>/dev/null; then
-    SHELDON_CONFIG="$HOME/.config/zsh/sheldon/plugins.toml"
-    if [[ -f "$SHELDON_CONFIG" ]]; then
-        echo "Generating sheldon plugin cache..."
-        # --config-file is a global option, must come before subcommand
-        sheldon --config-file "$SHELDON_CONFIG" lock
-        sheldon --config-file "$SHELDON_CONFIG" source > "$HOME/.config/zsh/sheldon/sheldon.zsh"
-    fi
-fi
+
 
 # Compile zsh files for faster loading (optional, creates .zwc files)
 # Uncomment if you want to enable zcompile
