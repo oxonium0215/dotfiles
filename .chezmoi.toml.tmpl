@@ -3,6 +3,11 @@
 {{-   $osID = .chezmoi.osRelease.id -}}
 {{- end -}}
 
+{{- $isWSL := false -}}
+{{- if and (eq .chezmoi.os "linux") (hasKey .chezmoi "kernel") -}}
+{{-   $isWSL = contains "microsoft" (lower .chezmoi.kernel.osrelease) -}}
+{{- end -}}
+
 [data]
     osID = {{ $osID | quote }}
-    isWSL = {{ and (eq .chezmoi.os "linux") (contains "microsoft" (lower .chezmoi.kernel.osrelease)) }}
+    isWSL = {{ $isWSL }}

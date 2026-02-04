@@ -174,7 +174,7 @@ zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin \
 zstyle ':completion:*:processes' command 'ps x -o pid,s,args'
 
 ########################################
-# git設定 (vcs_info)
+# git設定 (vcs_info) - async版
 autoload -Uz vcs_info
 autoload -Uz add-zsh-hook
 setopt prompt_subst
@@ -185,11 +185,42 @@ zstyle ':vcs_info:git:*' unstagedstr "%F{red}+"
 zstyle ':vcs_info:*' formats "%F{green}%c%u[%b]%f"
 zstyle ':vcs_info:*' actionformats "%F{red}%c%u[%b|%a]%f"
 
-function _update_vcs_info_msg() {
-    vcs_info
-    RPROMPT="${vcs_info_msg_0_}"
+# Async vcs_info using zsh-async
+_vcs_info_async_worker_name="vcs_info_worker"
+
+# Callback function when async job completes
+_vcs_info_async_callback() {
+    local job=$1 code=$2 output=$3 exec_time=$4 stderr=$5
+    
+    # job is the function name, output is stdout
+    if [[ $job == "_vcs_info_async_job" ]]; then
+        RPROMPT="$output"
+        zle && zle reset-prompt
+    fi
 }
-add-zsh-hook precmd _update_vcs_info_msg
+
+# Async job function (runs in subshell)
+_vcs_info_async_job() {
+    cd -q "$1" 2>/dev/null || return
+    vcs_info
+    print -n "${vcs_info_msg_0_}"
+}
+
+# Start async worker
+_vcs_info_async_init() {
+    async_start_worker "$_vcs_info_async_worker_name" -n
+    async_register_callback "$_vcs_info_async_worker_name" _vcs_info_async_callback
+}
+
+# Queue vcs_info job on precmd
+_vcs_info_async_precmd() {
+    async_flush_jobs "$_vcs_info_async_worker_name"
+    async_job "$_vcs_info_async_worker_name" _vcs_info_async_job "$PWD"
+}
+
+# Initialize worker and register hook
+_vcs_info_async_init
+add-zsh-hook precmd _vcs_info_async_precmd
 
 {{ if and (eq .chezmoi.os "linux") (contains "microsoft" (lower .chezmoi.kernel.osrelease)) -}}
 ########################################
@@ -216,11 +247,32 @@ else
         done
     fi
 
-    timeout 1s ssh-add -l >/dev/null 2>&1
-    local ret=$?
-    if [ $ret -eq 2 ] || [ $ret -eq 124 ]; then
-        schedule_warning "%F{red}Bitwarden SSH Agent connection failed. Fallback to standard SSH agent.%f"
-        unset SSH_AUTH_SOCK
-    fi
+    # Async check for Bitwarden SSH Agent connection
+    _bw_ssh_agent_check_callback() {
+        local job=$1 code=$2 output=$3 exec_time=$4 stderr=$5
+        
+        if [[ $job == "_bw_ssh_agent_check_job" ]]; then
+            # code 2 = agent not running, 124 = timeout (from our manual check)
+            if [[ $output == "failed" ]]; then
+                print -P "%F{red}Bitwarden SSH Agent connection failed. Fallback to standard SSH agent.%f"
+                unset SSH_AUTH_SOCK
+            fi
+        fi
+    }
+    
+    _bw_ssh_agent_check_job() {
+        timeout 1s ssh-add -l >/dev/null 2>&1
+        local ret=$?
+        if [[ $ret -eq 2 ]] || [[ $ret -eq 124 ]]; then
+            print -n "failed"
+        else
+            print -n "ok"
+        fi
+    }
+    
+    # Run the check asynchronously
+    async_start_worker "bw_ssh_check" -n
+    async_register_callback "bw_ssh_check" _bw_ssh_agent_check_callback
+    async_job "bw_ssh_check" _bw_ssh_agent_check_job
 fi
 {{ end -}}

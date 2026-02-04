@@ -6,6 +6,9 @@ defer = "{{ hooks?.pre | nl }}{% for file in files %}zsh-defer -t 0.0001 source 
 [plugins.zsh-defer]
 github = "romkatv/zsh-defer"
 
+[plugins.zsh-async]
+github = "mafredri/zsh-async"
+
 [plugins.z]
 github = 'agkozak/zsh-z'
 apply = ["defer"]
@@ -16,14 +19,6 @@ zsh-defer eval "ZSHZ_NO_RESOLVE_SYMLINKS=1"
 [plugins.bd]
 github = 'Tarrasch/zsh-bd'
 use = ['bd.zsh']
-apply = ["defer"]
-
-[plugins.zsh-syntax-highlighting]
-github = 'zsh-users/zsh-syntax-highlighting'
-apply = ["defer"]
-
-[plugins.zsh-autosuggestions]
-github = 'zsh-users/zsh-autosuggestions'
 apply = ["defer"]
 
 [plugins.zsh-abbr]
