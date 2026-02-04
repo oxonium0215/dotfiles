@@ -141,11 +141,13 @@ chpwd() {
 cdpath=(~)
 
 # mise activation
-if command -v mise >/dev/null 2>&1; then
-    eval "$(mise activate zsh)"
-else
-    schedule_warning "%F{yellow}Warning: 'mise' is not installed. Tool version management is disabled.%f"
-fi
+# Disabled to improve 'cd' performance (mise hook-env is slow)
+# Shims are already in PATH, so tool versioning still works.
+# if command -v mise >/dev/null 2>&1; then
+#     eval "$(mise activate zsh)"
+# else
+#     schedule_warning "%F{yellow}Warning: 'mise' is not installed. Tool version management is disabled.%f"
+# fi
 
 # Check for 'zf' which is used in zle-cd
 if ! command -v zf >/dev/null 2>&1; then
@@ -254,7 +256,12 @@ else
         if [[ $job == "_bw_ssh_agent_check_job" ]]; then
             # code 2 = agent not running, 124 = timeout (from our manual check)
             if [[ $output == "failed" ]]; then
-                print -P "%F{red}Bitwarden SSH Agent connection failed. Fallback to standard SSH agent.%f"
+                # Use the existing prompt injection mechanism to show the warning above the prompt
+                schedule_warning "%F{red}Bitwarden SSH Agent connection failed. Fallback to standard SSH agent.%f"
+                _zsh_inject_warnings
+                if zle; then
+                    zle reset-prompt
+                fi
                 unset SSH_AUTH_SOCK
             fi
         fi

@@ -1,5 +1,0 @@
-source "$HOME/.local/share/sheldon/repos/github.com/romkatv/zsh-defer/zsh-defer.plugin.zsh"
-zsh-defer source "$HOME/.local/share/sheldon/repos/github.com/agkozak/zsh-z/zsh-z.plugin.zsh"
-zsh-defer eval "ZSHZ_NO_RESOLVE_SYMLINKS=1"
-zsh-defer source "$HOME/.local/share/sheldon/repos/github.com/Tarrasch/zsh-bd/bd.zsh"
-zsh-defer source "$HOME/.local/share/sheldon/repos/github.com/zsh-users/zsh-completions/zsh-completions.plugin.zsh"
