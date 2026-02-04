@@ -8,6 +8,8 @@ trusted_config_paths = ["~"]
 auto_install = true
 # Generate shims for compatibility with editors/IDEs
 experimental = true
+# Use precompiled Python binaries only (avoid compilation issues)
+python.compile = false
 
 [tools]
 # Language runtimes
@@ -27,14 +29,15 @@ fd = "latest"
 fzf = "latest"
 sccache = "latest"
 
-# Neovim version manager
-"cargo:bob-nvim" = "latest"
+# Neovim version manager (pre-built binary via aqua)
+bob = "latest"
+
+# Fuzzy finder for filepaths (Zig-based, pre-built binary)
+"aqua:natecraddock/zf" = "latest"
 
 # Tools that need to be compiled from source via cargo
 # Note: Rust must be installed via rustup before these can be built
 "cargo:sheldon" = "latest"
-"cargo:zf" = "latest"
-"cargo:tree-sitter-cli" = "latest"
 "cargo:cargo-update" = "latest"
 
 {{ if eq .chezmoi.os "linux" -}}

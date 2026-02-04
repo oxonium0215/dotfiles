@@ -1,6 +1,7 @@
 #######################################
 # PATH重複防止
-typeset -U path PATH fpath FPATH
+# -g flag ensures these remain global when sourced from a function scope
+typeset -gU path PATH fpath FPATH
 
 #######################################
 # オプション

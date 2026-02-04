@@ -38,6 +38,7 @@ install_packages_apt() {
         build-essential \
         pkg-config \
         libssl-dev \
+        libclang-dev \
         socat
 }
 
@@ -50,6 +51,7 @@ install_packages_dnf() {
         gcc-c++ \
         make \
         openssl-devel \
+        clang-devel \
         socat
 }
 
@@ -60,6 +62,7 @@ install_packages_pacman() {
         curl \
         base-devel \
         openssl \
+        clang \
         socat
 }
 

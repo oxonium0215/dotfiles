@@ -6,6 +6,9 @@ set -euo pipefail
 
 echo "==> Setting up mise and installing tools..."
 
+# Ensure mise is in PATH (installed to ~/.local/bin by mise installer)
+export PATH="$HOME/.local/bin:$PATH"
+
 # Source cargo environment if available (for cargo packages)
 if [[ -f "$HOME/.cargo/env" ]]; then
     source "$HOME/.cargo/env"
