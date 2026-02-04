@@ -12,7 +12,7 @@ setup.sh
 .zshrc.local
 
 # Generated files (created by sheldon)
-dot_config/zsh/sheldon/sheldon.zsh
+.config/zsh/sheldon/sheldon.zsh
 
 # Testing files (not part of dotfiles)
 Dockerfile
