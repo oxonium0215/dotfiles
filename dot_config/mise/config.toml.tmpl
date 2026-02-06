@@ -46,5 +46,6 @@ tinytex = "latest"
 {{ end -}}
 
 [env]
-# Ensure mise shims are in PATH for non-interactive shells
-_.path = ["~/.local/share/mise/shims"]
+# Ensure mise shims and global bun binaries are in PATH
+_.path = ["~/.local/share/mise/shims", "~/.bun/bin"]
+BUN_INSTALL = "~/.bun"
