@@ -2,7 +2,8 @@
 # Usage: docker build -t dotfiles-test . && docker run --rm -it dotfiles-test
 # With GitHub token: docker build --build-arg GITHUB_TOKEN=xxx -t dotfiles-test .
 
-FROM ubuntu:24.04
+ARG BASE_IMAGE=ubuntu:24.04
+FROM ${BASE_IMAGE}
 
 # GitHub token for avoiding API rate limits (optional)
 ARG GITHUB_TOKEN
@@ -20,30 +21,13 @@ ENV LC_ALL=C.UTF-8
 # Neovim headless execution
 ENV TERM=xterm-256color
 
-# Install base packages + Neovim dependencies
-RUN apt-get update && apt-get install -y \
-    sudo \
-    curl \
-    git \
-    unzip \
-    ca-certificates \
-    locales \
-    # Neovim dependencies
-    xclip \
-    ripgrep \
-    fd-find \
-    # Build tools (treesitter, telescope, etc.)
-    gcc \
-    g++ \
-    make \
-    # Required for tree-sitter-cli compilation
-    libclang-dev \
-    && rm -rf /var/lib/apt/lists/* \
-    && locale-gen en_US.UTF-8
+# Install base packages (essential for chezmoi and initial setup)
+ARG BOOTSTRAP_COMMAND="apt-get update && apt-get install -y sudo curl git ca-certificates unzip"
+RUN sh -c "${BOOTSTRAP_COMMAND}"
 
 # Create test user with sudo privileges
-RUN useradd -m -s /bin/bash testuser && \
-    echo 'testuser ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+RUN useradd -m -s /bin/bash testuser || useradd -m -s /bin/bash -G wheel testuser || true && \
+    (echo 'testuser ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers || echo 'testuser ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/testuser)
 
 USER testuser
 WORKDIR /home/testuser
