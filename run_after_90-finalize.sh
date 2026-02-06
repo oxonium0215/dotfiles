@@ -9,13 +9,12 @@ echo "==> Finalizing dotfiles setup..."
 
 
 # Compile zsh files for faster loading (optional, creates .zwc files)
-# Uncomment if you want to enable zcompile
-# if command -v zsh &>/dev/null; then
-#     echo "Compiling zsh files..."
-#     for f in ~/.zshrc ~/.config/zsh/*.zsh; do
-#         [[ -f "$f" ]] && zsh -c "zcompile '$f'" 2>/dev/null || true
-#     done
-# fi
+if command -v zsh &>/dev/null; then
+    echo "Compiling zsh files..."
+    for f in ~/.zshrc ~/.config/zsh/*.zsh; do
+        [[ -f "$f" ]] && zsh -c "zcompile '$f'" 2>/dev/null || true
+    done
+fi
 
 # Set zsh as default shell if not already
 if [[ "$SHELL" != */zsh ]]; then
