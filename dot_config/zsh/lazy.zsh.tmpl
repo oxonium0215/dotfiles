@@ -142,6 +142,30 @@ else
     schedule_warning "%F{yellow}Warning: 'mise' is not installed. Tool version management is disabled.%f"
 fi
 
+# Manual mise environment update alias
+alias me='eval "$(mise env)"'
+
+# Intelligent mise auto-sync:
+# Updates environment ONLY when entering a directory with .mise.toml
+# and ONLY before the first command execution in that directory.
+# This avoids the constant overhead of 'mise hook-env' on every prompt.
+_mise_sync_needed=false
+
+_mise_chpwd_handler() {
+    if [[ -f .mise.toml || -f mise.toml ]]; then
+        _mise_sync_needed=true
+    fi
+}
+add-zsh-hook chpwd _mise_chpwd_handler
+
+_mise_preexec_handler() {
+    if [[ "$_mise_sync_needed" == "true" ]]; then
+        eval "$(mise env -s zsh)"
+        _mise_sync_needed=false
+    fi
+}
+add-zsh-hook preexec _mise_preexec_handler
+
 # Check for 'zf' which is used in zle-cd
 if ! command -v zf >/dev/null 2>&1; then
     schedule_warning "%F{yellow}Warning: 'zf' is not installed. 'Ctrl+j' (zle-cd) will not work.%f"
