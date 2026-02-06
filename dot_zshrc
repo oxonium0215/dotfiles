@@ -36,4 +36,6 @@ zsh-defer source $ZSHRC_DIR/lazy.zsh
 zsh-defer unfunction source
 
 # Load machine-specific local configuration (not managed by chezmoi)
-[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
+if [[ -f ~/.zshrc.local ]]; then
+  source ~/.zshrc.local
+fi
