@@ -135,14 +135,12 @@ chpwd() {
 # どこからでも参照できるディレクトリパス
 cdpath=(~)
 
-# mise activation
-# Disabled to improve 'cd' performance (mise hook-env is slow)
-# Shims are already in PATH, so tool versioning still works.
-# if command -v mise >/dev/null 2>&1; then
-#     eval "$(mise activate zsh)"
-# else
-#     schedule_warning "%F{yellow}Warning: 'mise' is not installed. Tool version management is disabled.%f"
-# fi
+# mise activation (env only, no hooks to keep 'cd' fast)
+if command -v mise >/dev/null 2>&1; then
+    eval "$(mise env -s zsh)"
+else
+    schedule_warning "%F{yellow}Warning: 'mise' is not installed. Tool version management is disabled.%f"
+fi
 
 # Check for 'zf' which is used in zle-cd
 if ! command -v zf >/dev/null 2>&1; then
