@@ -4,6 +4,8 @@
 set -euo pipefail
 
 # This script runs only when dot_config/zsh/sheldon/plugins.toml changes
+export PATH="$HOME/.local/share/mise/shims:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
 
 if command -v sheldon &>/dev/null; then
     SHELDON_CONFIG="$HOME/.config/zsh/sheldon/plugins.toml"

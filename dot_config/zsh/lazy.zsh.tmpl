@@ -1,12 +1,7 @@
 ########################################
 # 環境変数
 
-# mise shims (primary tool management)
-export PATH="$HOME/.local/share/mise/shims:$PATH"
-
 # Additional paths not managed by mise
-export PATH="$HOME/.cargo/bin:$PATH"
-export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/bin:/usr/local/bin:$PATH"
 export PATH="$HOME/.local/share/bob/nvim-bin:$PATH"
 export PATH="/snap/bin:$PATH"
@@ -165,7 +160,7 @@ else
 fi
 # 補完で小文字でも大文字にマッチさせる
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
-# ../ の後は今いるディレクトリを補完しない
+# ../ の後で今いるディレクトリを補完しない
 zstyle ':completion:*' ignore-parents parent pwd ..
 # 補完の見た目を変更
 zstyle ':completion:*' menu select
@@ -232,19 +227,21 @@ if ! command -v socat >/dev/null 2>&1; then
 elif ! command -v npiperelay.exe >/dev/null 2>&1; then
     schedule_warning "%F{yellow}Warning: 'npiperelay.exe' is not found in PATH. Bitwarden SSH Agent forwarding is disabled.%f"
 else
-    export SSH_AUTH_SOCK=$HOME/.ssh/agent.sock
+    export SSH_AUTH_SOCK=/tmp/ssh-agent.sock
 
-    if ! ss -xl | grep -q "$SSH_AUTH_SOCK"; then
+    # Start socat if socket doesn't exist or is dead
+    if [[ ! -S "$SSH_AUTH_SOCK" ]]; then
+        # Cleanup any potential stale processes just in case
+        pkill -f "socat UNIX-LISTEN:$SSH_AUTH_SOCK" >/dev/null 2>&1
         rm -f "$SSH_AUTH_SOCK"
-        NPIPERELAY_BIN=$(command -v npiperelay.exe)
-        (setsid socat UNIX-LISTEN:$SSH_AUTH_SOCK,fork EXEC:"$NPIPERELAY_BIN -ei -s //./pipe/openssh-ssh-agent",nofork &) >/dev/null 2>&1
         
-        # Wait for socket to be created (max 0.5s)
+        NPIPERELAY_BIN=$(command -v npiperelay.exe)
+        (setsid socat UNIX-LISTEN:"$SSH_AUTH_SOCK",fork,reuseaddr EXEC:"$NPIPERELAY_BIN -ei -s //./pipe/openssh-ssh-agent",nofork &) >/dev/null 2>&1
+
+        # Wait for socket to be created
         local i
         for i in {1..10}; do
-            if [[ -S "$SSH_AUTH_SOCK" ]]; then
-                break
-            fi
+            [[ -S "$SSH_AUTH_SOCK" ]] && break
             sleep 0.05
         done
     fi
