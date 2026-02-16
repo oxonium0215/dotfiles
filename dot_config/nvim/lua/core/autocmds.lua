@@ -19,27 +19,31 @@ local function create_autocmd(event, opts)
   autocmd(event, opts)
 end
 
--- Deferred clipboard sync (inlined from deferred-clipboard.nvim)
--- Syncs registers on focus events instead of clipboard=unnamedplus to avoid
--- per-operation latency from external clipboard tool invocations.
+-- Clipboard provider setup (with deferred sync for external-process providers)
+-- Native API providers (macOS, Windows) use clipboard=unnamedplus directly.
+-- External process providers (win32yank, xclip, xsel, OSC 52) use deferred
+-- sync via FocusLost/FocusGained to avoid per-operation latency.
 -- Priority: macOS > Windows native > WSL (win32yank) > X11/Wayland > OSC 52
 create_autocmd({ "BufReadPost", "BufNewFile" }, {
   once = true,
   callback = function()
+    -- use_native: clipboard API is in-process (no external tool latency)
+    local use_native = false
     local provider_set = false
 
-    -- 1. macOS: use built-in provider (pbcopy/pbpaste)
+    -- 1. macOS: built-in provider (native API, no latency)
     if vim.fn.has("macunix") == 1 or vim.fn.has("mac") == 1 then
+      use_native = true
       provider_set = true
     end
 
-    -- 2. Windows native (GUI like Neovide): use built-in provider
-    -- Note: has("win32") is true on Windows, has("wsl") is true only in WSL
+    -- 2. Windows native (nvy, Neovide, etc.): built-in provider (Win32 API)
     if not provider_set and vim.fn.has("win32") == 1 and vim.fn.has("wsl") == 0 then
+      use_native = true
       provider_set = true
     end
 
-    -- 3. WSL: use win32yank.exe to bridge to Windows clipboard
+    -- 3. WSL: win32yank.exe (external process)
     if not provider_set and vim.fn.has("wsl") == 1 then
       if vim.fn.executable("win32yank.exe") == 1 then
         vim.g.clipboard = {
@@ -57,7 +61,7 @@ create_autocmd({ "BufReadPost", "BufNewFile" }, {
       end
     end
 
-    -- 4. Unix with X11/Wayland: use xclip or xsel
+    -- 4. Unix with X11/Wayland: xclip or xsel (external process)
     if not provider_set and vim.fn.has("unix") == 1 then
       if vim.fn.executable("xclip") == 1 then
         vim.g.clipboard = {
@@ -89,7 +93,6 @@ create_autocmd({ "BufReadPost", "BufNewFile" }, {
     end
 
     -- 5. Fallback: OSC 52 (works over SSH, tmux, etc.)
-    -- Requires Neovim 0.10+ and a terminal that supports OSC 52
     if not provider_set and vim.fn.has("nvim-0.10") == 1 then
       local ok, osc52 = pcall(require, "vim.ui.clipboard.osc52")
       if ok then
@@ -112,14 +115,18 @@ create_autocmd({ "BufReadPost", "BufNewFile" }, {
       return
     end
 
-    -- Deferred clipboard sync: avoid clipboard=unnamedplus to prevent
-    -- external clipboard tool invocation on every yank/paste operation.
-    -- Instead, sync only on focus change and vim exit.
+    -- Native providers: use clipboard=unnamedplus directly (no latency)
+    if use_native then
+      vim.opt.clipboard = "unnamedplus"
+      return
+    end
+
+    -- External providers: deferred sync via focus events to avoid latency
     local last_synced = nil
 
     local deferred_clip_group = vim.api.nvim_create_augroup("DeferredClipboardSync", { clear = true })
 
-    -- Write: " register → + register (system clipboard) on focus lost / exit
+    -- Write: " register → + register on focus lost / exit
     vim.api.nvim_create_autocmd({ "FocusLost", "VimLeavePre" }, {
       group = deferred_clip_group,
       callback = function()
@@ -132,7 +139,7 @@ create_autocmd({ "BufReadPost", "BufNewFile" }, {
       desc = "Deferred clipboard: write to system clipboard",
     })
 
-    -- Read: + register → " register (unnamed) on focus gained
+    -- Read: + register → " register on focus gained
     vim.api.nvim_create_autocmd("FocusGained", {
       group = deferred_clip_group,
       callback = function()
@@ -147,7 +154,7 @@ create_autocmd({ "BufReadPost", "BufNewFile" }, {
       desc = "Deferred clipboard: read from system clipboard",
     })
 
-    -- Initial read: load system clipboard into unnamed register at startup
+    -- Initial read at startup
     vim.schedule(function()
       local content = vim.fn.getreg("+")
       if content ~= "" then
@@ -157,7 +164,7 @@ create_autocmd({ "BufReadPost", "BufNewFile" }, {
     end)
   end,
   group = "general",
-  desc = "Deferred clipboard sync with OS detection",
+  desc = "Clipboard provider setup with OS detection",
 })
 
 -- Auto close NvimTree when it's the last window
