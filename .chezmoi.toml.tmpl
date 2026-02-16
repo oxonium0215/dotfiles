@@ -1,5 +1,5 @@
 {{- $osID := .chezmoi.os -}}
-{{- if hasKey .chezmoi "osRelease" -}}
+{{- if and (hasKey .chezmoi "osRelease") (hasKey .chezmoi.osRelease "id") -}}
 {{-   $osID = .chezmoi.osRelease.id -}}
 {{- end -}}
 
