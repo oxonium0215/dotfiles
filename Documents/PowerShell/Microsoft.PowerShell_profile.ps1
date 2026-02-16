@@ -21,9 +21,10 @@ if (Get-Module -ListAvailable -Name PSReadLine) {
 $script:_gitInfoCache = ''
 $script:_gitInfoJob = $null
 $script:_gitInfoDir = ''
+$script:_gitState = [hashtable]::Synchronized(@{ Generation = 0 })
 
 $script:_gitInfoScriptBlock = {
-    param($dir)
+    param($dir, $width, $state, $gen)
     Set-Location -LiteralPath $dir
     $branch = git rev-parse --abbrev-ref HEAD 2>$null
     if (-not $branch) { return '' }
@@ -38,7 +39,16 @@ $script:_gitInfoScriptBlock = {
             if ($line[1] -match '[MADRC?]') { $unstaged = "`e[31m+" }
         }
     }
-    return "`e[32m${staged}${unstaged}[${branch}]`e[0m"
+    $result = "`e[32m${staged}${unstaged}[${branch}]`e[0m"
+
+    # 世代が一致する場合のみRPROMPTを描画（コマンド実行後の誤描画を防止）
+    if ($state.Generation -eq $gen) {
+        $gitPlain = $result -replace "`e\[[0-9;]*m", ''
+        $col = $width - $gitPlain.Length
+        [Console]::Write("`e7`e[1A`e[${col}G${result}`e[0m`e8")
+    }
+
+    return $result
 }
 
 function Update-GitInfoAsync {
@@ -59,8 +69,12 @@ function Update-GitInfoAsync {
         $script:_gitInfoDir = $PWD.Path
     }
 
+    # 世代をインクリメント
+    $script:_gitState.Generation++
+
     if (-not $script:_gitInfoJob) {
-        $script:_gitInfoJob = Start-ThreadJob -ScriptBlock $script:_gitInfoScriptBlock -ArgumentList $PWD.Path
+        $script:_gitInfoJob = Start-ThreadJob -ScriptBlock $script:_gitInfoScriptBlock `
+            -ArgumentList $PWD.Path, [Console]::WindowWidth, $script:_gitState, $script:_gitState.Generation
     }
 }
 #endregion
@@ -84,9 +98,17 @@ function prompt {
     }
     $currentPath = $currentPath -replace '\\', '/'
 
-    $gitPart = if ($script:_gitInfoCache) { " $($script:_gitInfoCache)" } else { '' }
+    $gitPart = $script:_gitInfoCache
 
-    "${userColor}${userName}${reset}@${blue}${hostName}${reset}(${time}) ${currentPath}${gitPart}`n> "
+    $left = "${userColor}${userName}${reset}@${blue}${hostName}${reset}(${time}) ${currentPath}"
+
+    if ($gitPart) {
+        $gitPlain = $gitPart -replace "`e\[[0-9;]*m", ''
+        $col = [Console]::WindowWidth - $gitPlain.Length
+        "${left}`e[${col}G${gitPart}${reset}`n> "
+    } else {
+        "${left}`n> "
+    }
 }
 #endregion
 
