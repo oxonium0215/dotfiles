@@ -16,10 +16,7 @@ local pluginlist = {
   -- ╭──────────────────────────────────────────────────────────────────────────────╮
   -- │ ∘ Clipboard / Misc                                                           │
   -- ╰──────────────────────────────────────────────────────────────────────────────╯
-  {
-    "EtiamNullam/deferred-clipboard.nvim",
-    event = "VeryLazy",
-  },
+  -- deferred-clipboard is inlined in core/autocmds.lua
   {
     "jedrzejboczar/possession.nvim",
     dependencies = { "nvim-lua/plenary.nvim" },

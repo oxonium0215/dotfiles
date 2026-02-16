@@ -17,3 +17,12 @@ setup.sh
 # Testing files (not part of dotfiles)
 Dockerfile
 test/
+
+# ╭─────────────────────────────────────────────────────────────────────────────────╮
+# │ Windows: nvim設定のみを適用（他のUnix固有設定は除外）                            │
+# ╰─────────────────────────────────────────────────────────────────────────────────╯
+{{- if eq .chezmoi.os "windows" }}
+*
+!.config/nvim
+!.config/nvim/**
+{{- end }}
