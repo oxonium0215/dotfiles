@@ -28,11 +28,13 @@ Documents/PowerShell
 Documents/PowerShell/**
 {{- end }}
 
-# Windows: nvim設定とPowerShellプロファイルのみを適用（他のUnix固有設定は除外）
+# Windows: nvim設定とPowerShellプロファイルのみを適用
 {{- if eq .chezmoi.os "windows" }}
 *
+!.config
 !.config/nvim
 !.config/nvim/**
+!Documents
 !Documents/PowerShell
 !Documents/PowerShell/**
 {{- end }}
