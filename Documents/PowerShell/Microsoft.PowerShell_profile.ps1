@@ -17,15 +17,10 @@ if (Get-Module -ListAvailable -Name PSReadLine) {
 }
 #endregion
 
-#region 非同期Git情報 (zsh-async相当)
-$script:_gitInfoCache = ''
-$script:_gitInfoJob = $null
-$script:_gitInfoDir = ''
-$script:_gitState = [hashtable]::Synchronized(@{ Generation = 0 })
+#region Git情報取得 (同期)
+function Get-GitInfo {
+    if (-not (Test-Path .git -PathType Container) -and -not (git rev-parse --git-dir 2>$null)) { return '' }
 
-$script:_gitInfoScriptBlock = {
-    param($dir, $width, $state, $gen)
-    Set-Location -LiteralPath $dir
     $branch = git rev-parse --abbrev-ref HEAD 2>$null
     if (-not $branch) { return '' }
 
@@ -39,50 +34,13 @@ $script:_gitInfoScriptBlock = {
             if ($line[1] -match '[MADRC?]') { $unstaged = "`e[31m+" }
         }
     }
-    $result = "`e[32m${staged}${unstaged}[${branch}]`e[0m"
-
-    # 世代が一致する場合のみRPROMPTを描画（コマンド実行後の誤描画を防止）
-    if ($state.Generation -eq $gen) {
-        $gitPlain = $result -replace "`e\[[0-9;]*m", ''
-        $col = $width - $gitPlain.Length
-        [Console]::Write("`e7`e[1A`e[${col}G${result}`e[0m`e8")
-    }
-
-    return $result
-}
-
-function Update-GitInfoAsync {
-    if ($script:_gitInfoJob) {
-        if ($script:_gitInfoJob.State -eq 'Completed') {
-            $script:_gitInfoCache = Receive-Job -Job $script:_gitInfoJob 2>$null
-            Remove-Job -Job $script:_gitInfoJob -Force 2>$null
-            $script:_gitInfoJob = $null
-        } elseif ($script:_gitInfoJob.State -in 'Failed', 'Stopped') {
-            Remove-Job -Job $script:_gitInfoJob -Force 2>$null
-            $script:_gitInfoJob = $null
-            $script:_gitInfoCache = ''
-        }
-    }
-
-    if ($script:_gitInfoDir -ne $PWD.Path) {
-        if (-not $script:_gitInfoJob) { $script:_gitInfoCache = '' }
-        $script:_gitInfoDir = $PWD.Path
-    }
-
-    # 世代をインクリメント
-    $script:_gitState.Generation++
-
-    if (-not $script:_gitInfoJob) {
-        $script:_gitInfoJob = Start-ThreadJob -ScriptBlock $script:_gitInfoScriptBlock `
-            -ArgumentList $PWD.Path, [Console]::WindowWidth, $script:_gitState, $script:_gitState.Generation
-    }
+    return "`e[32m${staged}${unstaged}[${branch}]`e[0m"
 }
 #endregion
 
 #region プロンプト
 function prompt {
     $lastSuccess = $?
-    Update-GitInfoAsync
 
     if ($lastSuccess) { $userColor = "`e[32m" } else { $userColor = "`e[31m" }
     $reset = "`e[0m"
@@ -98,14 +56,20 @@ function prompt {
     }
     $currentPath = $currentPath -replace '\\', '/'
 
-    $gitPart = $script:_gitInfoCache
-
     $left = "${userColor}${userName}${reset}@${blue}${hostName}${reset}(${time}) ${currentPath}"
+    $leftPlain = $left -replace "`e\[[0-9;]*m", ''
+
+    $gitPart = Get-GitInfo
+    $w = [Console]::WindowWidth
 
     if ($gitPart) {
         $gitPlain = $gitPart -replace "`e\[[0-9;]*m", ''
-        $col = [Console]::WindowWidth - $gitPlain.Length
-        "${left}`e[${col}G${gitPart}${reset}`n> "
+        $col = $w - $gitPlain.Length
+        if ($col -gt ($leftPlain.Length + 1)) {
+            "${left}`e[${col}G${gitPart}${reset}`n> "
+        } else {
+            "${left} ${gitPart}${reset}`n> "
+        }
     } else {
         "${left}`n> "
     }
@@ -131,7 +95,7 @@ if (Get-Command nvim -ErrorAction SilentlyContinue) {
 }
 #endregion
 
-#region cd時の自動ls (chpwd相当)
+#region cd時の自動ls
 function Set-LocationAndList {
     param(
         [Parameter(Position = 0, ValueFromRemainingArguments)]
