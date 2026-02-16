@@ -24,6 +24,7 @@ test/
 
 # Linux/macOS: PowerShellプロファイルは不要
 {{- if ne .chezmoi.os "windows" }}
+Documents
 Documents/PowerShell
 Documents/PowerShell/**
 {{- end }}
