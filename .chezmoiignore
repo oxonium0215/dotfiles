@@ -19,10 +19,20 @@ Dockerfile
 test/
 
 # ╭─────────────────────────────────────────────────────────────────────────────────╮
-# │ Windows: nvim設定のみを適用（他のUnix固有設定は除外）                            │
+# │ Platform-specific rules                                                        │
 # ╰─────────────────────────────────────────────────────────────────────────────────╯
+
+# Linux/macOS: PowerShellプロファイルは不要
+{{- if ne .chezmoi.os "windows" }}
+Documents/PowerShell
+Documents/PowerShell/**
+{{- end }}
+
+# Windows: nvim設定とPowerShellプロファイルのみを適用（他のUnix固有設定は除外）
 {{- if eq .chezmoi.os "windows" }}
 *
 !.config/nvim
 !.config/nvim/**
+!Documents/PowerShell
+!Documents/PowerShell/**
 {{- end }}
