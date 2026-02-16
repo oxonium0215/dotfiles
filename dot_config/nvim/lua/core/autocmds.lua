@@ -21,7 +21,7 @@ end
 
 -- Lazy load clipboard provider
 -- Priority: macOS > Windows native > WSL (win32yank) > X11/Wayland > OSC 52
-create_autocmd({ "BufReadPost", "BufNewFile" }, {
+create_autocmd({ "BufReadPost", "BufNewFile", "VimEnter" }, {
   once = true,
   callback = function()
     local provider_set = false
@@ -31,7 +31,25 @@ create_autocmd({ "BufReadPost", "BufNewFile" }, {
       provider_set = true
     end
 
-    -- 2. Windows native (nvy, Neovide, etc.): built-in provider (Win32 API)
+    -- 1.5. Nvy (Windows): win32yank.exe (native clipboard not supported yet)
+    if not provider_set and vim.g.nvy == 1 then
+      vim.g.clipboard = {
+        name = "win32yank-nvy",
+        copy = {
+          ["+"] = "win32yank.exe -i --crlf",
+          ["*"] = "win32yank.exe -i --crlf",
+        },
+        paste = {
+          ["+"] = "win32yank.exe -o --lf",
+          ["*"] = "win32yank.exe -o --lf",
+        },
+        cache_enabled = 0,
+      }
+      provider_set = true
+    end
+
+    -- 2. Windows native (Neovide, etc.): built-in provider (Win32 API)
+    -- Nvy is excluded here because provider_set is already true if Nvy
     if not provider_set and vim.fn.has("win32") == 1 and vim.fn.has("wsl") == 0 then
       provider_set = true
     end
