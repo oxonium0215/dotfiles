@@ -6,6 +6,8 @@
 trusted_config_paths = ["~"]
 # Automatically install tools when entering a directory with .mise.toml
 auto_install = true
+# Use cargo-binstall for faster installation of cargo tools
+cargo.binstall = true
 # Generate shims for compatibility with editors/IDEs
 experimental = true
 # Use precompiled Python binaries only (avoid compilation issues)
@@ -21,6 +23,9 @@ python = "latest"
 
 # Python package manager
 uv = "latest"
+
+# Cargo binary installer
+cargo-binstall = "latest"
 
 # CLI tools (using aqua backend for pre-built binaries when available)
 eza = "latest"

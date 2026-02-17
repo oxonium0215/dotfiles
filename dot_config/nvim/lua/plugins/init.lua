@@ -410,6 +410,15 @@ local pluginlist = {
     },
   },
   {
+    "cordx56/rustowl",
+    ft = { "rust" },
+    keys = utils.generate_lazy_keys("rustowl"),
+    build = "cargo binstall -y rustowl",
+    opts = {
+      auto_enable = true,
+    },
+  },
+  {
     "mason-org/mason.nvim",
     cmd = "Mason",
     opts = function()
