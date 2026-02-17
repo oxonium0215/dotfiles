@@ -183,6 +183,10 @@ M.codecompanion = {
   { "n", "<leader>cl", "<cmd>CodeCompanionActions<CR>", { desc = "Open CodeCompanion Inline" } },
 }
 
+M.rustowl = {
+  { "n", "<leader>ro", "<cmd>Rustowl toggle<CR>", { desc = "RustOwl Toggle" } },
+}
+
 M.nvimtree = {
   { "n", "<C-n>", "<cmd>NvimTreeToggle<CR>", { desc = "nvimtree toggle window" } },
   { "n", "<leader>e", "<cmd>NvimTreeFocus<CR>", { desc = "nvimtree focus window" } },
