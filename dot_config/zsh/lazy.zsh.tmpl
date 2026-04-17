@@ -1,6 +1,9 @@
 ########################################
 # 環境変数
 
+autoload -Uz add-zsh-hook
+
+
 # Additional paths not managed by mise
 export PATH="$HOME/bin:/usr/local/bin:$PATH"
 export PATH="$HOME/.local/share/bob/nvim-bin:$PATH"
@@ -236,7 +239,25 @@ _vcs_info_async_init() {
 }
 
 # Queue vcs_info job on precmd
+_vcs_info_async_preexec_hook() {
+    _VCS_INFO_CMD_EXECUTED=1
+}
+add-zsh-hook preexec _vcs_info_async_preexec_hook
+
 _vcs_info_async_precmd() {
+    # 空Enter（コマンド実行なし）でディレクトリが変わっていない場合はジョブ発行を丸ごとスキップ
+    if [[ "$_VCS_INFO_LAST_PWD" == "$PWD" && "$_VCS_INFO_CMD_EXECUTED" != "1" ]]; then
+        return
+    fi
+    _VCS_INFO_CMD_EXECUTED=0
+
+    # ディレクトリ移動時はすぐ古いRPROMPTを消す
+    if [[ "$_VCS_INFO_LAST_PWD" != "$PWD" ]]; then
+        _VCS_INFO_LAST_PWD="$PWD"
+        _LAST_VCS_INFO=""
+        RPROMPT=""
+    fi
+
     if ! async_worker_info "$_vcs_info_async_worker_name" >/dev/null 2>&1; then
         _vcs_info_async_init
     fi
