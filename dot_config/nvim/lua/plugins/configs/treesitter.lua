@@ -1,17 +1,4 @@
--- Polyfill for vim.list.unique (added in Neovim 0.12, required by nvim-treesitter main)
-if not vim.list or not vim.list.unique then
-  vim.list = vim.list or {}
-  vim.list.unique = function(t)
-    local seen, result = {}, {}
-    for _, v in ipairs(t) do
-      if not seen[v] then
-        seen[v] = true
-        result[#result + 1] = v
-      end
-    end
-    return result
-  end
-end
+
 
 local langs = require("plugins.configs.lsp.langs")
 
