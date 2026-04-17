@@ -21,6 +21,6 @@ github = 'Tarrasch/zsh-bd'
 use = ['bd.zsh']
 apply = ["defer"]
 
-[plugins.zsh-abbr]
-github = 'olets/zsh-abbr'
-apply = ["defer"]
+# [plugins.zsh-abbr]
+# github = 'olets/zsh-abbr'
+# apply = ["defer"]
