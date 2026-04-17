@@ -1,0 +1,22 @@
+[gpg]
+    format = ssh
+
+[commit]
+    gpgsign = true
+
+[tag]
+    gpgsign = true
+
+[gpg "ssh"]
+    allowedSignersFile = ~/.ssh/allowed_signers
+{{ if (and (eq .chezmoi.os "linux") (contains "microsoft" (lower .chezmoi.kernel.osrelease))) -}}
+    program = "ssh-keygen.exe"
+
+[core]
+    sshCommand = ssh.exe
+{{- end }}
+
+[user]
+    name = oxonium0215
+    email = 102494177+oxonium0215@users.noreply.github.com
+    signingkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILsekEiP6+2RBAYILDfwhIWbqUXTx9uGOQYt7jvmmBav"
