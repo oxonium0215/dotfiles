@@ -1,0 +1,18 @@
+{{ if and (eq .chezmoi.os "linux") (contains "microsoft" (lower .chezmoi.kernel.osrelease)) -}}
+#!/bin/sh
+# Wrapper around npiperelay.exe with retry logic for intermittent
+# "All pipe instances are busy" errors on Windows named pipes.
+# Called by socat per-connection (EXEC:...,nofork).
+RELAY="$(command -v npiperelay.exe)"
+MAX_RETRIES=5
+i=0
+while [ $i -lt $MAX_RETRIES ]; do
+    "$RELAY" -ei -s //./pipe/openssh-ssh-agent
+    ret=$?
+    # exit code 0 = clean disconnect, no need to retry
+    [ $ret -eq 0 ] && exit 0
+    i=$((i + 1))
+    [ $i -lt $MAX_RETRIES ] && sleep 0.2
+done
+exit 1
+{{ end -}}

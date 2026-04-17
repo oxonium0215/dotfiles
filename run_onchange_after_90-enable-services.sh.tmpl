@@ -1,0 +1,11 @@
+#!/bin/bash
+# bw-ssh-agent.service hash: {{ include "dot_config/systemd/user/bw-ssh-agent.service.tmpl" | sha256sum }}
+{{ if and (eq .chezmoi.os "linux") (contains "microsoft" (lower .chezmoi.kernel.osrelease)) -}}
+# Enable and start the systemd user service for Bitwarden SSH Agent
+
+# systemd needs dbus/user session to be active, typically it is on modern WSL
+if command -v systemctl >/dev/null 2>&1 && systemctl --user is-system-running &>/dev/null; then
+    systemctl --user daemon-reload
+    systemctl --user enable --now bw-ssh-agent.service
+fi
+{{ end -}}
