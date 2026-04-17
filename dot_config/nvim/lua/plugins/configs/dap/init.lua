@@ -55,24 +55,6 @@ function M.setup()
 
   setup_ui(dap, dapui)
 
-  local function setup_json_decode()
-    local vscode = require("dap.ext.vscode")
-
-    -- Try to load overseer (and its JSON decoder) without hard-failing dap setup
-    local ok_json, overseer_json = pcall(function()
-      local ok_lazy, lazy = pcall(require, "lazy")
-      if ok_lazy then
-        pcall(lazy.load, { plugins = { "overseer.nvim" } })
-      end
-      return require("overseer.json")
-    end)
-
-    if ok_json and overseer_json and overseer_json.decode then
-      vscode.json_decode = overseer_json.decode
-    end
-  end
-
-  setup_json_decode()
 end
 
 return M
