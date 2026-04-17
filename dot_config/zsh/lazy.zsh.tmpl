@@ -243,6 +243,9 @@ _vcs_info_async_init() {
 
 # Queue vcs_info job on precmd
 _vcs_info_async_precmd() {
+    if ! async_worker_info "$_vcs_info_async_worker_name" >/dev/null 2>&1; then
+        _vcs_info_async_init
+    fi
     async_flush_jobs "$_vcs_info_async_worker_name"
     async_job "$_vcs_info_async_worker_name" _vcs_info_async_job "$PWD"
 }
