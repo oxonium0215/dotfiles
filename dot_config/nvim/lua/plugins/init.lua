@@ -413,7 +413,7 @@ local pluginlist = {
     "cordx56/rustowl",
     ft = { "rust" },
     keys = utils.generate_lazy_keys("rustowl"),
-    build = "cargo binstall -y rustowl",
+    -- rustowl binary is managed by mise (cargo:rustowl)
     opts = {
       auto_enable = true,
     },
