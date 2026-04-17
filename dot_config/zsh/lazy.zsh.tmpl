@@ -209,7 +209,6 @@ _vcs_info_async_worker_name="vcs_info_worker"
 
 # Globals for building RPROMPT
 _LAST_VCS_INFO=""
-_BW_SSH_STATUS=""
 
 # Callback function when async job completes
 _vcs_info_async_callback() {
@@ -218,13 +217,8 @@ _vcs_info_async_callback() {
     # job is the function name, output is stdout
     if [[ $job == "_vcs_info_async_job" ]]; then
         _LAST_VCS_INFO="$output"
-        # Trim space if _BW_SSH_STATUS is empty
-        if [[ -n "$_BW_SSH_STATUS" ]]; then
-            RPROMPT="${_LAST_VCS_INFO} ${_BW_SSH_STATUS}"
-        else
-            RPROMPT="${_LAST_VCS_INFO}"
-        fi
-        zle && zle reset-prompt
+        RPROMPT="${_LAST_VCS_INFO}"
+        if zle; then zle reset-prompt; fi
     fi
 }
 
@@ -256,102 +250,14 @@ add-zsh-hook precmd _vcs_info_async_precmd
 
 {{ if and (eq .chezmoi.os "linux") (contains "microsoft" (lower .chezmoi.kernel.osrelease)) -}}
 ########################################
-# WSL: SSH Agent Forwarding for Bitwarden (managed by systemd)
-if ! command -v socat >/dev/null 2>&1; then
-    schedule_warning "%F{yellow}Warning: 'socat' is not installed. Bitwarden SSH Agent forwarding is disabled.%f"
-elif ! command -v npiperelay.exe >/dev/null 2>&1; then
-    schedule_warning "%F{yellow}Warning: 'npiperelay.exe' is not found in PATH. Bitwarden SSH Agent forwarding is disabled.%f"
-elif ! command -v systemctl >/dev/null 2>&1 || ! systemctl --user is-system-running &>/dev/null; then
-    schedule_warning "%F{yellow}bw-ssh-agent: systemd is not active. Using standard SSH agent.%f"
-else
-    # systemd bw-ssh-agent.service manages the socket
-    export SSH_AUTH_SOCK="${XDG_RUNTIME_DIR:-/run/user/$UID}/ssh-agent.sock"
+# WSL: Bitwarden SSH Agent Hybrid Integration
+########################################
 
-    # Global flag for communication failure
-    _BW_SSH_AGENT_FAILED=false
-    _BW_SSH_STATUS="%F{yellow}🔄%f" # Initial checking state
+# 1. 安定化のため、通常利用・Git・rsyncはWindowsバイナリにルーティング
+alias ssh='ssh.exe'
+alias ssh-add='ssh-add.exe'
+alias rsync='rsync -e ssh.exe'
 
-    # Async check for Bitwarden SSH Agent connection
-    _bw_ssh_agent_check_callback() {
-        local job=$1 code=$2 output=$3 exec_time=$4 stderr=$5
-        
-        if [[ $job == "_bw_ssh_agent_check_job" ]]; then
-            # code 2 = agent not running, 124 = timeout (from our manual check)
-            if [[ $output == "failed" ]]; then
-                _BW_SSH_AGENT_FAILED=true
-                _BW_SSH_STATUS="%F{red}🔐%f"
-            else
-                _BW_SSH_STATUS="%F{green}🔑%f"
-            fi
-            # Update RPROMPT
-            if [[ -n "$_LAST_VCS_INFO" ]]; then
-                RPROMPT="${_LAST_VCS_INFO} ${_BW_SSH_STATUS}"
-            else
-                RPROMPT="${_BW_SSH_STATUS}"
-            fi
-            if zle; then zle reset-prompt; fi
-        fi
-    }
-    
-    _bw_ssh_agent_check_job() {
-        local out
-        out=$(timeout 1s ssh-add -l 2>&1)
-        local ret=$?
-        if [[ $ret -eq 2 ]] || [[ $ret -eq 124 ]] || [[ "$out" == *"communication with agent failed"* ]] || [[ "$out" == *"error fetching"* ]]; then
-            print -n "failed"
-        else
-            print -n "ok"
-        fi
-    }
-    
-    # Run the check asynchronously
-    async_start_worker "bw_ssh_check" -n
-    async_register_callback "bw_ssh_check" _bw_ssh_agent_check_callback
-    async_job "bw_ssh_check" _bw_ssh_agent_check_job
-
-    # Precmd hook to prompt user on failure
-    _bw_ssh_agent_failure_prompt() {
-        if [[ "$_BW_SSH_AGENT_FAILED" == "true" ]]; then
-            _BW_SSH_AGENT_FAILED=false # Clear the async flag
-            
-            # Print a newline to cleanly separate from any existing prompt/output
-            echo
-            while true; do
-                if read -q "choice?Bitwarden SSH Agent failed. Restart systemd service? [y/N] "; then
-                    echo
-                    systemctl --user restart bw-ssh-agent.service
-                    # Brief wait to ensure socket is generated and npiperelay connects
-                    sleep 2
-                    
-                    # Test connection synchronously
-                    local out
-                    out=$(timeout 1s ssh-add -l 2>&1)
-                    local ret=$?
-                    if [[ $ret -eq 2 ]] || [[ $ret -eq 124 ]] || [[ "$out" == *"communication with agent failed"* ]] || [[ "$out" == *"error fetching"* ]]; then
-                        echo "Bitwarden SSH Agent failed again."
-                        # Loop continues to ask again
-                    else
-                        echo "Bitwarden SSH Agent restarted successfully."
-                        _BW_SSH_STATUS="%F{green}🔑%f"
-                        break
-                    fi
-                else
-                    echo
-                    echo "Falling back to standard SSH agent for this session."
-                    unset SSH_AUTH_SOCK
-                    _BW_SSH_STATUS="" # Clear the status icon completely
-                    break
-                fi
-            done
-            
-            # Update RPROMPT to reflect potential state change instantly
-            if [[ -n "$_LAST_VCS_INFO" ]]; then
-                RPROMPT="${_LAST_VCS_INFO} ${_BW_SSH_STATUS}"
-            else
-                RPROMPT="${_BW_SSH_STATUS}"
-            fi
-        fi
-    }
-    add-zsh-hook precmd _bw_ssh_agent_failure_prompt
-fi
-{{ end -}}
+# 2. Ansible等のLinuxネイティブツール向け UNIXソケットパス
+export SSH_AUTH_SOCK="${XDG_RUNTIME_DIR:-/run/user/$UID}/ssh-agent.sock"
+{{- end }}

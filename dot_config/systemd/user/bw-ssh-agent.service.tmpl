@@ -1,17 +1,15 @@
 {{ if and (eq .chezmoi.os "linux") (contains "microsoft" (lower .chezmoi.kernel.osrelease)) -}}
 [Unit]
-Description=Bitwarden SSH Agent Forwarding (npiperelay)
+Description=Bitwarden SSH Agent Bridge for Ansible/Compatibility
 After=network.target
 
 [Service]
 Type=simple
-# Ensure no stale socket exists before starting
 ExecStartPre=/usr/bin/rm -f %t/ssh-agent.sock
-# socat listens on UNIX socket; for each connection, run the retry wrapper
-ExecStart=socat UNIX-LISTEN:%t/ssh-agent.sock,fork,reuseaddr EXEC:%h/.local/bin/npiperelay-retry.sh,nofork
-
+# socatのforkを利用して直接npiperelayを呼び出す
+ExecStart=socat UNIX-LISTEN:%t/ssh-agent.sock,fork,reuseaddr EXEC:"npiperelay.exe -ei -s //./pipe/openssh-ssh-agent",nofork
 Restart=always
-RestartSec=2
+RestartSec=3
 
 [Install]
 WantedBy=default.target
