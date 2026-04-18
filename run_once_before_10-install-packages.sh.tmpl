@@ -7,27 +7,80 @@ set -euo pipefail
 echo "==> Installing system packages..."
 
 {{ if eq .chezmoi.os "darwin" -}}
-# macOS: Install packages via Homebrew
-if ! command -v brew &>/dev/null; then
-    echo "Installing Homebrew..."
+# macOS: Detect package manager and install packages
+
+PKG_MANAGER=""
+
+install_packages_brew() {
+    brew install \
+        zsh \
+        git \
+        curl
+}
+
+install_packages_port() {
+    sudo port selfupdate
+    sudo port install \
+        zsh \
+        git \
+        curl
+}
+
+# Detect package manager
+if command -v brew &>/dev/null; then
+    PKG_MANAGER="brew"
+    install_packages_brew
+elif command -v port &>/dev/null; then
+    PKG_MANAGER="port"
+    install_packages_port
+else
+    echo "No supported package manager found. Installing Homebrew..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+    if [[ -x /opt/homebrew/bin/brew ]]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    elif [[ -x /usr/local/bin/brew ]]; then
+        eval "$(/usr/local/bin/brew shellenv)"
+    fi
+
+    PKG_MANAGER="brew"
+    install_packages_brew
 fi
 
-# Install essential packages
-brew install \
-    zsh \
-    git \
-    curl \
-    mise \
-    rustup
+# Install mise if not present
+if ! command -v mise &>/dev/null; then
+    case "$PKG_MANAGER" in
+        brew)
+            echo "Installing mise via Homebrew..."
+            if ! brew install mise; then
+                echo "Warning: Failed to install mise via Homebrew. Falling back to official installer."
+                curl https://mise.run | sh
+            fi
+            ;;
+        port)
+            echo "Installing mise via MacPorts..."
+            if ! sudo port install mise; then
+                echo "Warning: Failed to install mise via MacPorts. Falling back to official installer."
+                curl https://mise.run | sh
+            fi
+            ;;
+        *)
+            echo "Installing mise via official installer..."
+            curl https://mise.run | sh
+            ;;
+    esac
+fi
 
-# Initialize rustup if not already done
-if [[ ! -d "$HOME/.rustup" ]]; then
-    rustup-init -y --no-modify-path
+# Install rustup if not present
+if ! command -v rustup &>/dev/null; then
+    echo "Installing rustup..."
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
 fi
 
 {{ else if eq .chezmoi.os "linux" -}}
 # Linux: Detect package manager and install packages
+
+PKG_MANAGER=""
 
 install_packages_apt() {
     sudo apt-get update
@@ -71,10 +124,13 @@ install_packages_pacman() {
 
 # Detect package manager
 if command -v apt-get &>/dev/null; then
+    PKG_MANAGER="apt"
     install_packages_apt
 elif command -v dnf &>/dev/null; then
+    PKG_MANAGER="dnf"
     install_packages_dnf
 elif command -v pacman &>/dev/null; then
+    PKG_MANAGER="pacman"
     install_packages_pacman
 else
     echo "Warning: Unknown package manager. Please install packages manually."
@@ -82,8 +138,33 @@ fi
 
 # Install mise if not present
 if ! command -v mise &>/dev/null; then
-    echo "Installing mise..."
-    curl https://mise.run | sh
+    case "$PKG_MANAGER" in
+        apt)
+            echo "Installing mise via apt..."
+            if ! sudo apt-get install -y mise; then
+                echo "Warning: Failed to install mise via apt. Falling back to official installer."
+                curl https://mise.run | sh
+            fi
+            ;;
+        dnf)
+            echo "Installing mise via dnf..."
+            if ! sudo dnf install -y mise; then
+                echo "Warning: Failed to install mise via dnf. Falling back to official installer."
+                curl https://mise.run | sh
+            fi
+            ;;
+        pacman)
+            echo "Installing mise via pacman..."
+            if ! sudo pacman -S --noconfirm --needed mise; then
+                echo "Warning: Failed to install mise via pacman. Falling back to official installer."
+                curl https://mise.run | sh
+            fi
+            ;;
+        *)
+            echo "Installing mise via official installer..."
+            curl https://mise.run | sh
+            ;;
+    esac
 fi
 
 # Install rustup if not present
