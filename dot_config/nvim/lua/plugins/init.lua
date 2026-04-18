@@ -245,7 +245,7 @@ local pluginlist = {
       require("plugins.configs.treesitter").setup()
     end,
     dependencies = {
-      { "JoosepAlviste/nvim-ts-context-commentstring", event = "VeryLazy" },
+      { "JoosepAlviste/nvim-ts-context-commentstring", event = "VeryLazy", opts = { enable_autocmd = false } },
       {
         "nvim-treesitter/nvim-treesitter-refactor",
         enabled = false, -- incompatible with Treesitter main rewrite
