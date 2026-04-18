@@ -57,7 +57,7 @@ end
 M.on_attach = function(client, bufnr)
   utils.set_mappings("lspconfig", { buffer = bufnr })
 
-  if client.supports_method("textDocument/inlayHint") then
+  if client.supports_method("textDocument/inlayHint", { bufnr = bufnr }) then
     enable_inlay_hints(bufnr)
   end
 

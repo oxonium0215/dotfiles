@@ -44,7 +44,7 @@ local pluginlist = {
     branch = "main",
     lazy = false,
     dependencies = {
-      { "JoosepAlviste/nvim-ts-context-commentstring" },
+      { "JoosepAlviste/nvim-ts-context-commentstring", opts = { enable_autocmd = false } },
       { "nvim-treesitter/nvim-treesitter-refactor", enabled = false }, -- incompatible with TS main
       { "nvim-treesitter/nvim-tree-docs", enabled = false }, -- incompatible with TS main
       { "yioneko/nvim-yati", enabled = false }, -- incompatible with TS main
