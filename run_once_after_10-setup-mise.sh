@@ -6,7 +6,7 @@ set -euo pipefail
 
 echo "==> Setting up mise and installing tools..."
 
-# Ensure mise is in PATH (installed to ~/.local/bin by mise installer)
+# Ensure local bin is in PATH (used by installer fallback)
 export PATH="$HOME/.local/bin:$PATH"
 
 # Source cargo environment if available (for cargo packages)
