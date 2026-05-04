@@ -24,41 +24,18 @@ end
 create_autocmd({ "BufReadPost", "BufNewFile", "VimEnter" }, {
   once = true,
   callback = function()
-    local provider_set = false
+    vim.schedule(function()
+      local provider_set = false
 
-    -- 1. macOS: built-in provider (pbcopy/pbpaste)
-    if vim.fn.has("macunix") == 1 or vim.fn.has("mac") == 1 then
-      provider_set = true
-    end
+      -- 1. macOS: built-in provider (pbcopy/pbpaste)
+      if vim.fn.has("macunix") == 1 or vim.fn.has("mac") == 1 then
+        provider_set = true
+      end
 
-    -- 1.5. Nvy (Windows): win32yank.exe (native clipboard not supported yet)
-    if not provider_set and vim.g.nvy == 1 then
-      vim.g.clipboard = {
-        name = "win32yank-nvy",
-        copy = {
-          ["+"] = "win32yank.exe -i --crlf",
-          ["*"] = "win32yank.exe -i --crlf",
-        },
-        paste = {
-          ["+"] = "win32yank.exe -o --lf",
-          ["*"] = "win32yank.exe -o --lf",
-        },
-        cache_enabled = 0,
-      }
-      provider_set = true
-    end
-
-    -- 2. Windows native (Neovide, etc.): built-in provider (Win32 API)
-    -- Nvy is excluded here because provider_set is already true if Nvy
-    if not provider_set and vim.fn.has("win32") == 1 and vim.fn.has("wsl") == 0 then
-      provider_set = true
-    end
-
-    -- 3. WSL: win32yank.exe
-    if not provider_set and vim.fn.has("wsl") == 1 then
-      if vim.fn.executable("win32yank.exe") == 1 then
+      -- 1.5. Nvy (Windows): win32yank.exe (native clipboard not supported yet)
+      if not provider_set and vim.g.nvy == 1 then
         vim.g.clipboard = {
-          name = "win32yank-wsl",
+          name = "win32yank-nvy",
           copy = {
             ["+"] = "win32yank.exe -i --crlf",
             ["*"] = "win32yank.exe -i --crlf",
@@ -67,64 +44,89 @@ create_autocmd({ "BufReadPost", "BufNewFile", "VimEnter" }, {
             ["+"] = "win32yank.exe -o --lf",
             ["*"] = "win32yank.exe -o --lf",
           },
+          cache_enabled = 0,
         }
         provider_set = true
       end
-    end
 
-    -- 4. Unix with X11/Wayland: xclip or xsel
-    if not provider_set and vim.fn.has("unix") == 1 then
-      if vim.fn.executable("xclip") == 1 then
-        vim.g.clipboard = {
-          name = "xclip",
-          copy = {
-            ["+"] = "xclip -selection clipboard",
-            ["*"] = "xclip -selection clipboard",
-          },
-          paste = {
-            ["+"] = "xclip -selection clipboard -o",
-            ["*"] = "xclip -selection clipboard -o",
-          },
-        }
-        provider_set = true
-      elseif vim.fn.executable("xsel") == 1 then
-        vim.g.clipboard = {
-          name = "xsel",
-          copy = {
-            ["+"] = "xsel --clipboard --input",
-            ["*"] = "xsel --clipboard --input",
-          },
-          paste = {
-            ["+"] = "xsel --clipboard --output",
-            ["*"] = "xsel --clipboard --output",
-          },
-        }
+      -- 2. Windows native (Neovide, etc.): built-in provider (Win32 API)
+      -- Nvy is excluded here because provider_set is already true if Nvy
+      if not provider_set and vim.fn.has("win32") == 1 and vim.fn.has("wsl") == 0 then
         provider_set = true
       end
-    end
 
-    -- 5. Fallback: OSC 52 (works over SSH, tmux, etc.)
-    if not provider_set and vim.fn.has("nvim-0.10") == 1 then
-      local ok, osc52 = pcall(require, "vim.ui.clipboard.osc52")
-      if ok then
-        vim.g.clipboard = {
-          name = "OSC 52",
-          copy = {
-            ["+"] = osc52.copy("+"),
-            ["*"] = osc52.copy("*"),
-          },
-          paste = {
-            ["+"] = osc52.paste("+"),
-            ["*"] = osc52.paste("*"),
-          },
-        }
-        provider_set = true
+      -- 3. WSL: win32yank.exe
+      if not provider_set and vim.fn.has("wsl") == 1 then
+        if vim.fn.executable("win32yank.exe") == 1 then
+          vim.g.clipboard = {
+            name = "win32yank-wsl",
+            copy = {
+              ["+"] = "win32yank.exe -i --crlf",
+              ["*"] = "win32yank.exe -i --crlf",
+            },
+            paste = {
+              ["+"] = "win32yank.exe -o --lf",
+              ["*"] = "win32yank.exe -o --lf",
+            },
+          }
+          provider_set = true
+        end
       end
-    end
 
-    if provider_set then
-      vim.opt.clipboard = "unnamedplus"
-    end
+      -- 4. Unix with X11/Wayland: xclip or xsel
+      if not provider_set and vim.fn.has("unix") == 1 then
+        if vim.fn.executable("xclip") == 1 then
+          vim.g.clipboard = {
+            name = "xclip",
+            copy = {
+              ["+"] = "xclip -selection clipboard",
+              ["*"] = "xclip -selection clipboard",
+            },
+            paste = {
+              ["+"] = "xclip -selection clipboard -o",
+              ["*"] = "xclip -selection clipboard -o",
+            },
+          }
+          provider_set = true
+        elseif vim.fn.executable("xsel") == 1 then
+          vim.g.clipboard = {
+            name = "xsel",
+            copy = {
+              ["+"] = "xsel --clipboard --input",
+              ["*"] = "xsel --clipboard --input",
+            },
+            paste = {
+              ["+"] = "xsel --clipboard --output",
+              ["*"] = "xsel --clipboard --output",
+            },
+          }
+          provider_set = true
+        end
+      end
+
+      -- 5. Fallback: OSC 52 (works over SSH, tmux, etc.)
+      if not provider_set and vim.fn.has("nvim-0.10") == 1 then
+        local ok, osc52 = pcall(require, "vim.ui.clipboard.osc52")
+        if ok then
+          vim.g.clipboard = {
+            name = "OSC 52",
+            copy = {
+              ["+"] = osc52.copy("+"),
+              ["*"] = osc52.copy("*"),
+            },
+            paste = {
+              ["+"] = osc52.paste("+"),
+              ["*"] = osc52.paste("*"),
+            },
+          }
+          provider_set = true
+        end
+      end
+
+      if provider_set then
+        vim.opt.clipboard = "unnamedplus"
+      end
+    end)
   end,
   group = "general",
   desc = "Lazy load clipboard provider with OS detection",
