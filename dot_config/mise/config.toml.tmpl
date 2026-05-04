@@ -15,14 +15,21 @@ python.compile = false
 
 [tools]
 # Language runtimes
+{{ if .install_web_dev -}}
 node = "lts"
 bun = "latest"
 deno = "latest"
-go = "latest"
-python = "latest"
+{{ end -}}
 
+{{ if .install_go -}}
+go = "latest"
+{{ end -}}
+
+{{ if .install_python -}}
+python = "latest"
 # Python package manager
 uv = "latest"
+{{ end -}}
 
 # Cargo binary installer
 cargo-binstall = "latest"
@@ -35,8 +42,10 @@ fzf = "latest"
 yq = "latest"
 sccache = "latest"
 
+{{ if .install_neovim_env -}}
 # Neovim version manager (pre-built binary via aqua)
 bob = "latest"
+{{ end -}}
 
 # Fuzzy finder for filepaths (Zig-based, pre-built binary)
 "aqua:natecraddock/zf" = "latest"
@@ -44,12 +53,26 @@ bob = "latest"
 # Tools that need to be compiled from source via cargo
 # Note: Rust must be installed via rustup before these can be built
 "cargo:sheldon" = "latest"
+{{ if .install_rust_tools -}}
 "cargo:cargo-update" = "latest"
 "cargo:rustowl" = "latest"
+{{ end -}}
 
-{{ if eq .chezmoi.os "linux" -}}
+{{ if and (eq .chezmoi.os "linux") .install_tex -}}
 # TinyTeX for LaTeX (Linux only - macOS uses MacTeX)
 tinytex = "latest"
+{{ end -}}
+
+{{ if .install_typst -}}
+# Typst and related tools
+typst = "latest"
+tinymist = "latest"
+{{ end -}}
+
+{{ if .install_atcoder_tools -}}
+# AtCoder tools
+"uv:atcoder-tools" = "latest"
+"uv:online-judge-tools" = "latest"
 {{ end -}}
 
 [env]
