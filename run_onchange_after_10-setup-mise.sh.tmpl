@@ -1,6 +1,7 @@
 #!/bin/bash
 # Setup mise and install tools
-# This script runs once after chezmoi applies the dotfiles
+# This script runs automatically whenever the mise config changes
+# config.toml.tmpl hash: {{ include "dot_config/mise/config.toml.tmpl" | sha256sum }}
 
 set -euo pipefail
 
