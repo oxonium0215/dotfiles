@@ -8,14 +8,14 @@
 {{-   $isWSL = contains "microsoft" (lower .chezmoi.kernel.osrelease) -}}
 {{- end -}}
 
-{{- $install_tex := promptBoolOnce . "install_tex" "Install LaTeX (TinyTeX) environment?" true -}}
-{{- $install_typst := promptBoolOnce . "install_typst" "Install Typst environment?" true -}}
-{{- $install_web_dev := promptBoolOnce . "install_web_dev" "Install Web Development tools (Node, Deno, Bun)?" true -}}
-{{- $install_python := promptBoolOnce . "install_python" "Install Python Development tools (Python, uv)?" true -}}
-{{- $install_go := promptBoolOnce . "install_go" "Install Go Development tools?" true -}}
-{{- $install_rust_tools := promptBoolOnce . "install_rust_tools" "Install Heavy Rust Development tools (rustowl, cargo-update)?" true -}}
-{{- $install_neovim_env := promptBoolOnce . "install_neovim_env" "Install Neovim and its build tools (bob)?" true -}}
-{{- $install_atcoder_tools := promptBoolOnce . "install_atcoder_tools" "Install AtCoder tools (atcoder-tools etc.)?" false -}}
+{{- $install_tex := promptBoolOnce . "install_tex" "Install LaTeX (TinyTeX) environment [Y/n]" true -}}
+{{- $install_typst := promptBoolOnce . "install_typst" "Install Typst environment [Y/n]" true -}}
+{{- $install_web_dev := promptBoolOnce . "install_web_dev" "Install Web Development tools (Node, Deno, Bun) [Y/n]" true -}}
+{{- $install_python := promptBoolOnce . "install_python" "Install Python Development tools (Python, uv) [Y/n]" true -}}
+{{- $install_go := promptBoolOnce . "install_go" "Install Go Development tools [Y/n]" true -}}
+{{- $install_rust_tools := promptBoolOnce . "install_rust_tools" "Install Heavy Rust Development tools (rustowl, cargo-update) [Y/n]" true -}}
+{{- $install_neovim_env := promptBoolOnce . "install_neovim_env" "Install Neovim and its build tools (bob) [Y/n]" true -}}
+{{- $install_atcoder_tools := promptBoolOnce . "install_atcoder_tools" "Install AtCoder tools (atcoder-tools etc.) [y/N]" false -}}
 
 [data]
     osID = {{ $osID | quote }}
