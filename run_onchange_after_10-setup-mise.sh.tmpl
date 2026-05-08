@@ -2,13 +2,14 @@
 # Setup mise and install tools
 # This script runs automatically whenever the mise config changes
 # config.toml.tmpl hash: {{ include "dot_config/mise/config.toml.tmpl" | sha256sum }}
+# variables hash: {{ (print .install_tex .install_typst .install_web_dev .install_python .install_go .install_rust_tools .install_neovim_env .install_atcoder_tools) | sha256sum }}
 
 set -euo pipefail
 
 echo "==> Setting up mise and installing tools..."
 
-# Ensure local bin is in PATH (used by installer fallback)
-export PATH="$HOME/.local/bin:$PATH"
+# Ensure local bin and mise shims are in PATH
+export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
 
 # Source cargo environment if available (for cargo packages)
 if [[ -f "$HOME/.cargo/env" ]]; then

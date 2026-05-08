@@ -69,12 +69,6 @@ typst = "latest"
 tinymist = "latest"
 {{ end -}}
 
-{{ if (index . "install_atcoder_tools" | default false) -}}
-# AtCoder tools
-"uv:atcoder-tools" = "latest"
-"uv:online-judge-tools" = "latest"
-{{ end -}}
-
 [env]
 # Ensure mise shims and global bun binaries are in PATH
 _.path = ["~/.local/share/mise/shims", "~/.bun/bin"]
