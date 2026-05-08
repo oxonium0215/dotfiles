@@ -1,0 +1,23 @@
+#!/bin/bash
+# Setup Python CLI tools via uv
+# This script runs automatically whenever the install_atcoder_tools variable changes
+# variables hash: {{ (print (index . "install_atcoder_tools" | default false)) | sha256sum }}
+
+set -euo pipefail
+
+# Ensure local bin and mise shims are in PATH
+export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
+
+if ! command -v uv &>/dev/null; then
+    echo "Warning: uv is not installed. Skipping Python tools installation."
+    exit 0
+fi
+
+{{ if (index . "install_atcoder_tools" | default false) -}}
+echo "==> Installing Python CLI tools via uv..."
+uv tool install atcoder-tools --force
+uv tool install online-judge-tools --force
+echo "==> Python tools installation complete."
+{{ else -}}
+echo "==> Python CLI tools installation skipped."
+{{ end -}}
