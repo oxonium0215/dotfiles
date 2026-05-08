@@ -15,17 +15,17 @@ python.compile = false
 
 [tools]
 # Language runtimes
-{{ if .install_web_dev -}}
+{{ if (index . "install_web_dev" | default false) -}}
 node = "lts"
 bun = "latest"
 deno = "latest"
 {{ end -}}
 
-{{ if .install_go -}}
+{{ if (index . "install_go" | default false) -}}
 go = "latest"
 {{ end -}}
 
-{{ if .install_python -}}
+{{ if (index . "install_python" | default false) -}}
 python = "latest"
 # Python package manager
 uv = "latest"
@@ -42,7 +42,7 @@ fzf = "latest"
 yq = "latest"
 sccache = "latest"
 
-{{ if .install_neovim_env -}}
+{{ if (index . "install_neovim_env" | default false) -}}
 # Neovim version manager (pre-built binary via aqua)
 bob = "latest"
 {{ end -}}
@@ -53,23 +53,23 @@ bob = "latest"
 # Tools that need to be compiled from source via cargo
 # Note: Rust must be installed via rustup before these can be built
 "cargo:sheldon" = "latest"
-{{ if .install_rust_tools -}}
+{{ if (index . "install_rust_tools" | default false) -}}
 "cargo:cargo-update" = "latest"
 "cargo:rustowl" = "latest"
 {{ end -}}
 
-{{ if and (eq .chezmoi.os "linux") .install_tex -}}
+{{ if and (eq .chezmoi.os "linux") (index . "install_tex" | default false) -}}
 # TinyTeX for LaTeX (Linux only - macOS uses MacTeX)
 tinytex = "latest"
 {{ end -}}
 
-{{ if .install_typst -}}
+{{ if (index . "install_typst" | default false) -}}
 # Typst and related tools
 typst = "latest"
 tinymist = "latest"
 {{ end -}}
 
-{{ if .install_atcoder_tools -}}
+{{ if (index . "install_atcoder_tools" | default false) -}}
 # AtCoder tools
 "uv:atcoder-tools" = "latest"
 "uv:online-judge-tools" = "latest"

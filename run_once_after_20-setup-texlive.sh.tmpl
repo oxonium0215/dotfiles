@@ -2,7 +2,7 @@
 # Setup TinyTeX and install LaTeX packages
 # This script runs once after mise setup (only on Linux)
 
-{{ if eq .chezmoi.os "linux" -}}
+{{ if and (eq .chezmoi.os "linux") (index . "install_tex" | default false) -}}
 set -euo pipefail
 
 # Skip TinyTeX setup if environment variable is set (for Docker testing)

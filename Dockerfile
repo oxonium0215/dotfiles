@@ -26,8 +26,10 @@ ARG BOOTSTRAP_COMMAND="apt-get update && apt-get install -y sudo curl git ca-cer
 RUN sh -c "${BOOTSTRAP_COMMAND}"
 
 # Create test user with sudo privileges
-RUN useradd -m -s /bin/bash testuser || useradd -m -s /bin/bash -G wheel testuser || true && \
-    (echo 'testuser ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers || echo 'testuser ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/testuser)
+RUN (useradd -m -s /bin/bash testuser || useradd -m -s /bin/bash -G wheel testuser || true) && \
+    (echo 'testuser ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers || echo 'testuser ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/testuser) && \
+    mkdir -p /home/testuser/.local/bin /home/testuser/.local/share /home/testuser/.config && \
+    chown -R testuser:testuser /home/testuser
 
 USER testuser
 WORKDIR /home/testuser

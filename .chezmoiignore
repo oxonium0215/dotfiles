@@ -19,6 +19,21 @@ Dockerfile
 test/
 
 # ╭─────────────────────────────────────────────────────────────────────────────────╮
+# │ Component-specific rules                                                        │
+# ╰─────────────────────────────────────────────────────────────────────────────────╯
+
+# Ignore AtCoder tools config if not selected
+{{- if not (index . "install_atcoder_tools" | default false) }}
+.atcodertools.toml
+my_template.cpp
+{{- end }}
+
+# Ignore LaTeX config if not selected
+{{- if not (index . "install_tex" | default false) }}
+.latexmkrc
+{{- end }}
+
+# ╭─────────────────────────────────────────────────────────────────────────────────╮
 # │ Platform-specific rules                                                        │
 # ╰─────────────────────────────────────────────────────────────────────────────────╯
 
