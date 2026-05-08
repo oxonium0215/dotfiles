@@ -17,8 +17,8 @@ fi
 
 # Ensure mise is available
 if ! command -v mise &>/dev/null; then
-    echo "Error: mise is not installed. Please run the install-packages script first."
-    exit 1
+    echo "Warning: mise is not installed. Skipping tool installation. Please install mise manually and re-run chezmoi apply."
+    exit 0
 fi
 
 # Trust the mise config

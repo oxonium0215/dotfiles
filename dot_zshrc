@@ -1,15 +1,23 @@
 ZSHRC_DIR=~/.config/zsh
-# source command override technique
+# source command override technique to automatically compile scripts
 function source {
-  ensure_zcompiled $1
-  builtin source $1
-}
-function ensure_zcompiled {
-  local compiled="$1.zwc"
-  if [[ ! -r "$compiled" || "$1" -nt "$compiled" ]]; then
-    echo "\033[1;36mCompiling\033[m $1"
-    zcompile $1
+  if [[ -n "$1" ]]; then
+    ensure_zcompiled "$1"
   fi
+  builtin source "$@"
+}
+
+function ensure_zcompiled {
+    local script="$1"
+    [[ ! -f "$script" ]] && return
+    
+    local compiled="$script.zwc"
+    if [[ ! -r "$compiled" || "$script" -nt "$compiled" ]]; then
+        # Try to compile only if we have write permission to the directory
+        if [[ -w "$(dirname "$script")" ]]; then
+            zcompile "$script" 2>/dev/null || true
+        fi
+    fi
 }
 ensure_zcompiled ~/.zshrc
 
@@ -25,11 +33,31 @@ if [[ -r "$sheldon_cache" ]]; then
 else
   # Fallback: if cache is missing, try to generate it if sheldon is available
   if command -v sheldon >/dev/null 2>&1; then
-    sheldon source > "$sheldon_cache"
-    source "$sheldon_cache"
+    # Try to generate cache, but don't fail if directory is read-only
+    if [[ -w "$(dirname "$sheldon_cache")" ]]; then
+        sheldon source > "$sheldon_cache" 2>/dev/null && source "$sheldon_cache"
+    else
+        eval "$(sheldon source)"
+    fi
   fi
 fi
 unset sheldon_cache
+
+# Dummy zsh-defer fallback to prevent errors if plugin failed to load
+if ! command -v zsh-defer >/dev/null 2>&1; then
+  function zsh-defer() {
+    # Simple fallback: ignore options and just execute
+    local opt
+    OPTIND=1
+    while getopts "t:" opt; do
+      case "$opt" in
+        t) ;;
+      esac
+    done
+    shift $((OPTIND-1))
+    eval "$@"
+  }
+fi
 
 # 3. Load deferred/lazy configurations
 zsh-defer source $ZSHRC_DIR/lazy.zsh

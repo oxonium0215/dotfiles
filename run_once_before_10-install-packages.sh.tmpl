@@ -6,6 +6,48 @@ set -euo pipefail
 
 echo "==> Installing system packages..."
 
+# Check if sudo is available and functional
+can_sudo() {
+    if command -v sudo >/dev/null 2>&1; then
+        # Check if we can run sudo without password or if we are in an interactive terminal
+        if sudo -n true 2>/dev/null || [[ -t 0 ]]; then
+            return 0
+        fi
+    fi
+    return 1
+}
+
+HAS_SUDO=false
+if can_sudo; then
+    HAS_SUDO=true
+else
+    echo "Warning: No sudo permissions or not in an interactive terminal. System package installation will be skipped."
+fi
+
+install_mise_fallback() {
+    if command -v curl &>/dev/null; then
+        echo "Falling back to official installer for mise..."
+        curl https://mise.run | sh || echo "Warning: Failed to install mise via official installer."
+    elif command -v wget &>/dev/null; then
+        echo "Falling back to official installer for mise (using wget)..."
+        wget -qO- https://mise.run | sh || echo "Warning: Failed to install mise via official installer."
+    else
+        echo "Warning: Neither curl nor wget found. Cannot install mise."
+    fi
+}
+
+install_rustup_fallback() {
+    if command -v curl &>/dev/null; then
+        echo "Installing rustup..."
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path || echo "Warning: Failed to install rustup."
+    elif command -v wget &>/dev/null; then
+        echo "Installing rustup..."
+        wget -qO- https://sh.rustup.rs | sh -s -- -y --no-modify-path || echo "Warning: Failed to install rustup."
+    else
+        echo "Warning: Neither curl nor wget found. Cannot install rustup."
+    fi
+}
+
 {{ if eq .chezmoi.os "darwin" -}}
 # macOS: Detect package manager and install packages
 
@@ -19,11 +61,15 @@ install_packages_brew() {
 }
 
 install_packages_port() {
-    sudo port selfupdate
-    sudo port install \
-        zsh \
-        git \
-        curl
+    if [ "$HAS_SUDO" = true ]; then
+        sudo port selfupdate
+        sudo port install \
+            zsh \
+            git \
+            curl
+    else
+        echo "Skipping MacPorts installation: requires sudo."
+    fi
 }
 
 # Detect package manager
@@ -34,17 +80,24 @@ elif command -v port &>/dev/null; then
     PKG_MANAGER="port"
     install_packages_port
 else
-    echo "No supported package manager found. Installing Homebrew..."
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    echo "No supported package manager found. Attempting to install Homebrew..."
+    if command -v curl &>/dev/null; then
+        # Homebrew installer handles its own sudo prompts or uses user-local install
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || echo "Warning: Failed to install Homebrew."
 
-    if [[ -x /opt/homebrew/bin/brew ]]; then
-        eval "$(/opt/homebrew/bin/brew shellenv)"
-    elif [[ -x /usr/local/bin/brew ]]; then
-        eval "$(/usr/local/bin/brew shellenv)"
+        if [[ -x /opt/homebrew/bin/brew ]]; then
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+        elif [[ -x /usr/local/bin/brew ]]; then
+            eval "$(/usr/local/bin/brew shellenv)"
+        fi
+
+        if command -v brew &>/dev/null; then
+            PKG_MANAGER="brew"
+            install_packages_brew
+        fi
+    else
+        echo "Warning: curl not found, cannot install Homebrew."
     fi
-
-    PKG_MANAGER="brew"
-    install_packages_brew
 fi
 
 # Install mise if not present
@@ -53,28 +106,30 @@ if ! command -v mise &>/dev/null; then
         brew)
             echo "Installing mise via Homebrew..."
             if ! brew install mise; then
-                echo "Warning: Failed to install mise via Homebrew. Falling back to official installer."
-                curl https://mise.run | sh
+                install_mise_fallback
             fi
             ;;
         port)
             echo "Installing mise via MacPorts..."
-            if ! sudo port install mise; then
-                echo "Warning: Failed to install mise via MacPorts. Falling back to official installer."
-                curl https://mise.run | sh
+            if [ "$HAS_SUDO" = true ]; then
+                if ! sudo port install mise; then
+                    install_mise_fallback
+                fi
+            else
+                echo "Skipping mise via MacPorts: requires sudo."
+                install_mise_fallback
             fi
             ;;
         *)
             echo "Installing mise via official installer..."
-            curl https://mise.run | sh
+            install_mise_fallback
             ;;
     esac
 fi
 
 # Install rustup if not present
 if ! command -v rustup &>/dev/null; then
-    echo "Installing rustup..."
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
+    install_rustup_fallback
 fi
 
 {{ else if eq .chezmoi.os "linux" -}}
@@ -83,43 +138,55 @@ fi
 PKG_MANAGER=""
 
 install_packages_apt() {
-    sudo apt-get update
-    sudo apt-get install -y \
-        zsh \
-        git \
-        curl \
-        unzip \
-        build-essential \
-        pkg-config \
-        libssl-dev \
-        libclang-dev \
-        socat
+    if [ "$HAS_SUDO" = true ]; then
+        sudo apt-get update
+        sudo apt-get install -y \
+            zsh \
+            git \
+            curl \
+            unzip \
+            build-essential \
+            pkg-config \
+            libssl-dev \
+            libclang-dev \
+            socat
+    else
+        echo "Skipping apt-get installation: requires sudo."
+    fi
 }
 
 install_packages_dnf() {
-    sudo dnf install -y \
-        zsh \
-        git \
-        curl \
-        unzip \
-        gcc \
-        gcc-c++ \
-        make \
-        openssl-devel \
-        clang-devel \
-        socat
+    if [ "$HAS_SUDO" = true ]; then
+        sudo dnf install -y \
+            zsh \
+            git \
+            curl \
+            unzip \
+            gcc \
+            gcc-c++ \
+            make \
+            openssl-devel \
+            clang-devel \
+            socat
+    else
+        echo "Skipping dnf installation: requires sudo."
+    fi
 }
 
 install_packages_pacman() {
-    sudo pacman -Syu --noconfirm \
-        zsh \
-        git \
-        curl \
-        unzip \
-        base-devel \
-        openssl \
-        clang \
-        socat
+    if [ "$HAS_SUDO" = true ]; then
+        sudo pacman -Syu --noconfirm \
+            zsh \
+            git \
+            curl \
+            unzip \
+            base-devel \
+            openssl \
+            clang \
+            socat
+    else
+        echo "Skipping pacman installation: requires sudo."
+    fi
 }
 
 # Detect package manager
@@ -133,7 +200,7 @@ elif command -v pacman &>/dev/null; then
     PKG_MANAGER="pacman"
     install_packages_pacman
 else
-    echo "Warning: Unknown package manager. Please install packages manually."
+    echo "Warning: Unknown package manager or no sudo access. Please install packages manually."
 fi
 
 # Install mise if not present
@@ -141,36 +208,47 @@ if ! command -v mise &>/dev/null; then
     case "$PKG_MANAGER" in
         apt)
             echo "Installing mise via apt..."
-            if ! sudo apt-get install -y mise; then
-                echo "Warning: Failed to install mise via apt. Falling back to official installer."
-                curl https://mise.run | sh
+            if [ "$HAS_SUDO" = true ]; then
+                if ! sudo apt-get install -y mise; then
+                    install_mise_fallback
+                fi
+            else
+                echo "Skipping mise via apt: requires sudo."
+                install_mise_fallback
             fi
             ;;
         dnf)
             echo "Installing mise via dnf..."
-            if ! sudo dnf install -y mise; then
-                echo "Warning: Failed to install mise via dnf. Falling back to official installer."
-                curl https://mise.run | sh
+            if [ "$HAS_SUDO" = true ]; then
+                if ! sudo dnf install -y mise; then
+                    install_mise_fallback
+                fi
+            else
+                echo "Skipping mise via dnf: requires sudo."
+                install_mise_fallback
             fi
             ;;
         pacman)
             echo "Installing mise via pacman..."
-            if ! sudo pacman -S --noconfirm --needed mise; then
-                echo "Warning: Failed to install mise via pacman. Falling back to official installer."
-                curl https://mise.run | sh
+            if [ "$HAS_SUDO" = true ]; then
+                if ! sudo pacman -S --noconfirm --needed mise; then
+                    install_mise_fallback
+                fi
+            else
+                echo "Skipping mise via pacman: requires sudo."
+                install_mise_fallback
             fi
             ;;
         *)
             echo "Installing mise via official installer..."
-            curl https://mise.run | sh
+            install_mise_fallback
             ;;
     esac
 fi
 
 # Install rustup if not present
 if ! command -v rustup &>/dev/null; then
-    echo "Installing rustup..."
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
+    install_rustup_fallback
 fi
 
 {{ end -}}
