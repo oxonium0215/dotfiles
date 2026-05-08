@@ -4,12 +4,6 @@
 autoload -Uz add-zsh-hook
 
 
-# Additional paths not managed by mise
-export PATH="$HOME/bin:/usr/local/bin:$PATH"
-export PATH="$HOME/.local/share/bob/nvim-bin:$PATH"
-export PATH="/snap/bin:$PATH"
-export PATH="/usr/local/cuda/bin:$PATH"
-
 # TinyTeX/TeXLive PATH configuration (auto-detect)
 _setup_texlive_path() {
     # Skip if TeX is already available (package manager or already in PATH)

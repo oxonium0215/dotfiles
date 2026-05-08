@@ -3,6 +3,12 @@
 # -g flag ensures these remain global when sourced from a function scope
 typeset -gU path PATH fpath FPATH
 
+# Additional paths (system/snap/cuda)
+export PATH="$HOME/bin:/usr/local/bin:$PATH"
+export PATH="$HOME/.local/share/bob/nvim-bin:$PATH"
+export PATH="/snap/bin:$PATH"
+export PATH="/usr/local/cuda/bin:$PATH"
+
 # Basic paths for tools needed during initialization
 export PATH="$HOME/.local/share/mise/shims:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
