@@ -9,9 +9,17 @@ echo "==> Installing system packages..."
 # Check if sudo is available and functional
 can_sudo() {
     if command -v sudo >/dev/null 2>&1; then
-        # Check if we can run sudo without password or if we are in an interactive terminal
-        if sudo -n true 2>/dev/null || [[ -t 0 ]]; then
+        # Check if we can run sudo without password
+        if sudo -n true 2>/dev/null; then
             return 0
+        fi
+        # If in an interactive terminal, prompt for password to verify actual sudo privileges
+        if [[ -t 0 ]]; then
+            # We redirect stdout/stderr so the "not in sudoers" error is hidden,
+            # but the password prompt still appears on /dev/tty.
+            if sudo -v >/dev/null 2>&1; then
+                return 0
+            fi
         fi
     fi
     return 1
