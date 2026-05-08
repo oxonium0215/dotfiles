@@ -73,9 +73,22 @@ create_autocmd({ "BufReadPost", "BufNewFile", "VimEnter" }, {
         end
       end
 
-      -- 4. Unix with X11/Wayland: xclip or xsel
+      -- 4. Unix with X11/Wayland: wl-clipboard, xclip, or xsel
       if not provider_set and vim.fn.has("unix") == 1 then
-        if vim.fn.executable("xclip") == 1 then
+        if vim.fn.executable("wl-copy") == 1 then
+          vim.g.clipboard = {
+            name = "wl-clipboard",
+            copy = {
+              ["+"] = "wl-copy --foreground --type text/plain",
+              ["*"] = "wl-copy --foreground --type text/plain --primary",
+            },
+            paste = {
+              ["+"] = "wl-paste --no-newline",
+              ["*"] = "wl-paste --no-newline --primary",
+            },
+          }
+          provider_set = true
+        elseif vim.fn.executable("xclip") == 1 then
           vim.g.clipboard = {
             name = "xclip",
             copy = {
@@ -115,8 +128,9 @@ create_autocmd({ "BufReadPost", "BufNewFile", "VimEnter" }, {
               ["*"] = osc52.copy("*"),
             },
             paste = {
-              ["+"] = osc52.paste("+"),
-              ["*"] = osc52.paste("*"),
+              -- Disable OSC 52 paste if in VTE terminal (e.g. GNOME Terminal) to prevent freeze
+              ["+"] = vim.env.VTE_VERSION and function() return { "" } end or osc52.paste("+"),
+              ["*"] = vim.env.VTE_VERSION and function() return { "" } end or osc52.paste("*"),
             },
           }
           provider_set = true

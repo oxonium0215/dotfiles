@@ -157,7 +157,9 @@ install_packages_apt() {
             pkg-config \
             libssl-dev \
             libclang-dev \
-            socat
+            socat \
+            xclip \
+            wl-clipboard
     else
         echo "Skipping apt-get installation: requires sudo."
     fi
