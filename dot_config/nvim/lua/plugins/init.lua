@@ -106,7 +106,6 @@ local pluginlist = {
     opts = {},
   },
 
-
   -- ╭──────────────────────────────────────────────────────────────────────────────╮
   -- │ ∘ UI / Theming                                                               │
   -- ╰──────────────────────────────────────────────────────────────────────────────╯
@@ -207,7 +206,7 @@ local pluginlist = {
   },
   {
     "nvim-lualine/lualine.nvim",
-    event = { "BufReadPost", "BufNewFile" },
+    event = { "BufReadPost", "BufNewFile", "TermEnter" },
     config = function()
       require("plugins.configs.lualine")
     end,

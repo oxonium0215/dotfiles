@@ -13,6 +13,7 @@ M.general = {
   { "i", "<C-j>", "<Down>", { desc = "move down" } },
   { "i", "<C-k>", "<Up>", { desc = "move up" } },
   { "i", "jj", "<ESC>", { desc = "escape" } },
+  { "t", "jk", "<C-\\><c-n>", { desc = "escape" } },
 
   { "n", "<Esc>", "<cmd>noh<CR>", { desc = "General Clear highlights" } },
 
