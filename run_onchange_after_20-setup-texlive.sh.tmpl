@@ -2,8 +2,18 @@
 # Setup TinyTeX and install LaTeX packages
 # This script runs once after mise setup (only on Linux)
 
-{{ if and (eq .chezmoi.os "linux") (index . "install_tex" | default false) -}}
+_chezmoi_os='{{ .chezmoi.os }}'
+_install_tex='{{ index . "install_tex" | default "false" }}'
+
 set -euo pipefail
+
+if [[ "$_chezmoi_os" != "linux" || "$_install_tex" != "true" ]]; then
+    if [[ "$_chezmoi_os" == "darwin" ]]; then
+        echo "==> macOS detected. Using system MacTeX installation."
+        echo "If MacTeX is not installed, please install it from https://tug.org/mactex/"
+    fi
+    exit 0
+fi
 
 # Skip TinyTeX setup if environment variable is set (for Docker testing)
 if [[ "${SKIP_TEXLIVE_SETUP:-false}" == "true" ]]; then
@@ -67,38 +77,28 @@ echo "Installing LaTeX packages..."
 PACKAGES=(
     # Core collections
     collection-luatex
-    collection-langjapanese
     collection-fontsextra
     collection-mathscience
     collection-pictures
-    
+
     # Build tools
     latexmk
-    
-    # Common packages
-    amsmath
-    geometry
-    graphicx
-    hyperref
-    xcolor
-    booktabs
-    fancyhdr
-    titlesec
-    enumitem
-    listings
-    algorithm2e
-    biblatex
-    biber
-    
-    # Japanese support
+
+    # Japanese support for LuaLaTeX (not collection-langjapanese to avoid pTeX/upTeX)
     luatexja
+    luatexja-preset
     haranoaji
-    
-    # TikZ and diagrams
-    tikz-cd
-    pgfplots
-    qrcode
-    url
+
+    # Bibliography
+    biber
+
+    # Common packages (not covered by collections above)
+    biblatex
+    enumitem
+    fancyhdr
+    geometry
+    listings
+    titlesec
 )
 
 for pkg in "${PACKAGES[@]}"; do
@@ -117,9 +117,3 @@ echo "==> TinyTeX setup completed successfully."
 echo ""
 echo "Note: If you had a previous TeXLive installation at /usr/local/texlive,"
 echo "you can now safely remove it to free up disk space."
-
-{{ else -}}
-# macOS: Assume MacTeX is installed via Homebrew Cask or installer
-echo "==> macOS detected. Using system MacTeX installation."
-echo "If MacTeX is not installed, please install it from https://tug.org/mactex/"
-{{ end -}}
