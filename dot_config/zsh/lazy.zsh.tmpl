@@ -275,4 +275,9 @@ alias rsync='rsync -e ssh.exe'
 
 # 2. Ansible等のLinuxネイティブツール向け UNIXソケットパス
 export SSH_AUTH_SOCK="${XDG_RUNTIME_DIR:-/run/user/$UID}/ssh-agent.sock"
+{{ else if eq .chezmoi.os "linux" -}}
+########################################
+# Linux Native: Bitwarden SSH Agent
+########################################
+export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
 {{- end }}
