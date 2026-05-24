@@ -1,0 +1,53 @@
+#!/bin/bash
+# Install zmx binary
+# https://github.com/neurosnap/zmx
+
+set -euo pipefail
+
+# Only install on Linux for now as macOS is handled by brew (if available)
+{{ if eq .chezmoi.os "linux" -}}
+
+# Fetch latest version from zmx.sh
+ZMX_VERSION=$(curl -sL https://zmx.sh/ | grep -oE 'zmx-[0-9]+\.[0-9]+\.[0-9]+' | head -n 1 | cut -d'-' -f2)
+
+if [[ -z "$ZMX_VERSION" ]]; then
+    echo "Warning: Could not detect latest zmx version. Skipping installation."
+    exit 0
+fi
+
+ARCH="{{ .chezmoi.arch }}"
+
+if [ "$ARCH" = "amd64" ]; then
+    ARCH_NAME="x86_64"
+elif [ "$ARCH" = "arm64" ]; then
+    ARCH_NAME="aarch64"
+else
+    echo "Unsupported architecture: $ARCH"
+    exit 0
+fi
+
+BINARY_URL="https://zmx.sh/a/zmx-${ZMX_VERSION}-linux-${ARCH_NAME}.tar.gz"
+INSTALL_DIR="$HOME/.local/bin"
+mkdir -p "$INSTALL_DIR"
+
+# Install or update if version differs
+CURRENT_VERSION=$(zmx --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || echo "none")
+
+if [ "$CURRENT_VERSION" != "$ZMX_VERSION" ]; then
+    echo "==> Installing/Updating zmx to ${ZMX_VERSION}..."
+    TEMP_DIR=$(mktemp -d)
+    trap 'rm -rf "$TEMP_DIR"' EXIT
+    
+    if curl -sSL "$BINARY_URL" | tar -xz -C "$TEMP_DIR"; then
+        cp "$TEMP_DIR/zmx" "$INSTALL_DIR/zmx"
+        chmod +x "$INSTALL_DIR/zmx"
+        echo "==> zmx installed to $INSTALL_DIR/zmx"
+    else
+        echo "Error: Failed to download zmx from $BINARY_URL"
+        exit 1
+    fi
+else
+    echo "zmx ${ZMX_VERSION} is already up to date."
+fi
+
+{{ end -}}
