@@ -169,6 +169,56 @@ if ! command -v zf >/dev/null 2>&1; then
 fi
 
 ########################################
+# ghq + roots + git-wt + zf integration
+
+# git-wt shell wrapper
+if command -v git-wt >/dev/null 2>&1; then
+    eval "$(git-wt --init zsh)"
+fi
+
+# Jump to any ghq repository or git worktree using roots and fzf/zf
+zle-cd-ghq() {
+    # Check dependencies
+    if ! command -v roots >/dev/null 2>&1 || ! command -v ghq >/dev/null 2>&1; then
+        zle -M "roots or ghq command not found."
+        return 1
+    fi
+
+    # Get list of repositories, exit if empty to prevent roots from falling back to current dir
+    local repos
+    repos=$(ghq list --full-path 2>/dev/null)
+    if [ -z "$repos" ]; then
+        zle -M "No ghq repositories found. Use 'ghq get <url>' to clone a repository."
+        return 1
+    fi
+
+    # Use zf or fzf with eza preview
+    local dir
+    if command -v zf >/dev/null 2>&1 && command -v eza >/dev/null 2>&1; then
+        dir=$(echo "$repos" | roots 2>/dev/null | zf --height 20 --preview 'eza --tree --level=2 --git-ignore --color=never --icons {} 2>/dev/null || ls {}')
+    elif command -v fzf >/dev/null 2>&1 && command -v eza >/dev/null 2>&1; then
+        dir=$(echo "$repos" | roots 2>/dev/null | fzf --height 40% --reverse --preview 'eza --tree --level=2 --git-ignore --color=always --icons {} 2>/dev/null || ls {}')
+    elif command -v zf >/dev/null 2>&1; then
+        dir=$(echo "$repos" | roots 2>/dev/null | zf --height 20)
+    elif command -v fzf >/dev/null 2>&1; then
+        dir=$(echo "$repos" | roots 2>/dev/null | fzf --height 40% --reverse)
+    else
+        zle -M "zf or fzf not found."
+        return 1
+    fi
+
+    if [ -n "$dir" ]; then
+        BUFFER="cd ${(q)dir}"
+        zle reset-prompt
+        zle accept-line
+    else
+        zle reset-prompt
+    fi
+}
+zle -N zle-cd-ghq
+bindkey '^k' zle-cd-ghq
+
+########################################
 # zmx (Session Manager)
 if command -v zmx >/dev/null 2>&1; then
     # Completions
