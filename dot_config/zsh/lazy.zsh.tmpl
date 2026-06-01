@@ -184,31 +184,50 @@ zle-cd-ghq() {
         return 1
     fi
 
-    # Get list of repositories, exit if empty to prevent roots from falling back to current dir
+    local ghq_root
+    ghq_root=$(ghq root)
+
+    # Get list of repositories
     local repos
-    repos=$(ghq list --full-path 2>/dev/null)
-    if [ -z "$repos" ]; then
-        zle -M "No ghq repositories found. Use 'ghq get <url>' to clone a repository."
+    repos=$(ghq list --full-path 2>/dev/null | roots 2>/dev/null)
+    if [[ -z "$repos" ]]; then
+        zle -M "No ghq repositories found."
         return 1
     fi
 
-    # Use zf or fzf with eza preview
-    local dir
+    # Shorten paths for display (remove ghq_root prefix)
+    local display_repos
+    display_repos=$(echo "$repos" | sed "s|^$ghq_root/||")
+
+    # Construct preview command components safely
+    # We'll use (q-) to escape the root for use in the preview shell
+    local escaped_root="${ghq_root}"
+    local preview_cmd
+    
+    local selected
     if command -v zf >/dev/null 2>&1 && command -v eza >/dev/null 2>&1; then
-        dir=$(echo "$repos" | roots 2>/dev/null | zf --height 20 --preview 'eza --tree --level=2 --git-ignore --color=never --icons {} 2>/dev/null || ls {}')
+        preview_cmd="cd ${escaped_root:q} && eza --tree --level=2 --git-ignore --color=never --icons {} 2>/dev/null || ls -F ${escaped_root:q}/{}"
+        selected=$(echo "$display_repos" | zf --height 20 --preview "$preview_cmd")
     elif command -v fzf >/dev/null 2>&1 && command -v eza >/dev/null 2>&1; then
-        dir=$(echo "$repos" | roots 2>/dev/null | fzf --height 40% --reverse --preview 'eza --tree --level=2 --git-ignore --color=always --icons {} 2>/dev/null || ls {}')
+        preview_cmd="cd ${escaped_root:q} && eza --tree --level=2 --git-ignore --color=always --icons {} 2>/dev/null || ls -F ${escaped_root:q}/{}"
+        selected=$(echo "$display_repos" | fzf --height 40% --reverse --preview "$preview_cmd")
     elif command -v zf >/dev/null 2>&1; then
-        dir=$(echo "$repos" | roots 2>/dev/null | zf --height 20)
+        selected=$(echo "$display_repos" | zf --height 20)
     elif command -v fzf >/dev/null 2>&1; then
-        dir=$(echo "$repos" | roots 2>/dev/null | fzf --height 40% --reverse)
+        selected=$(echo "$display_repos" | fzf --height 40% --reverse)
     else
         zle -M "zf or fzf not found."
         return 1
     fi
 
-    if [ -n "$dir" ]; then
-        BUFFER="cd ${(q)dir}"
+    if [[ -n "$selected" ]]; then
+        local target_dir
+        if [[ "$selected" == /* ]]; then
+            target_dir="$selected"
+        else
+            target_dir="$ghq_root/$selected"
+        fi
+        BUFFER="cd ${target_dir:q}"
         zle reset-prompt
         zle accept-line
     else
