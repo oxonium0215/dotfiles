@@ -91,7 +91,7 @@ alias ls='ls -F --color=auto'
 {{ end -}}
 
 # プロンプト
-PROMPT="%(?.%{${fg[green]}%}.%{${fg[red]}%})%n${reset_color}@${fg[blue]}%m${reset_color}(%*%) %~
+PROMPT="%(?.%F{green}.%F{red})%n%f@%F{blue}%m%f(%*%) %~
 %# "
 
 # Warning injection mechanism (used by deferred scripts)
