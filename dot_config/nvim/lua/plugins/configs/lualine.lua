@@ -173,10 +173,10 @@ local config = {
       {
         function()
           local ok, info = pcall(require, "xmake.info")
-          if not ok then
+          if not ok or not info.target or not info.mode then
             return ""
           end
-          return string.format("󱓞 %s(%s)", info.target.current, info.mode.current)
+          return string.format("󱓞 %s(%s)", info.target.current or "?", info.mode.current or "?")
         end,
         cond = function()
           return vim.g.loaded_xmake == 1
