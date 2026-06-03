@@ -44,7 +44,9 @@ yq = "latest"
 sccache = "latest"
 
 # Repository management
+{{ if .install_static_curl -}}
 "aqua:stunnel/static-curl" = "latest"
+{{ end -}}
 "aqua:x-motemen/ghq" = "latest"
 "aqua:k1LoW/roots" = "latest"
 "github:k1LoW/git-wt" = "latest"
