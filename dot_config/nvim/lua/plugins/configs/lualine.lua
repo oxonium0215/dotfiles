@@ -171,6 +171,19 @@ local config = {
         end,
       },
       {
+        function()
+          local ok, info = pcall(require, "xmake.info")
+          if not ok then
+            return ""
+          end
+          return string.format("󱓞 %s(%s)", info.target.current, info.mode.current)
+        end,
+        cond = function()
+          return vim.g.loaded_xmake == 1
+        end,
+        color = { fg = colors.blue },
+      },
+      {
         "diff",
         -- Is it me or the symbol for modified us really weird
         symbols = { added = " ", modified = "󰝤 ", removed = " " },

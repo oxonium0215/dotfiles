@@ -679,6 +679,27 @@ local pluginlist = {
     },
   },
   {
+    "Mythos-404/xmake.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    event = "VeryLazy",
+    keys = utils.generate_lazy_keys("xmake"),
+    cmd = {
+      "XMakeConfig",
+      "XMakeBuild",
+      "XMakeRun",
+      "XMakeDebug",
+      "XMakeStop",
+      "XMakeStatus",
+      "XMakeLog",
+      "XMakeClean",
+      "XMakeProject",
+      "XMakeMenu",
+    },
+    config = function()
+      require("plugins.configs.xmake")
+    end,
+  },
+  {
     "turbio/bracey.vim",
     cmd = { "Bracey", "BraceyReload", "BraceyEval" },
   },
