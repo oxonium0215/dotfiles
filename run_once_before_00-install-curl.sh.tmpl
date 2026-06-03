@@ -1,0 +1,50 @@
+#!/bin/bash
+# {{ .chezmoi.os }} {{ .chezmoi.arch }}
+# curl がなく、sudo も使えない環境のためのブートストラップスクリプト
+
+# 既に curl が存在する場合は何もしない
+if command -v curl &> /dev/null; then
+    exit 0
+fi
+
+# sudo が使えるかチェック（簡易的）
+if command -v sudo &> /dev/null && sudo -n true 2>/dev/null; then
+    # sudo が使えて、パスワードなしで通るなら、本来はパッケージマネージャを使いたいが、
+    # ここでは「sudo が使えない環境」を主眼に置くため、何もしないか
+    # あるいはシステムワイドのインストールを試みても良い。
+    # しかし、ユーザーの要望は「sudo がない環境で何とかする」ことなので、
+    # ユーザーローカルへのインストールを優先する。
+    :
+fi
+
+echo "curl not found. Attempting to install static binary to user local directory..."
+
+BIN_DIR="$HOME/.local/bin"
+mkdir -p "$BIN_DIR"
+
+# アーキテクチャの判定
+ARCH="{{ .chezmoi.arch }}"
+case "$ARCH" in
+    amd64) CURL_ARCH="amd64" ;;
+    arm64) CURL_ARCH="arm64" ;;
+    *)     CURL_ARCH="amd64" ;; # フォールバック
+esac
+
+# stunnel/static-curl は GitHub のリリース名が curl-amd64 の形式
+URL="https://github.com/moparisthebest/static-curl/releases/latest/download/curl-$CURL_ARCH"
+
+if command -v wget &> /dev/null; then
+    wget -qO "$BIN_DIR/curl" "$URL"
+elif command -v python3 &> /dev/null; then
+    python3 -c "import urllib.request; urllib.request.urlretrieve('$URL', '$BIN_DIR/curl')"
+else
+    echo "Error: Neither wget nor python3 found. Cannot bootstrap curl."
+    exit 0
+fi
+
+if [[ -f "$BIN_DIR/curl" ]]; then
+    chmod +x "$BIN_DIR/curl"
+    echo "Static curl installed to $BIN_DIR/curl"
+    # 現在のセッションの PATH に追加（後続のスクリプトで使えるように）
+    export PATH="$BIN_DIR:$PATH"
+fi
