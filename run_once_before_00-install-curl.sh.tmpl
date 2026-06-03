@@ -2,19 +2,10 @@
 # {{ .chezmoi.os }} {{ .chezmoi.arch }}
 # curl がなく、sudo も使えない環境のためのブートストラップスクリプト
 
+{{ if .install_static_curl -}}
 # 既に curl が存在する場合は何もしない
 if command -v curl &> /dev/null; then
     exit 0
-fi
-
-# sudo が使えるかチェック（簡易的）
-if command -v sudo &> /dev/null && sudo -n true 2>/dev/null; then
-    # sudo が使えて、パスワードなしで通るなら、本来はパッケージマネージャを使いたいが、
-    # ここでは「sudo が使えない環境」を主眼に置くため、何もしないか
-    # あるいはシステムワイドのインストールを試みても良い。
-    # しかし、ユーザーの要望は「sudo がない環境で何とかする」ことなので、
-    # ユーザーローカルへのインストールを優先する。
-    :
 fi
 
 echo "curl not found. Attempting to install static binary to user local directory..."
@@ -48,3 +39,7 @@ if [[ -f "$BIN_DIR/curl" ]]; then
     # 現在のセッションの PATH に追加（後続のスクリプトで使えるように）
     export PATH="$BIN_DIR:$PATH"
 fi
+{{ else -}}
+# install_static_curl is false, skipping.
+exit 0
+{{ end -}}

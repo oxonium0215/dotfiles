@@ -16,6 +16,7 @@
 {{- $install_rust_tools := promptBoolOnce . "install_rust_tools" "Install Heavy Rust Development tools (rustowl, cargo-update) [Y/n]" true -}}
 {{- $install_neovim_env := promptBoolOnce . "install_neovim_env" "Install Neovim and its build tools (bob) [Y/n]" true -}}
 {{- $install_atcoder_tools := promptBoolOnce . "install_atcoder_tools" "Install AtCoder tools (atcoder-tools etc.) [y/N]" false -}}
+{{- $install_static_curl := promptBoolOnce . "install_static_curl" "Install static curl via mise/bootstrap if missing [y/N]" false -}}
 
 [data]
     osID = {{ $osID | quote }}
@@ -28,3 +29,4 @@
     install_rust_tools = {{ $install_rust_tools }}
     install_neovim_env = {{ $install_neovim_env }}
     install_atcoder_tools = {{ $install_atcoder_tools }}
+    install_static_curl = {{ $install_static_curl }}
