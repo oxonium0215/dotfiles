@@ -681,6 +681,9 @@ local pluginlist = {
   {
     "Mythos-404/xmake.nvim",
     dependencies = { "nvim-lua/plenary.nvim" },
+    enabled = function()
+      return vim.fn.executable("xmake") == 1
+    end,
     event = "VeryLazy",
     keys = utils.generate_lazy_keys("xmake"),
     cmd = {
