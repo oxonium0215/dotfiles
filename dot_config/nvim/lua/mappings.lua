@@ -342,6 +342,13 @@ M.overseer = {
   { "i", "<leader><F5>", "<cmd> OverseerRun <CR>", { desc = "Run tasks" } },
 }
 
+M.xmake = {
+  { "n", "<leader>xm", "<cmd>XMakeMenu<CR>", { desc = "XMake Menu" } },
+  { "n", "<leader>xb", "<cmd>XMakeBuild<CR>", { desc = "XMake Build" } },
+  { "n", "<leader>xr", "<cmd>XMakeRun<CR>", { desc = "XMake Run" } },
+  { "n", "<leader>xc", "<cmd>XMakeConfig<CR>", { desc = "XMake Config" } },
+}
+
 M.gitsigns = {
   {
     "n",
