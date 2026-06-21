@@ -20,23 +20,49 @@ NPIPERELAY_DIR="$HOME/.local/bin"
 
 if ! command -v npiperelay.exe &>/dev/null; then
     echo "Installing npiperelay for SSH Agent forwarding..."
-    
+
     if ! command -v curl &>/dev/null || ! command -v unzip &>/dev/null; then
         echo "Warning: curl or unzip is not installed. Skipping npiperelay installation."
     else
         mkdir -p "$NPIPERELAY_DIR"
-        
+
         # Download npiperelay
         TEMP_DIR=$(mktemp -d)
         curl -fsSL "https://github.com/jstarks/npiperelay/releases/download/${NPIPERELAY_VERSION}/npiperelay_windows_amd64.zip" -o "$TEMP_DIR/npiperelay.zip"
-        
+
         # Extract and install
         unzip -q "$TEMP_DIR/npiperelay.zip" -d "$TEMP_DIR"
         mv "$TEMP_DIR/npiperelay.exe" "$NPIPERELAY_DIR/"
         chmod +x "$NPIPERELAY_DIR/npiperelay.exe"
-        
+
         rm -rf "$TEMP_DIR"
         echo "npiperelay installed to $NPIPERELAY_DIR/npiperelay.exe"
+    fi
+fi
+
+# Install win32yank for clipboard integration between WSL and Windows
+WIN32YANK_VERSION="v0.1.1"
+WIN32YANK_DIR="$HOME/.local/bin"
+
+if ! command -v win32yank.exe &>/dev/null; then
+    echo "Installing win32yank for WSL clipboard integration..."
+
+    if ! command -v curl &>/dev/null || ! command -v unzip &>/dev/null; then
+        echo "Warning: curl or unzip is not installed. Skipping win32yank installation."
+    else
+        mkdir -p "$WIN32YANK_DIR"
+
+        # Download win32yank
+        TEMP_DIR=$(mktemp -d)
+        curl -fsSL "https://github.com/equalsraf/win32yank/releases/download/${WIN32YANK_VERSION}/win32yank-x64.zip" -o "$TEMP_DIR/win32yank.zip"
+
+        # Extract and install
+        unzip -q "$TEMP_DIR/win32yank.zip" -d "$TEMP_DIR"
+        mv "$TEMP_DIR/win32yank.exe" "$WIN32YANK_DIR/"
+        chmod +x "$WIN32YANK_DIR/win32yank.exe"
+
+        rm -rf "$TEMP_DIR"
+        echo "win32yank installed to $WIN32YANK_DIR/win32yank.exe"
     fi
 fi
 
