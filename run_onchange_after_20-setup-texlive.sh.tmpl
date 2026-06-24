@@ -28,7 +28,6 @@ echo "==> Setting up TinyTeX and LaTeX packages..."
 # 2. mise-managed: $HOME/.local/share/mise/installs/tinytex/<version>
 
 TINYTEX_BASE=""
-ARCH_DIR="x86_64-linux"
 
 # Check standard location first
 if [[ -d "$HOME/.TinyTeX" ]]; then
@@ -70,8 +69,7 @@ echo "Using tlmgr: $TLMGR"
 echo "Updating tlmgr..."
 "$TLMGR" update --self || true
 
-# Install essential LaTeX packages
-# These match the packages from the original TeXLive 2025 installation
+# Install essential LaTeX packages for LuaLaTeX + Japanese
 echo "Installing LaTeX packages..."
 
 PACKAGES=(
@@ -108,7 +106,11 @@ PACKAGES=(
 
 for pkg in "${PACKAGES[@]}"; do
     echo "Installing $pkg..."
-    "$TLMGR" install "$pkg" 2>/dev/null || echo "  (already installed or not found)"
+    if err=$("$TLMGR" install "$pkg" 2>&1 >/dev/null); then
+        echo "  OK"
+    else
+        echo "  FAILED: $err"
+    fi
 done
 
 # Create cache directories for LuaTeX
