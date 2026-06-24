@@ -66,6 +66,65 @@ if ! command -v win32yank.exe &>/dev/null; then
     fi
 fi
 
+# Install SumatraPDF for LaTeX PDF viewing from WSL
+# Only installed when tex support is enabled
+_install_tex='{{ index . "install_tex" | default "false" }}'
+if [[ "$_install_tex" == "true" ]]; then
+SUMATRAPDF_DIR="$HOME/.local/bin"
+SUMATRAPDF_FALLBACK_VERSION="3.6.1"
+
+install_sumatrapdf() {
+    if ! command -v curl &>/dev/null || ! command -v unzip &>/dev/null; then
+        echo "Warning: curl or unzip is not installed. Skipping SumatraPDF installation."
+        return 1
+    fi
+
+    # Detect latest SumatraPDF version from the download page
+    echo "Detecting latest SumatraPDF version..."
+    local latest_version
+    latest_version=$(curl -fsSL "https://www.sumatrapdfreader.org/download-free-pdf-viewer" | \
+        grep -oP 'SumatraPDF-\K[0-9]+\.[0-9]+(\.[0-9]+)?(?=-64\.zip)' | \
+        sort -Vru | head -1)
+
+    if [[ -z "$latest_version" ]]; then
+        echo "Warning: Could not detect latest version, using fallback ${SUMATRAPDF_FALLBACK_VERSION}"
+        latest_version="$SUMATRAPDF_FALLBACK_VERSION"
+    fi
+
+    echo "Latest SumatraPDF version: ${latest_version}"
+
+    mkdir -p "$SUMATRAPDF_DIR"
+
+    # Download SumatraPDF portable version
+    local temp_dir
+    temp_dir=$(mktemp -d)
+    curl -fsSL "https://www.sumatrapdfreader.org/dl/rel/${latest_version}/SumatraPDF-${latest_version}-64.zip" \
+        -o "$temp_dir/SumatraPDF.zip"
+
+    # Extract and install (glob matches any version in the zip)
+    unzip -q "$temp_dir/SumatraPDF.zip" -d "$temp_dir"
+    local exe_file
+    exe_file=$(ls "$temp_dir"/SumatraPDF-*.exe 2>/dev/null | head -1)
+    if [[ -z "$exe_file" ]]; then
+        echo "Warning: Could not find SumatraPDF executable in the downloaded zip."
+        rm -rf "$temp_dir"
+        return 1
+    fi
+
+    mv "$exe_file" "$SUMATRAPDF_DIR/SumatraPDF.exe"
+    chmod +x "$SUMATRAPDF_DIR/SumatraPDF.exe"
+    rm -rf "$temp_dir"
+    echo "SumatraPDF installed to $SUMATRAPDF_DIR/SumatraPDF.exe"
+}
+
+if ! command -v SumatraPDF.exe &>/dev/null; then
+    echo "Installing SumatraPDF for LaTeX PDF viewer..."
+    install_sumatrapdf
+else
+    echo "SumatraPDF.exe already installed, skipping."
+fi
+fi  # install_tex
+
 # Ensure socat is installed (required for SSH Agent forwarding)
 if ! command -v socat &>/dev/null; then
     echo "Warning: socat is not installed. SSH Agent forwarding will not work."
