@@ -1,0 +1,26 @@
+{
+  "rules": {
+    "preset-ja-technical-writing": {
+      "sentence-length": {
+        "max": 120
+      },
+      "no-exclamation-question-mark": true,
+      "no-mix-dearu-desumasu": {
+        "preferInHeader": "",
+        "preferInBody": "ですます",
+        "preferInList": "である",
+        "strict": false
+      }
+    },
+    "@textlint-ja/preset-ai-writing": {
+      "no-ai-list-formatting": true,
+      "no-ai-hype-expressions": true,
+      "no-ai-emphasis-patterns": true,
+      "no-ai-colon-continuation": true,
+      "ai-tech-writing-guideline": {
+        "severity": "info",
+        "enableDocumentAnalysis": true
+      }
+    }
+  }
+}
