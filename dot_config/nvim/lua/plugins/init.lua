@@ -53,6 +53,7 @@ local pluginlist = {
   {
     "MeanderingProgrammer/render-markdown.nvim",
     ft = { "markdown", "markdown.mdx", "Avante", "codecompanion" },
+    enabled = false,
   },
   {
     "sirasagi62/tinysegmenter.nvim",

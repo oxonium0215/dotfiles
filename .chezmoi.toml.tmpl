@@ -16,6 +16,8 @@
 {{- $install_rust_tools := promptBoolOnce . "install_rust_tools" "Install Heavy Rust Development tools (rustowl, cargo-update) [Y/n]" true -}}
 {{- $install_neovim_env := promptBoolOnce . "install_neovim_env" "Install Neovim and its build tools (bob) [Y/n]" true -}}
 {{- $install_atcoder_tools := promptBoolOnce . "install_atcoder_tools" "Install AtCoder tools (atcoder-tools etc.) [y/N]" false -}}
+{{- $install_textlint := promptBoolOnce . "install_textlint" "Install textlint with Japanese rule presets [Y/n]" true -}}
+{{- $install_textlint_extras := promptBoolOnce . "install_textlint_extras" "Install extra textlint presets (JTF, spacing, synonyms) [y/N]" false -}}
 
 {{- $hasCurl := lookPath "curl" -}}
 {{- $install_static_curl := false -}}
@@ -35,3 +37,5 @@
     install_neovim_env = {{ $install_neovim_env }}
     install_atcoder_tools = {{ $install_atcoder_tools }}
     install_static_curl = {{ $install_static_curl }}
+    install_textlint = {{ $install_textlint }}
+    install_textlint_extras = {{ $install_textlint_extras }}

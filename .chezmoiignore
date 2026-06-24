@@ -28,6 +28,13 @@ test/
 my_template.cpp
 {{- end }}
 
+# Ignore textlint config, MCP server config, and install script if not selected
+{{- if not (index . "install_textlint" | default true) }}
+.textlintrc.json
+.claude/.mcp.json
+run_once_after_40-install-textlint.sh
+{{- end }}
+
 # Ignore LaTeX config if not selected
 {{- if not (index . "install_tex" | default false) }}
 .latexmkrc
