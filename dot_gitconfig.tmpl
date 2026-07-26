@@ -9,12 +9,7 @@
 
 [gpg "ssh"]
     allowedSignersFile = ~/.ssh/allowed_signers
-{{ if (and (eq .chezmoi.os "linux") (contains "microsoft" (lower .chezmoi.kernel.osrelease))) -}}
-    program = "ssh-keygen.exe"
 
-[core]
-    sshCommand = ssh.exe
-{{- end }}
 
 [user]
     name = oxonium0215
