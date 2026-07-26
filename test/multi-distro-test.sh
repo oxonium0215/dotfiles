@@ -37,10 +37,10 @@ results=()
 for item in "${DISTROS[@]}"; do
     DISTRO="${item%%|*}"
     BOOTSTRAP="${item#*|}"
-    
+
     log_step "Testing on $DISTRO..."
     IMAGE_NAME="dotfiles-test-${DISTRO//:/--}"
-    
+
     echo "Building image for $DISTRO..."
     if ! docker build \
         $GITHUB_ARG \
@@ -59,15 +59,15 @@ for item in "${DISTROS[@]}"; do
         set -ex
         # Apply chezmoi
         chezmoi apply --force
-        
+
         # Basic verification
         test -f ~/.zshrc
         test -f ~/.config/mise/config.toml
-        
+
         # Verify mise installation (it should be in PATH)
         export PATH=\"\$HOME/.local/bin:\$HOME/.local/share/mise/shims:\$PATH\"
         mise --version
-        
+
         echo 'Verification successful!'
     "; then
         log_info "$DISTRO: PASSED"

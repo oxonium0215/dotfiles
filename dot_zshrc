@@ -10,7 +10,7 @@ function source {
 function ensure_zcompiled {
     local script="$1"
     [[ ! -f "$script" ]] && return
-    
+
     local compiled="$script.zwc"
     if [[ ! -r "$compiled" || "$script" -nt "$compiled" ]]; then
         # Try to compile only if we have write permission to the directory

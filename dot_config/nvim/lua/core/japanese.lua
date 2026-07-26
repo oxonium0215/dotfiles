@@ -63,7 +63,7 @@ local function jump_segment(kind)
   local line = vim.api.nvim_get_current_line()
 
   -- Get character at cursor
-  -- Note: col is 0-indexed byte offset. 
+  -- Note: col is 0-indexed byte offset.
   -- We use string.sub to get the character at current position.
   -- To handle multi-byte characters, we look at the byte under cursor.
   local char_at_cursor = line:sub(col + 1, col + 4):match("^([%z\1-\127\194-\244][\128-\191]*)")
