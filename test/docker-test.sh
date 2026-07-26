@@ -121,20 +121,20 @@ if [ "$SKIP_NEOVIM" = false ]; then
     echo "=== Test 5: Neovim installation and startup ==="
     run_in_container '
         export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$HOME/.local/share/bob/nvim-bin:$PATH"
-        
+
         echo "=== Installing Neovim via bob ==="
         bob install stable
         bob use stable
-        
+
         echo ""
         echo "=== Neovim version ==="
         nvim --version | head -5
-        
+
         echo ""
         echo "=== Installing plugins via lazy.nvim ==="
         # Run headless and sync plugins
         timeout 300 nvim --headless "+Lazy! sync" +qa 2>&1 || true
-        
+
         echo ""
         echo "=== Installed plugins ==="
         ls ~/.local/share/nvim/lazy/ 2>/dev/null | head -20 || echo "No plugins found"
@@ -142,21 +142,21 @@ if [ "$SKIP_NEOVIM" = false ]; then
         echo ""
         echo "Total plugins: $PLUGIN_COUNT"
     '
-    
+
     echo ""
     echo "=== Test 6: Mason tools installation ==="
     log_warn "Testing Mason auto-install (this may take a few minutes)..."
     run_in_container '
         export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$HOME/.local/share/bob/nvim-bin:$PATH"
-        
+
         echo "=== Testing Mason auto-install for Lua filetype ==="
         # Open a Lua file to trigger Mason auto-install
         timeout 180 nvim --headless -c "edit /tmp/test.lua" -c "sleep 90" -c "qa!" 2>&1 || true
-        
+
         echo ""
         echo "=== Installed Mason packages ==="
         ls ~/.local/share/nvim/mason/packages/ 2>/dev/null || echo "No Mason packages yet"
-        
+
         echo ""
         echo "=== Mason bin tools ==="
         ls ~/.local/share/nvim/mason/bin/ 2>/dev/null || echo "No Mason bin tools yet"
@@ -182,7 +182,7 @@ if [ "$SKIP_TEXLIVE" = false ]; then
     run_in_container '
         if [[ -d "$HOME/.TinyTeX" ]] || command -v tlmgr &>/dev/null; then
             echo "=== TinyTeX installation found ==="
-            
+
             # Check mise-managed location
             if command -v mise &>/dev/null; then
                 MISE_TINYTEX=$(mise where tinytex 2>/dev/null || true)
@@ -190,7 +190,7 @@ if [ "$SKIP_TEXLIVE" = false ]; then
                     echo "TinyTeX location: $MISE_TINYTEX"
                 fi
             fi
-            
+
             # Find tlmgr
             TLMGR=$(which tlmgr 2>/dev/null || find "$HOME" -name "tlmgr" -type f 2>/dev/null | head -1)
             if [[ -n "$TLMGR" ]]; then

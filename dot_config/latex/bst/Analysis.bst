@@ -1,4 +1,4 @@
-%Modified by Ted Sider, 6/08, to comply with the bibliographic style of the 
+%Modified by Ted Sider, 6/08, to comply with the bibliographic style of the
 %philosophy journal Analysis
 %
 %

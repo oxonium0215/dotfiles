@@ -7,7 +7,7 @@
 %% merlin.mbs  (with options: `ay,nat,nm-revf,jnrlst,nmdash,keyxyr,dt-beg,yr-per,note-yr,tit-qq,atit-u,vnum-x,num-xser,jnm-x,bkpg-x,add-pub,isbn,issn,doi,edpar,ppx,ed,xedn,nfss,')
 %% ----------------------------------------
 %% *** phil review ***
-%% 
+%%
 %% Copyright 1994-2005 Patrick W Daly
  % ===============================================================
  % IMPORTANT NOTICE:

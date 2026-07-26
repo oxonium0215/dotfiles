@@ -18,7 +18,7 @@ test_scenario() {
     local install_tex=$4
 
     echo -e "${BLUE}=== Testing Scenario: $name ===${NC}"
-    
+
     # Build the image
     local tag=$(echo "$name" | tr '[:upper:]' '[:lower:]')
     docker build -t "dotfiles-test-$tag" -f "$dockerfile" . > /dev/null
