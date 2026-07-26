@@ -37,7 +37,7 @@ if [ "$CURRENT_VERSION" != "$ZMX_VERSION" ]; then
     echo "==> Installing/Updating zmx to ${ZMX_VERSION}..."
     TEMP_DIR=$(mktemp -d)
     trap 'rm -rf "$TEMP_DIR"' EXIT
-    
+
     if curl -sSL "$BINARY_URL" | tar -xz -C "$TEMP_DIR"; then
         cp "$TEMP_DIR/zmx" "$INSTALL_DIR/zmx"
         chmod +x "$INSTALL_DIR/zmx"

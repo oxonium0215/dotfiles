@@ -203,7 +203,7 @@ zle-cd-ghq() {
     # We'll use (q-) to escape the root for use in the preview shell
     local escaped_root="${ghq_root}"
     local preview_cmd
-    
+
     local selected
     if command -v zf >/dev/null 2>&1 && command -v eza >/dev/null 2>&1; then
         preview_cmd="cd ${escaped_root:q} && eza --tree --level=2 --git-ignore --color=never --icons {} 2>/dev/null || ls -F ${escaped_root:q}/{}"
@@ -259,7 +259,7 @@ if command -v zmx >/dev/null 2>&1; then
             dir=${dir#started_in=}
             printf "%-20s pid:%-8s clients:%-2s %s\n" "$name" "$pid" "$clients" "$dir"
         done)
-        
+
         local output query key selected session_name
         output=$({ [[ -n "$display" ]] && echo "$display"; } | fzf \
             --print-query \
@@ -275,7 +275,7 @@ if command -v zmx >/dev/null 2>&1; then
         query=$(echo "$output" | sed -n '1p')
         key=$(echo "$output" | sed -n '2p')
         selected=$(echo "$output" | sed -n '3p')
-        
+
         if [[ "$key" == "ctrl-n" && -n "$query" ]]; then
             session_name="$query"
         elif [[ $rc -eq 0 && -n "$selected" ]]; then
@@ -331,7 +331,7 @@ _LAST_VCS_INFO=""
 # Callback function when async job completes
 _vcs_info_async_callback() {
     local job=$1 code=$2 output=$3 exec_time=$4 stderr=$5
-    
+
     # job is the function name, output is stdout
     if [[ $job == "_vcs_info_async_job" ]]; then
         _LAST_VCS_INFO="$output"

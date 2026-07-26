@@ -119,7 +119,7 @@ function _zsh_inject_warnings() {
         done
         PROMPT="${combined_warnings}${PROMPT}"
         _ZSH_WARNINGS=()
-        
+
         add-zsh-hook preexec _zsh_restore_prompt
         add-zsh-hook -d precmd _zsh_inject_warnings
     fi
