@@ -18,7 +18,7 @@ echo "==> Setting up WSL-specific configurations..."
 NPIPERELAY_VERSION="v0.1.0"
 NPIPERELAY_DIR="$HOME/.local/bin"
 
-if ! command -v npiperelay.exe &>/dev/null; then
+if [ ! -f "$NPIPERELAY_DIR/npiperelay.exe" ]; then
     echo "Installing npiperelay for SSH Agent forwarding..."
 
     if ! command -v curl &>/dev/null || ! command -v unzip &>/dev/null; then
@@ -44,7 +44,7 @@ fi
 WIN32YANK_VERSION="v0.1.1"
 WIN32YANK_DIR="$HOME/.local/bin"
 
-if ! command -v win32yank.exe &>/dev/null; then
+if [ ! -f "$WIN32YANK_DIR/win32yank.exe" ]; then
     echo "Installing win32yank for WSL clipboard integration..."
 
     if ! command -v curl &>/dev/null || ! command -v unzip &>/dev/null; then
@@ -117,7 +117,7 @@ install_sumatrapdf() {
     echo "SumatraPDF installed to $SUMATRAPDF_DIR/SumatraPDF.exe"
 }
 
-if ! command -v SumatraPDF.exe &>/dev/null; then
+if [ ! -f "$SUMATRAPDF_DIR/SumatraPDF.exe" ]; then
     echo "Installing SumatraPDF for LaTeX PDF viewer..."
     install_sumatrapdf
 else

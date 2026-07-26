@@ -7,7 +7,7 @@ After=network.target
 Type=simple
 ExecStartPre=/usr/bin/rm -f %t/ssh-agent.sock
 # socatのforkを利用して直接npiperelayを呼び出す
-ExecStart=socat UNIX-LISTEN:%t/ssh-agent.sock,fork,reuseaddr EXEC:"npiperelay.exe -ei -s //./pipe/openssh-ssh-agent",nofork
+ExecStart=socat UNIX-LISTEN:%t/ssh-agent.sock,fork,reuseaddr EXEC:"%h/.local/bin/npiperelay.exe -ei -s //./pipe/openssh-ssh-agent",nofork
 Restart=always
 RestartSec=3
 
