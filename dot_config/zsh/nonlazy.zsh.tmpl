@@ -1,4 +1,11 @@
 #######################################
+# XDG Base Directory
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_CACHE_HOME="$HOME/.cache"
+export XDG_STATE_HOME="$HOME/.local/state"
+
+#######################################
 # PATH重複防止
 # -g flag ensures these remain global when sourced from a function scope
 typeset -gU path PATH fpath FPATH

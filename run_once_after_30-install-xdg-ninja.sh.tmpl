@@ -1,0 +1,26 @@
+#!/bin/bash
+# Install/Update xdg-ninja
+# https://github.com/b3nj5m1n/xdg-ninja
+
+set -euo pipefail
+
+{{ if or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin") -}}
+
+INSTALL_DIR="$HOME/.local/share/xdg-ninja"
+BIN_DIR="$HOME/.local/bin"
+
+mkdir -p "$BIN_DIR"
+
+if [ -d "$INSTALL_DIR/.git" ]; then
+    echo "==> Updating xdg-ninja..."
+    (cd "$INSTALL_DIR" && git pull --ff-only)
+else
+    echo "==> Installing xdg-ninja..."
+    rm -rf "$INSTALL_DIR"
+    git clone --depth=1 https://github.com/b3nj5m1n/xdg-ninja.git "$INSTALL_DIR"
+fi
+
+ln -sf "$INSTALL_DIR/xdg-ninja.sh" "$BIN_DIR/xdg-ninja"
+echo "==> xdg-ninja installed successfully to $BIN_DIR/xdg-ninja"
+
+{{ end -}}

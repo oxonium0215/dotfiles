@@ -65,7 +65,9 @@ install_packages_brew() {
     brew install \
         zsh \
         git \
-        curl
+        curl \
+        jq \
+        bat
 }
 
 install_packages_port() {
@@ -159,7 +161,9 @@ install_packages_apt() {
             libclang-dev \
             socat \
             xclip \
-            wl-clipboard
+            wl-clipboard \
+            jq \
+            bat
     else
         echo "Skipping apt-get installation: requires sudo."
     fi
@@ -177,7 +181,9 @@ install_packages_dnf() {
             make \
             openssl-devel \
             clang-devel \
-            socat
+            socat \
+            jq \
+            bat
     else
         echo "Skipping dnf installation: requires sudo."
     fi
@@ -193,7 +199,9 @@ install_packages_pacman() {
             base-devel \
             openssl \
             clang \
-            socat
+            socat \
+            jq \
+            bat
     else
         echo "Skipping pacman installation: requires sudo."
     fi
