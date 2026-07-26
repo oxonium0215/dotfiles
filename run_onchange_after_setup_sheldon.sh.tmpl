@@ -12,7 +12,7 @@ if command -v sheldon &>/dev/null; then
     if [[ -f "$SHELDON_CONFIG" ]]; then
         echo "sheldon configuration changed. Regenerating plugin cache..."
         sheldon --config-file "$SHELDON_CONFIG" lock
-        
+
         CACHE_FILE="$HOME/.config/zsh/sheldon/sheldon.zsh"
         if sheldon --config-file "$SHELDON_CONFIG" source > "${CACHE_FILE}.tmp"; then
             mv "${CACHE_FILE}.tmp" "$CACHE_FILE"

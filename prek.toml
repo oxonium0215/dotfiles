@@ -2,9 +2,6 @@
 # See https://prek.j178.dev for more information.
 #:schema https://www.schemastore.org/prek.json
 
-# Globally exclude Chezmoi template files from checks as they contain Go template syntax
-exclude = { glob = ["**/*.tmpl"] }
-
 [[repos]]
 repo = "builtin"
 hooks = [
@@ -12,10 +9,16 @@ hooks = [
     { id = "check-case-conflict" },
     { id = "check-merge-conflict" },
     { id = "check-symlinks" },
-    { id = "check-yaml" },
-    { id = "check-toml" },
-    { id = "check-json" },
+    { id = "check-yaml", exclude = { glob = "**/*.tmpl" } },
+    { id = "check-toml", exclude = { glob = "**/*.tmpl" } },
+    { id = "check-json", exclude = { glob = "**/*.tmpl" } },
     { id = "detect-private-key" },
     { id = "end-of-file-fixer" },
     { id = "trailing-whitespace" },
+]
+
+[[repos]]
+repo = "local"
+hooks = [
+    { id = "check-chezmoi-template-syntax", name = "Check chezmoi template syntax", entry = "bash -c 'for f; do chezmoi execute-template --init < \"$f\" > /dev/null || exit 1; done' --", language = "system", files = '\.tmpl$' }
 ]
