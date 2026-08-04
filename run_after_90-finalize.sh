@@ -22,12 +22,11 @@ if [[ "$SHELL" != */zsh ]]; then
         ZSH_PATH=$(command -v zsh)
         if grep -q "$ZSH_PATH" /etc/shells 2>/dev/null; then
             echo "Setting zsh as default shell..."
-            if chsh -s "$ZSH_PATH"; then
+            if chsh -s "$ZSH_PATH" < /dev/null 2>/dev/null; then
                 echo "Successfully changed default shell to zsh."
             else
-                echo "Warning: Could not change default shell with chsh."
-                echo "If you don't have permission to change your login shell, you can manually"
-                echo "add 'exec $ZSH_PATH -l' to your .bashrc or .profile."
+                echo "Note: Could not change default shell automatically with chsh (requires password)."
+                echo "To set zsh as your default shell, run: chsh -s $ZSH_PATH"
             fi
         else
             echo "Warning: $ZSH_PATH is not in /etc/shells."

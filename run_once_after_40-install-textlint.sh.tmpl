@@ -4,6 +4,9 @@
 
 set -euo pipefail
 
+# Ensure local bin, mise shims, and bun bin are in PATH
+export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$HOME/.bun/bin:$PATH"
+
 {{ if not (index . "install_textlint" | default true) -}}
 echo "==> textlint: skipped (install_textlint = false)"
 exit 0
