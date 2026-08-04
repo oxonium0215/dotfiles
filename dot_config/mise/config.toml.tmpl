@@ -65,7 +65,7 @@ bob = "latest"
 "cargo:sheldon" = "latest"
 {{ if (index . "install_rust_tools" | default false) -}}
 "cargo:cargo-update" = "latest"
-"cargo:rustowl" = "latest"
+"github:cordx56/rustowl" = "latest"
 {{ end -}}
 
 {{ if and (eq .chezmoi.os "linux") (index . "install_tex" | default false) -}}
