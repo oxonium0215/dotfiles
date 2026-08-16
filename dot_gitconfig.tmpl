@@ -9,6 +9,13 @@
 
 [gpg "ssh"]
     allowedSignersFile = ~/.ssh/allowed_signers
+{{- if eq .chezmoi.os "windows" }}
+    program = "C:/Windows/System32/OpenSSH/ssh-keygen.exe"
+{{- else if eq .chezmoi.os "darwin" }}
+    program = /usr/bin/ssh-keygen
+{{- else }}
+    program = ssh-keygen
+{{- end }}
 
 
 [user]
