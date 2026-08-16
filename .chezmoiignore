@@ -54,6 +54,7 @@ Documents/PowerShell/**
 # Windows: nvim設定とPowerShellプロファイルのみを適用
 {{- if eq .chezmoi.os "windows" }}
 *
+!.gitconfig
 !.config
 !.config/nvim
 !.config/nvim/**
