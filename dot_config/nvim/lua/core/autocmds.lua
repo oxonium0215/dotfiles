@@ -25,6 +25,10 @@ create_autocmd({ "BufReadPost", "BufNewFile", "VimEnter" }, {
   once = true,
   callback = function()
     vim.schedule(function()
+      if vim.g.vscode then
+        return
+      end
+
       local provider_set = false
 
       -- 1. macOS: built-in provider (pbcopy/pbpaste)
