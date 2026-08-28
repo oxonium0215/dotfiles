@@ -5,8 +5,8 @@
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $OutputEncoding = [System.Text.Encoding]::UTF8
 
-#region PSReadLine
-if (Get-Module -ListAvailable -Name PSReadLine) {
+#region PSReadLine (高速ロード)
+if (Get-Command Set-PSReadLineOption -ErrorAction SilentlyContinue) {
     Set-PSReadLineOption -EditMode Vi
     Set-PSReadLineOption -BellStyle None
     Set-PSReadLineOption -HistorySearchCursorMovesToEnd
@@ -17,9 +17,21 @@ if (Get-Module -ListAvailable -Name PSReadLine) {
 }
 #endregion
 
-#region Git情報取得 (同期)
+#region Git情報取得 (高速判定)
 function Get-GitInfo {
-    if (-not (Test-Path .git -PathType Container) -and -not (git rev-parse --git-dir 2>$null)) { return '' }
+    # .NET の高速パス走査で .git の有無を判定（非 Git ディレクトリでの git.exe プロセス起動を回避）
+    $currentDir = $PWD.Path
+    $hasGit = $false
+    while ($currentDir) {
+        if ([System.IO.Directory]::Exists("$currentDir\.git") -or [System.IO.File]::Exists("$currentDir\.git")) {
+            $hasGit = $true
+            break
+        }
+        $parentDir = [System.IO.Path]::GetDirectoryName($currentDir)
+        if ($parentDir -eq $currentDir) { break }
+        $currentDir = $parentDir
+    }
+    if (-not $hasGit) { return '' }
 
     $branch = git rev-parse --abbrev-ref HEAD 2>$null
     if (-not $branch) { return '' }
