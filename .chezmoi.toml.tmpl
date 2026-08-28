@@ -25,9 +25,16 @@
 {{-   $install_static_curl = promptBoolOnce . "install_static_curl" "Install static curl via mise/bootstrap if missing [y/N]" false -}}
 {{- end -}}
 
+{{- $git_name := promptStringOnce . "git_name" "Git user name" "oxonium0215" -}}
+{{- $git_email := promptStringOnce . "git_email" "Git email address" "102494177+oxonium0215@users.noreply.github.com" -}}
+{{- $git_signingkey := promptStringOnce . "git_signingkey" "Git SSH signing public key" "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILsekEiP6+2RBAYILDfwhIWbqUXTx9uGOQYt7jvmmBav" -}}
+
 [data]
     osID = {{ $osID | quote }}
     isWSL = {{ $isWSL }}
+    git_name = {{ $git_name | quote }}
+    git_email = {{ $git_email | quote }}
+    git_signingkey = {{ $git_signingkey | quote }}
     install_tex = {{ $install_tex }}
     install_typst = {{ $install_typst }}
     install_web_dev = {{ $install_web_dev }}

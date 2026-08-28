@@ -76,12 +76,19 @@ function prompt {
 }
 #endregion
 
+#region XDG Base Directory (for Neovim and modern CLI tools)
+$env:XDG_CONFIG_HOME = "$HOME\.config"
+$env:XDG_DATA_HOME   = "$HOME\.local\share"
+$env:XDG_CACHE_HOME  = "$HOME\.cache"
+$env:XDG_STATE_HOME  = "$HOME\.local\state"
+#endregion
+
 #region エイリアス
 if (Get-Command eza -ErrorAction SilentlyContinue) {
-    function Invoke-Eza      { eza -a --icons @args }
-    function Invoke-EzaLong  { eza -ltr --color=auto --icons @args }
-    function Invoke-EzaAll   { eza -la --color=auto --icons @args }
-    function Invoke-EzaList  { eza -l --color=auto --icons @args }
+    function Invoke-Eza      { eza -a --icons --group-directories-first @args }
+    function Invoke-EzaLong  { eza -ltr --color=auto --icons --group-directories-first @args }
+    function Invoke-EzaAll   { eza -la --color=auto --icons --group-directories-first @args }
+    function Invoke-EzaList  { eza -l --color=auto --icons --group-directories-first @args }
 
     Set-Alias -Name ls  -Value Invoke-Eza      -Option AllScope -Force
     Set-Alias -Name l   -Value Invoke-EzaLong  -Option AllScope -Force
@@ -93,6 +100,10 @@ if (Get-Command eza -ErrorAction SilentlyContinue) {
 if (Get-Command nvim -ErrorAction SilentlyContinue) {
     Set-Alias -Name vi -Value nvim -Option AllScope -Force
 }
+
+if (Get-Command lazygit -ErrorAction SilentlyContinue) {
+    Set-Alias -Name lg -Value lazygit -Option AllScope -Force
+}
 #endregion
 
 #region cd時の自動ls
@@ -103,8 +114,11 @@ function Set-LocationAndList {
     )
     if ($Path) { Set-Location @Path } else { Set-Location $HOME }
     if ($PWD.Path -ne $HOME) {
+        $entries = @(Get-ChildItem -Force -Path $PWD.Path -ErrorAction SilentlyContinue | Select-Object -First 501)
+        if ($entries.Count -gt 500) { return }
+
         if (Get-Command eza -ErrorAction SilentlyContinue) {
-            eza -a --group-directories-first
+            eza -a --icons --group-directories-first
         } else {
             Get-ChildItem -Force
         }
