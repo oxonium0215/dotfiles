@@ -6,20 +6,22 @@ export XDG_CACHE_HOME="$HOME/.cache"
 export XDG_STATE_HOME="$HOME/.local/state"
 
 #######################################
-# PATH重複防止
+# PATH設定
 # -g flag ensures these remain global when sourced from a function scope
 typeset -gU path PATH fpath FPATH
 
-# Additional paths (system/snap/cuda)
-export PATH="$HOME/bin:/usr/local/bin:$PATH"
-export PATH="$HOME/.local/share/bob/nvim-bin:$PATH"
-export PATH="/snap/bin:$PATH"
-export PATH="/usr/local/cuda/bin:$PATH"
-
-# Basic paths for tools needed during initialization
-export PATH="$HOME/.local/share/mise/shims:$PATH"
-export PATH="$HOME/.local/bin:$PATH"
-export PATH="$HOME/.cargo/bin:$PATH"
+path=(
+    $HOME/.local/share/mise/shims(N-/)
+    $HOME/.local/bin(N-/)
+    $HOME/.cargo/bin(N-/)
+    $HOME/.bun/bin(N-/)
+    $HOME/.local/share/bob/nvim-bin(N-/)
+    $HOME/bin(N-/)
+    /usr/local/bin(N-/)
+    /snap/bin(N-/)
+    /usr/local/cuda/bin(N-/)
+    $path
+)
 
 #######################################
 # オプション

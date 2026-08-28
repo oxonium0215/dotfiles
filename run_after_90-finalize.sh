@@ -8,10 +8,10 @@ echo "==> Finalizing dotfiles setup..."
 
 
 
-# Compile zsh files for faster loading (optional, creates .zwc files)
+# Compile zsh files for faster loading (creates .zwc files)
 if command -v zsh &>/dev/null; then
     echo "Compiling zsh files..."
-    for f in ~/.zshrc ~/.config/zsh/*.zsh; do
+    for f in ~/.zshrc ~/.config/zsh/*.zsh ~/.config/zsh/sheldon/*.zsh; do
         [[ -f "$f" ]] && zsh -c "zcompile '$f'" 2>/dev/null || true
     done
 fi
