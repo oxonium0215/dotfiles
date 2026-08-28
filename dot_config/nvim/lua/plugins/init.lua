@@ -558,7 +558,7 @@ local pluginlist = {
     event = "VeryLazy",
     build = function()
       local dir = vim.fs.joinpath(vim.fn.stdpath("state"), "databases")
-      os.execute("mkdir -p " .. dir .. "/")
+      vim.fn.mkdir(dir, "p")
     end,
     config = function()
       pcall(function()
@@ -628,12 +628,10 @@ local pluginlist = {
   {
     "michaelb/sniprun",
     branch = "master",
-    build = (function()
-      if jit and jit.os and jit.os:lower() == "windows" then
-        return "powershell -ExecutionPolicy Bypass -File ./install.ps1"
-      end
-      return "sh install.sh"
-    end)(),
+    build = "sh install.sh",
+    enabled = function()
+      return vim.fn.has("win32") == 0
+    end,
     opts = {
       display = { "Terminal", "NvimNotifyErr" },
       display_options = {
