@@ -263,18 +263,6 @@ local pluginlist = {
     end,
     dependencies = {
       { "JoosepAlviste/nvim-ts-context-commentstring", event = "VeryLazy", opts = { enable_autocmd = false } },
-      {
-        "nvim-treesitter/nvim-treesitter-refactor",
-        enabled = false, -- incompatible with Treesitter main rewrite
-      },
-      {
-        "nvim-treesitter/nvim-tree-docs",
-        enabled = false, -- incompatible with Treesitter main rewrite
-      },
-      {
-        "yioneko/nvim-yati",
-        enabled = false, -- incompatible with Treesitter main rewrite
-      },
     },
   },
   {
@@ -452,37 +440,24 @@ local pluginlist = {
     dependencies = {
       "neovim/nvim-lspconfig",
       "mason-org/mason.nvim",
-      "jay-babu/mason-null-ls.nvim",
-      "folke/neoconf.nvim",
     },
     config = function()
       require("plugins.configs.lsp").setup()
     end,
   },
   {
-    "jay-babu/mason-null-ls.nvim",
-    event = "BufReadPre",
-    dependencies = {
-      "mason-org/mason.nvim",
-      "nvimtools/none-ls.nvim",
-    },
+    "stevearc/conform.nvim",
+    event = { "BufWritePre" },
+    cmd = { "ConformInfo" },
     config = function()
-      local lsp = require("plugins.configs.lsp")
-      require("mason-null-ls").setup({
-        -- ensure_installed = lsp.null_ls_ensure, -- Removed for lazy loading
-        automatic_installation = false,
-        handlers = {},
-      })
+      require("plugins.configs.conform").setup()
     end,
   },
   {
-    "nvimtools/none-ls.nvim",
-    event = "BufReadPre",
-    opts = function()
-      return require("plugins.configs.null-ls")
-    end,
-    config = function(_, opts)
-      require("null-ls").setup(opts)
+    "mfussenegger/nvim-lint",
+    event = { "BufReadPre", "BufNewFile" },
+    config = function()
+      require("plugins.configs.lint").setup()
     end,
   },
   {
@@ -653,8 +628,12 @@ local pluginlist = {
   {
     "michaelb/sniprun",
     branch = "master",
-    cmd = { "SnipRun" },
-    build = "sh install.sh",
+    build = (function()
+      if jit and jit.os and jit.os:lower() == "windows" then
+        return "powershell -ExecutionPolicy Bypass -File ./install.ps1"
+      end
+      return "sh install.sh"
+    end)(),
     opts = {
       display = { "Terminal", "NvimNotifyErr" },
       display_options = {

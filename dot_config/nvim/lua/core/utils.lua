@@ -74,4 +74,32 @@ M.toggleTerm = function(direction)
   vim.cmd(command)
 end
 
+local lazygit_term = nil
+M.toggleLazygit = function()
+  local ok, toggleterm = pcall(require, "toggleterm.terminal")
+  if not ok then
+    vim.notify("toggleterm.nvim is not loaded", vim.log.levels.WARN)
+    return
+  end
+  local Terminal = toggleterm.Terminal
+  if not lazygit_term then
+    lazygit_term = Terminal:new({
+      cmd = "lazygit",
+      hidden = true,
+      direction = "float",
+      float_opts = {
+        border = "curved",
+      },
+      on_open = function(term)
+        vim.cmd("startinsert!")
+        vim.api.nvim_buf_set_keymap(term.bufnr, "t", "<Esc>", "<Esc>", { noremap = true, silent = true })
+      end,
+      on_close = function(_)
+        vim.cmd("startinsert!")
+      end,
+    })
+  end
+  lazygit_term:toggle()
+end
+
 return M

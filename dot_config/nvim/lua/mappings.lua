@@ -131,6 +131,23 @@ M.lspconfig = {
   },
   {
     "n",
+    "<leader>th",
+    function()
+      local ih = vim.lsp.inlay_hint
+      if type(ih) == "function" then
+        ih.enable(not ih.is_enabled())
+      elseif type(ih) == "table" and ih.enable then
+        local current = false
+        if ih.is_enabled then
+          current = ih.is_enabled()
+        end
+        ih.enable(not current)
+      end
+    end,
+    { desc = "Toggle Inlay Hints" },
+  },
+  {
+    "n",
     "<leader>wa",
     "<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>",
     { desc = "Add workspace folder" },
@@ -318,6 +335,8 @@ M.toggleterm = {
   { "t", "<A-h>", "<cmd>lua require('core.utils').toggleTerm('horizontal')<CR>", { desc = "toggle horizontal term" } },
   { "n", "<A-i>", "<cmd>lua require('core.utils').toggleTerm('float')<CR>", { desc = "toggle floating term" } },
   { "t", "<A-i>", "<cmd>lua require('core.utils').toggleTerm('float')<CR>", { desc = "toggle floating term" } },
+  { "n", "<leader>gg", "<cmd>lua require('core.utils').toggleLazygit()<CR>", { desc = "Toggle Lazygit" } },
+  { "n", "<leader>lg", "<cmd>lua require('core.utils').toggleLazygit()<CR>", { desc = "Toggle Lazygit" } },
 }
 
 M.blankline = {
