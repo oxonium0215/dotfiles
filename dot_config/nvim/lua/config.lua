@@ -95,9 +95,34 @@ vim.diagnostic.config({
   float = { border = "rounded" },
 })
 
+-- ShaDa (history/registers) optimization
+vim.opt.shada = "!,'100,<50,s10,h"
+
 -- disable some default providers
 for _, provider in ipairs({ "node", "perl", "python3", "ruby" }) do
   vim.g["loaded_" .. provider .. "_provider"] = 0
+end
+
+-- disable unnecessary default vim plugins
+local disabled_builtins = {
+  "gzip",
+  "zip",
+  "zipPlugin",
+  "tar",
+  "tarPlugin",
+  "getscript",
+  "getscriptPlugin",
+  "vimball",
+  "vimballPlugin",
+  "2html_plugin",
+  "netrw",
+  "netrwPlugin",
+  "netrwSettings",
+  "netrwFileHandlers",
+  "tutor",
+}
+for _, plugin in ipairs(disabled_builtins) do
+  vim.g["loaded_" .. plugin] = 1
 end
 
 -- add mise shims and mason binaries to path

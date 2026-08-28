@@ -142,13 +142,7 @@ chpwd() {
 # どこからでも参照できるディレクトリパス
 cdpath=(~)
 
-# mise activation (env only, no hooks to keep 'cd' fast)
-if command -v mise >/dev/null 2>&1; then
-    eval "$(mise env -s zsh)"
-else
-    schedule_warning "%F{yellow}Warning: 'mise' is not installed. Tool version management is disabled.%f"
-fi
-
+# mise activation (shims are in PATH; auto-sync on directory change)
 # Manual mise environment update alias
 alias me='eval "$(mise env)"'
 
@@ -167,7 +161,9 @@ add-zsh-hook chpwd _mise_chpwd_handler
 
 _mise_preexec_handler() {
     if [[ "$_mise_sync_needed" == "true" ]]; then
-        eval "$(mise env -s zsh)"
+        if command -v mise >/dev/null 2>&1; then
+            eval "$(mise env -s zsh)"
+        fi
         _mise_sync_needed=false
     fi
 }
@@ -181,9 +177,9 @@ fi
 ########################################
 # ghq + roots + git-wt + zf integration
 
-# git-wt shell wrapper
+# git-wt shell wrapper (deferred)
 if command -v git-wt >/dev/null 2>&1; then
-    eval "$(git-wt --init zsh)"
+    zsh-defer -c 'eval "$(git-wt --init zsh)"'
 fi
 
 # Jump to any ghq repository or git worktree using roots and fzf/zf
@@ -250,8 +246,8 @@ bindkey '^k' zle-cd-ghq
 ########################################
 # zmx (Session Manager)
 if command -v zmx >/dev/null 2>&1; then
-    # Completions
-    eval "$(zmx completions zsh)"
+    # Completions (deferred)
+    zsh-defer -c 'eval "$(zmx completions zsh)"'
 
     # Prompt indicator
     # Note: We inject this into PROMPT in nonlazy.zsh.tmpl logic or just prefix it here
