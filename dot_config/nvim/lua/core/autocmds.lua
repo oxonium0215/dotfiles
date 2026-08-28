@@ -83,13 +83,14 @@ create_autocmd({ "BufReadPost", "BufNewFile", "VimEnter" }, {
           vim.g.clipboard = {
             name = "wl-clipboard",
             copy = {
-              ["+"] = "wl-copy --foreground --type text/plain",
-              ["*"] = "wl-copy --foreground --type text/plain --primary",
+              ["+"] = "wl-copy --type text/plain",
+              ["*"] = "wl-copy --type text/plain --primary",
             },
             paste = {
               ["+"] = "wl-paste --no-newline",
               ["*"] = "wl-paste --no-newline --primary",
             },
+            cache_enabled = 1,
           }
           provider_set = true
         elseif vim.fn.executable("xclip") == 1 then
@@ -103,6 +104,7 @@ create_autocmd({ "BufReadPost", "BufNewFile", "VimEnter" }, {
               ["+"] = "xclip -selection clipboard -o",
               ["*"] = "xclip -selection clipboard -o",
             },
+            cache_enabled = 1,
           }
           provider_set = true
         elseif vim.fn.executable("xsel") == 1 then
@@ -116,6 +118,7 @@ create_autocmd({ "BufReadPost", "BufNewFile", "VimEnter" }, {
               ["+"] = "xsel --clipboard --output",
               ["*"] = "xsel --clipboard --output",
             },
+            cache_enabled = 1,
           }
           provider_set = true
         end
@@ -132,9 +135,13 @@ create_autocmd({ "BufReadPost", "BufNewFile", "VimEnter" }, {
               ["*"] = osc52.copy("*"),
             },
             paste = {
-              -- Disable OSC 52 paste if in VTE terminal (e.g. GNOME Terminal) to prevent freeze
-              ["+"] = vim.env.VTE_VERSION and function() return { "" } end or osc52.paste("+"),
-              ["*"] = vim.env.VTE_VERSION and function() return { "" } end or osc52.paste("*"),
+              -- Disable synchronous OSC 52 paste entirely to avoid terminal blocking freezes
+              ["+"] = function()
+                return { "" }
+              end,
+              ["*"] = function()
+                return { "" }
+              end,
             },
           }
           provider_set = true
