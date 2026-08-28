@@ -89,12 +89,13 @@ fi
 
 ########################################
 # alias
-alias lst='eza -ltr --color=auto --icons'
-alias l='eza -ltr --color=auto --icons'
-alias ls='eza -a --icons'
-alias la='eza -la --color=auto --icons'
-alias ll='eza -l --color=auto --icons'
+alias lst='eza -ltr --color=auto --icons --group-directories-first'
+alias l='eza -ltr --color=auto --icons --group-directories-first'
+alias ls='eza -a --icons --group-directories-first'
+alias la='eza -la --color=auto --icons --group-directories-first'
+alias ll='eza -l --color=auto --icons --group-directories-first'
 alias vi='nvim'
+alias lg='lazygit'
 alias atc='atcoder-tools'
 alias docker-purge='docker stop $(docker ps -q) && docker rmi $(docker images -q) -f'
 # sudo の後のコマンドでエイリアスを有効にする
@@ -125,7 +126,16 @@ bindkey '^j' zle-cd
 # hooks
 chpwd() {
     if [[ $(pwd) != $HOME ]]; then
-        eza -a --group-directories-first
+        local -a entries
+        entries=( *(ND[1,501]) )
+        if (( ${#entries} > 500 )); then
+            return
+        fi
+        if command -v eza >/dev/null 2>&1; then
+            eza -a --icons --group-directories-first
+        else
+            command ls -a -F --color=auto 2>/dev/null || ls -a
+        fi
     fi
 }
 
