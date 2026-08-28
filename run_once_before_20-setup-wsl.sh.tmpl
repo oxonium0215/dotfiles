@@ -79,15 +79,23 @@ install_sumatrapdf() {
         return 1
     fi
 
-    # Detect latest SumatraPDF version from the download page
+    # Detect latest SumatraPDF version from GitHub Releases
     echo "Detecting latest SumatraPDF version..."
-    local latest_version
-    latest_version=$(curl -fsSL "https://www.sumatrapdfreader.org/download-free-pdf-viewer" | \
-        grep -oP 'SumatraPDF-\K[0-9]+\.[0-9]+(\.[0-9]+)?(?=-64\.zip)' | \
-        sort -Vru | head -1)
+    local latest_tag=""
+    if command -v jq &>/dev/null; then
+        latest_tag=$(curl -fsSL https://api.github.com/repos/sumatrapdfreader/sumatrapdf/releases/latest 2>/dev/null | jq -r '.tag_name // empty' 2>/dev/null || true)
+    fi
+    if [[ -z "$latest_tag" ]]; then
+        latest_tag=$(curl -sI https://github.com/sumatrapdfreader/sumatrapdf/releases/latest 2>/dev/null | grep -i '^location:' | sed -E 's|.*/tag/([^[:space:]\r\n]+).*|\1|' || true)
+    fi
+
+    local latest_version=""
+    if [[ -n "$latest_tag" ]]; then
+        latest_version=$(echo "$latest_tag" | grep -oP '[0-9]+\.[0-9]+(\.[0-9]+)?' | head -1)
+    fi
 
     if [[ -z "$latest_version" ]]; then
-        echo "Warning: Could not detect latest version, using fallback ${SUMATRAPDF_FALLBACK_VERSION}"
+        echo "Warning: Could not detect latest version from GitHub, using fallback ${SUMATRAPDF_FALLBACK_VERSION}"
         latest_version="$SUMATRAPDF_FALLBACK_VERSION"
     fi
 

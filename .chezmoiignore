@@ -54,6 +54,9 @@ Documents/PowerShell/**
 # Windows: nvim設定とPowerShellプロファイルのみを適用
 {{- if eq .chezmoi.os "windows" }}
 *
+run_*
+run_*.sh
+run_*.sh.tmpl
 !.gitconfig
 !.config
 !.config/nvim
