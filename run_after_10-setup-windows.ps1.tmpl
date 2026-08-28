@@ -20,4 +20,9 @@ if ($currentState -ne $xdgState) {
     [Environment]::SetEnvironmentVariable("XDG_STATE_HOME", $xdgState, "User")
     Write-Host "[setup-windows] Set user environment variable XDG_STATE_HOME to $xdgState"
 }
+
+# Ensure persistent XDG for current process as well
+$env:XDG_CONFIG_HOME = $xdgConfig
+$env:XDG_DATA_HOME   = $xdgData
+$env:XDG_STATE_HOME  = $xdgState
 {{- end }}
