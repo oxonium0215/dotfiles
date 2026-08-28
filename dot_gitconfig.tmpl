@@ -1,10 +1,19 @@
 [gpg]
     format = ssh
 
-{{- if eq .chezmoi.os "windows" }}
 [core]
+{{- if eq .chezmoi.os "windows" }}
     sshCommand = C:/Windows/System32/OpenSSH/ssh.exe
 {{- end }}
+    pager = delta
+
+[interactive]
+    diffFilter = delta --color-only
+
+[delta]
+    navigate = true
+    light = false
+    line-numbers = true
 
 [commit]
     gpgsign = true
@@ -13,17 +22,38 @@
     gpgsign = true
 
 [gpg "ssh"]
-    allowedSignersFile = ~/.ssh/allowed_signers
 {{- if eq .chezmoi.os "windows" }}
+    allowedSignersFile = "{{ .chezmoi.homeDir | replace "\\" "/" }}/.ssh/allowed_signers"
     program = "C:/Windows/System32/OpenSSH/ssh-keygen.exe"
 {{- else if eq .chezmoi.os "darwin" }}
+    allowedSignersFile = ~/.ssh/allowed_signers
     program = /usr/bin/ssh-keygen
 {{- else }}
+    allowedSignersFile = ~/.ssh/allowed_signers
     program = ssh-keygen
 {{- end }}
 
+[init]
+    defaultBranch = main
+
+[push]
+    autoSetupRemote = true
+
+[merge]
+    conflictstyle = zdiff3
+
+[diff]
+    algorithm = histogram
+    colorMoved = default
+
+[pull]
+    rebase = true
+
+[rerere]
+    enabled = true
+
 
 [user]
-    name = oxonium0215
-    email = 102494177+oxonium0215@users.noreply.github.com
-    signingkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILsekEiP6+2RBAYILDfwhIWbqUXTx9uGOQYt7jvmmBav"
+    name = {{ index . "git_name" | default "oxonium0215" }}
+    email = {{ index . "git_email" | default "102494177+oxonium0215@users.noreply.github.com" }}
+    signingkey = {{ index . "git_signingkey" | default "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILsekEiP6+2RBAYILDfwhIWbqUXTx9uGOQYt7jvmmBav" | quote }}
