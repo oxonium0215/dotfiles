@@ -8,8 +8,6 @@ trusted_config_paths = ["~"]
 auto_install = true
 # Use cargo-binstall for faster installation of cargo tools
 cargo.binstall = true
-# Generate shims for compatibility with editors/IDEs
-experimental = true
 # Use precompiled Python binaries only (avoid compilation issues)
 python.compile = false
 
@@ -43,6 +41,8 @@ fzf = "latest"
 tree-sitter = "latest"
 yq = "latest"
 sccache = "latest"
+"aqua:sharkdp/bat" = "latest"
+"aqua:dandavison/delta" = "latest"
 
 # Repository management
 {{ if .install_static_curl -}}
@@ -51,6 +51,7 @@ sccache = "latest"
 "aqua:x-motemen/ghq" = "latest"
 "aqua:k1LoW/roots" = "latest"
 "github:k1LoW/git-wt" = "latest"
+"aqua:jesseduffield/lazygit" = "latest"
 
 {{ if (index . "install_neovim_env" | default false) -}}
 # Neovim version manager (pre-built binary via aqua)
@@ -78,7 +79,3 @@ tinytex = "latest"
 typst = "latest"
 tinymist = "latest"
 {{ end -}}
-
-[env]
-# Ensure mise shims and global bun binaries are in PATH
-_.path = ["~/.local/share/mise/shims", "~/.bun/bin"]
