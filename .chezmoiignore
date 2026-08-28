@@ -44,17 +44,18 @@ run_once_after_40-install-textlint.sh
 # │ Platform-specific rules                                                        │
 # ╰─────────────────────────────────────────────────────────────────────────────────╯
 
-# Linux/macOS: PowerShellプロファイルは不要
+# Linux/macOS: PowerShellプロファイルとAppDataは不要
 {{- if ne .chezmoi.os "windows" }}
 Documents
 Documents/PowerShell
 Documents/PowerShell/**
+AppData
+AppData/**
 {{- end }}
 
-# Windows: nvim設定とPowerShellプロファイルのみを適用
+# Windows: nvim設定、PowerShellプロファイル、AppData/Local/nvimを適用
 {{- if eq .chezmoi.os "windows" }}
 *
-run_*
 run_*.sh
 run_*.sh.tmpl
 !.gitconfig
@@ -64,4 +65,10 @@ run_*.sh.tmpl
 !Documents
 !Documents/PowerShell
 !Documents/PowerShell/**
+!AppData
+!AppData/Local
+!AppData/Local/nvim
+!AppData/Local/nvim/**
+!run_*.ps1
+!run_*.ps1.tmpl
 {{- end }}
