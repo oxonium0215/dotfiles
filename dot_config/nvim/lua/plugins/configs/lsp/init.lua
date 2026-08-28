@@ -6,22 +6,13 @@ local runtime_warned = {}
 
 local function smart_format(opts)
   local bufnr = opts and opts.bufnr or vim.api.nvim_get_current_buf()
-  local ft = vim.bo[bufnr].filetype
-  local ok, sources = pcall(require, "null-ls.sources")
-  local has_null_ls = ok and #sources.get_available(ft, "formatting") > 0
-
-  local format_opts = {
-    bufnr = bufnr,
-    async = false,
-  }
-
-  if has_null_ls then
-    format_opts.filter = function(client)
-      return client.name == "null-ls"
-    end
+  local ok_conform, conform = pcall(require, "conform")
+  if ok_conform then
+    conform.format({ bufnr = bufnr, lsp_format = "fallback" })
+    return
   end
 
-  vim.lsp.buf.format(format_opts)
+  vim.lsp.buf.format({ bufnr = bufnr })
 end
 
 M.smart_format = smart_format
@@ -41,29 +32,11 @@ local function enable_inlay_hints(bufnr)
   end
 end
 
-local function has_null_ls_formatter(bufnr)
-  local ok, sources = pcall(require, "null-ls.sources")
-  if not ok then
-    return false
-  end
-  return #sources.get_available(vim.bo[bufnr].filetype, "formatting") > 0
-end
-
-local function has_formatter(bufnr)
-  local clients = vim.lsp.get_clients({ bufnr = bufnr, method = "textDocument/formatting" })
-  return clients and #clients > 0
-end
-
 M.on_attach = function(client, bufnr)
   utils.set_mappings("lspconfig", { buffer = bufnr })
 
   if client:supports_method("textDocument/inlayHint", { bufnr = bufnr }) then
     enable_inlay_hints(bufnr)
-  end
-
-  if client.name ~= "null-ls" and has_null_ls_formatter(bufnr) then
-    client.server_capabilities.documentFormattingProvider = false
-    client.server_capabilities.documentRangeFormattingProvider = false
   end
 end
 
@@ -199,12 +172,16 @@ local function setup_servers()
 end
 
 local function setup_formatting()
-  local format_group = vim.api.nvim_create_augroup("LspFormatOnSave", { clear = true })
+  local ok_conform = pcall(require, "conform")
+  if ok_conform then
+    return
+  end
 
+  local format_group = vim.api.nvim_create_augroup("LspFormatOnSave", { clear = true })
   vim.api.nvim_create_autocmd("BufWritePre", {
     group = format_group,
     callback = function(event)
-      if vim.g.autoformat_enabled and has_formatter(event.buf) then
+      if vim.g.autoformat_enabled then
         smart_format({ bufnr = event.buf })
       end
     end,
@@ -212,7 +189,6 @@ local function setup_formatting()
 end
 
 function M.setup()
-  require("neoconf").setup(require("plugins.configs.neoconf"))
   setup_servers()
   setup_formatting()
 end
