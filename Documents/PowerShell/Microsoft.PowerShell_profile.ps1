@@ -175,4 +175,50 @@ function Set-LocationAndList {
 Set-Alias -Name cd -Value Set-LocationAndList -Option AllScope -Force
 #endregion
 
+#region ghq + roots + fzf リポジトリ移動
+function Invoke-GhqCd {
+    if (-not (Get-Command ghq -ErrorAction SilentlyContinue)) {
+        Write-Warning "ghq is not installed."
+        return
+    }
+
+    $repoList = if (Get-Command roots -ErrorAction SilentlyContinue) {
+        & ghq list --full-path 2>$null | & roots 2>$null
+    } else {
+        & ghq list --full-path 2>$null
+    }
+
+    if (-not $repoList) {
+        Write-Warning "No repositories found in ghq."
+        return
+    }
+
+    $selected = if (Get-Command fzf -ErrorAction SilentlyContinue) {
+        if (Get-Command eza -ErrorAction SilentlyContinue) {
+            $repoList | & fzf --reverse --height 40% --prompt "ghq> " --preview "eza --tree --level=2 --git-ignore --color=always {}"
+        } else {
+            $repoList | & fzf --reverse --height 40% --prompt "ghq> "
+        }
+    } else {
+        $repoList | Out-GridView -Title "Select Repository" -OutputMode Single
+    }
+
+    if ($selected) {
+        Set-Location $selected
+        if (Get-Command eza -ErrorAction SilentlyContinue) {
+            eza -a --icons --group-directories-first
+        }
+    }
+}
+Set-Alias -Name cdg -Value Invoke-GhqCd -Option AllScope -Force
+
+if (Get-Command Set-PSReadLineKeyHandler -ErrorAction SilentlyContinue) {
+    Set-PSReadLineKeyHandler -Chord 'Ctrl+k' -ScriptBlock {
+        [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
+        [Microsoft.PowerShell.PSConsoleReadLine]::Insert('cdg')
+        [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
+    }
+}
+#endregion
+
 $env:EDITOR = 'nvim'
