@@ -53,13 +53,15 @@ AppData
 AppData/**
 {{- end }}
 
-# Windows: nvim設定、PowerShellプロファイル、AppData/Local/nvimを適用
+# Windows: nvim設定、PowerShellプロファイル、AppData/Local/nvim、mise設定を適用
 {{- if eq .chezmoi.os "windows" }}
 *
 run_*.sh
 run_*.sh.tmpl
 !.gitconfig
 !.config
+!.config/mise
+!.config/mise/**
 !.config/nvim
 !.config/nvim/**
 !Documents
