@@ -59,16 +59,18 @@ bob = "latest"
 {{ end -}}
 
 # Fuzzy finder for filepaths (Zig-based, pre-built binary)
+{{ if ne .chezmoi.os "windows" -}}
 "aqua:natecraddock/zf" = "latest"
+{{ end -}}
 
 # Tools that need to be compiled from source via cargo
 # Note: Rust must be installed via rustup before these can be built
 {{ if ne .chezmoi.os "windows" -}}
 "cargo:sheldon" = "latest"
-{{ end -}}
 {{ if (index . "install_rust_tools" | default false) -}}
 "cargo:cargo-update" = "latest"
 "github:cordx56/rustowl" = "latest"
+{{ end -}}
 {{ end -}}
 
 {{ if and (eq .chezmoi.os "linux") (index . "install_tex" | default false) -}}
