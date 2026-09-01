@@ -95,6 +95,42 @@ $env:XDG_CACHE_HOME  = "$HOME\.cache"
 $env:XDG_STATE_HOME  = "$HOME\.local\state"
 #endregion
 
+#region mise (バージョン・環境変数マネージャー)
+if (-not (Get-Command mise -ErrorAction SilentlyContinue)) {
+    $possibleMisePaths = @(
+        "$env:LOCALAPPDATA\mise\bin",
+        "$HOME\.local\bin",
+        "$env:LOCALAPPDATA\Programs\mise\bin"
+    )
+    foreach ($p in $possibleMisePaths) {
+        if (Test-Path "$p\mise.exe") {
+            $env:PATH = "$p;$env:PATH"
+            break
+        }
+    }
+}
+
+# mise の shims ディレクトリを PATH に含める（非対話シェルやサブプロセス向け）
+$miseShimsPath = "$HOME\.local\share\mise\shims"
+if (Test-Path $miseShimsPath) {
+    if (($env:PATH -split ';') -notcontains $miseShimsPath) {
+        $env:PATH = "$miseShimsPath;$env:PATH"
+    }
+}
+
+if (Get-Command mise -ErrorAction SilentlyContinue) {
+    try {
+        if ($PSVersionTable.PSVersion.Major -ge 7) {
+            (& mise activate pwsh) | Out-String | Invoke-Expression
+        } else {
+            (& mise activate ps) | Out-String | Invoke-Expression
+        }
+    } catch {
+        # エラー発生時もプロファイルの読み込みを継続
+    }
+}
+#endregion
+
 #region エイリアス
 if (Get-Command eza -ErrorAction SilentlyContinue) {
     function Invoke-Eza      { eza -a --icons --group-directories-first @args }

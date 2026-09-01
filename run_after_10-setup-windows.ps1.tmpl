@@ -25,4 +25,44 @@ if ($currentState -ne $xdgState) {
 $env:XDG_CONFIG_HOME = $xdgConfig
 $env:XDG_DATA_HOME   = $xdgData
 $env:XDG_STATE_HOME  = $xdgState
+
+# Ensure mise is installed
+$hasMise = (Get-Command mise -ErrorAction SilentlyContinue) -or (Test-Path "$env:LOCALAPPDATA\mise\bin\mise.exe") -or (Test-Path "$HOME\.local\bin\mise.exe")
+if (-not $hasMise) {
+    Write-Host "[setup-windows] mise not found. Installing mise..."
+    if (Get-Command winget -ErrorAction SilentlyContinue) {
+        Write-Host "[setup-windows] Installing mise via winget..."
+        winget install --id jdx.mise --exact --accept-source-agreements --accept-package-agreements
+    } else {
+        Write-Host "[setup-windows] Installing mise via official install script..."
+        try {
+            Invoke-RestMethod https://mise.run | Invoke-Expression
+        } catch {
+            Write-Warning "[setup-windows] Failed to install mise: $_"
+        }
+    }
+}
+
+# Ensure mise bin and shims directories are added to User PATH
+$userPath = [Environment]::GetEnvironmentVariable("Path", "User")
+$pathDirs = if ($userPath) { $userPath -split ';' } else { @() }
+$pathsToCheck = @(
+    "$env:LOCALAPPDATA\mise\bin",
+    "$HOME\.local\bin",
+    "$HOME\.local\share\mise\shims"
+)
+$pathModified = $false
+foreach ($p in $pathsToCheck) {
+    if (Test-Path $p) {
+        if ($pathDirs -notcontains $p) {
+            $userPath = "$p;$userPath"
+            $env:PATH = "$p;$env:PATH"
+            $pathModified = $true
+            Write-Host "[setup-windows] Added $p to User PATH"
+        }
+    }
+}
+if ($pathModified) {
+    [Environment]::SetEnvironmentVariable("Path", $userPath, "User")
+}
 {{- end }}
