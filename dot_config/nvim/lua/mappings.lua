@@ -182,17 +182,32 @@ M.trouble = {
 
 M.dap = {
   { "n", "<F5>", "<cmd>lua require('dap').continue()<CR>", { desc = "Debug: Start/Continue" } },
+  { "n", "<leader>dc", "<cmd>lua require('dap').continue()<CR>", { desc = "Debug: Start/Continue" } },
   { "n", "<F1>", "<cmd>lua require('dap').step_into()<CR>", { desc = "Debug: Step Into" } },
+  { "n", "<leader>di", "<cmd>lua require('dap').step_into()<CR>", { desc = "Debug: Step Into" } },
   { "n", "<F2>", "<cmd>lua require('dap').step_over()<CR>", { desc = "Debug: Step Over" } },
+  { "n", "<leader>do", "<cmd>lua require('dap').step_over()<CR>", { desc = "Debug: Step Over" } },
   { "n", "<F3>", "<cmd>lua require('dap').step_out()<CR>", { desc = "Debug: Step Out" } },
+  { "n", "<leader>dO", "<cmd>lua require('dap').step_out()<CR>", { desc = "Debug: Step Out" } },
   { "n", "<leader>b", "<cmd>lua require('dap').toggle_breakpoint()<CR>", { desc = "Debug: Toggle Breakpoint" } },
+  { "n", "<leader>db", "<cmd>lua require('dap').toggle_breakpoint()<CR>", { desc = "Debug: Toggle Breakpoint" } },
   {
     "n",
     "<leader>B",
     "<cmd>lua require('dap').set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>",
     { desc = "Debug: Set Breakpoint with Condition" },
   },
+  {
+    "n",
+    "<leader>dB",
+    "<cmd>lua require('dap').set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>",
+    { desc = "Debug: Set Breakpoint with Condition" },
+  },
   { "n", "<F7>", "<cmd>lua require('dapui').toggle()<CR>", { desc = "Debug: Toggle UI" } },
+  { "n", "<leader>du", "<cmd>lua require('dapui').toggle()<CR>", { desc = "Debug: Toggle UI" } },
+  { "n", "<leader>dr", "<cmd>lua require('dap').repl.open()<CR>", { desc = "Debug: Open REPL" } },
+  { "n", "<leader>dl", "<cmd>lua require('dap').run_last()<CR>", { desc = "Debug: Run Last" } },
+  { "n", "<leader>dx", "<cmd>lua require('dap').terminate()<CR>", { desc = "Debug: Terminate" } },
 }
 
 M.codecompanion = {
@@ -350,8 +365,13 @@ M.cmdline = {
 }
 
 M.overseer = {
-  { "n", "<leader><F5>", "<cmd> OverseerRun <CR>", { desc = "Run tasks" } },
-  { "i", "<leader><F5>", "<cmd> OverseerRun <CR>", { desc = "Run tasks" } },
+  { "n", "<leader><F5>", "<cmd>OverseerRun<CR>", { desc = "Overseer: Run Task" } },
+  { "i", "<leader><F5>", "<cmd>OverseerRun<CR>", { desc = "Overseer: Run Task" } },
+  { "n", "<leader>to", "<cmd>OverseerToggle<CR>", { desc = "Overseer: Toggle Task List" } },
+  { "n", "<leader>tt", "<cmd>OverseerToggle<CR>", { desc = "Overseer: Toggle Task List" } },
+  { "n", "<leader>tr", "<cmd>OverseerQuickAction restart<CR>", { desc = "Overseer: Restart Last Task" } },
+  { "n", "<leader>ta", "<cmd>OverseerTaskAction<CR>", { desc = "Overseer: Task Action Menu" } },
+  { "n", "<leader>tb", "<cmd>OverseerBuild<CR>", { desc = "Overseer: Build Task" } },
 }
 
 M.xmake = {

@@ -652,6 +652,10 @@ local pluginlist = {
         "rcarriga/nvim-dap-ui",
         dependencies = { "nvim-neotest/nvim-nio" },
       },
+      {
+        "theHamsta/nvim-dap-virtual-text",
+        opts = {},
+      },
       "mason-org/mason.nvim",
       "jay-babu/mason-nvim-dap.nvim",
     },
@@ -822,7 +826,14 @@ local pluginlist = {
   {
     "stevearc/overseer.nvim",
     keys = utils.generate_lazy_keys("overseer"),
-    cmd = { "OverseerRun" },
+    cmd = {
+      "OverseerRun",
+      "OverseerToggle",
+      "OverseerQuickAction",
+      "OverseerTaskAction",
+      "OverseerBuild",
+      "OverseerClearCache",
+    },
     opts = {
       templates = { "builtin", "user.cpp_build", "user.run_script" },
       strategy = { "toggleterm" },
