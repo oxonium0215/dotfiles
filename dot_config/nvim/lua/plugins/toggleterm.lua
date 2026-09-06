@@ -1,5 +1,16 @@
 local utils = require("core.utils")
 
+local function get_default_shell()
+  if vim.fn.executable("pwsh") == 1 then
+    return "pwsh"
+  elseif vim.fn.executable("powershell") == 1 then
+    return "powershell"
+  elseif vim.fn.has("win32") == 1 then
+    return "powershell.exe"
+  end
+  return vim.o.shell
+end
+
 return {
   "akinsho/toggleterm.nvim",
   keys = utils.generate_lazy_keys("toggleterm"),
@@ -39,6 +50,6 @@ return {
     persist_size = true,
     direction = "horizontal",
     close_on_exit = true,
-    shell = vim.o.shell,
+    shell = get_default_shell(),
   },
 }
