@@ -55,7 +55,7 @@ local function configure(dap)
 end
 
 M.handlers = {
-  debugpy = function()
+  python = function()
     configure(require("dap"))
   end,
 }

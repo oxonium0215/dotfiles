@@ -23,11 +23,10 @@ local function setup_signs()
 end
 
 local function setup_mason_handlers(lang_modules)
-  local ensure = languages.ensure_list(lang_modules)
   local handlers = languages.handlers(lang_modules)
 
   mason_dap.setup({
-    -- ensure_installed = ensure, -- Removed for lazy loading
+    automatic_installation = false,
     handlers = vim.tbl_extend("force", {
       function(config)
         mason_dap.default_setup(config)
@@ -59,17 +58,6 @@ local function setup_ui(dap, dapui)
   dap.listeners.before.event_exited["dapui_config"] = dapui.close
 end
 
-local function setup_vscode_launchjs()
-  local ok, vscode = pcall(require, "dap.ext.vscode")
-  if ok then
-    pcall(vscode.load_launchjs, nil, {
-      codelldb = { "c", "cpp", "rust" },
-      debugpy = { "python" },
-      delve = { "go" },
-    })
-  end
-end
-
 function M.setup()
   local dap = require("dap")
   local dapui = require("dapui")
@@ -93,7 +81,6 @@ function M.setup()
   end
 
   setup_ui(dap, dapui)
-  setup_vscode_launchjs()
 end
 
 return M
