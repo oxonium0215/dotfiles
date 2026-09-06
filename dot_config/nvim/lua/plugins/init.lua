@@ -24,6 +24,47 @@ local pluginlist = {
   -- ╭──────────────────────────────────────────────────────────────────────────────╮
   -- │ ∘ Clipboard / Misc                                                           │
   -- ╰──────────────────────────────────────────────────────────────────────────────╯
+  {
+    "folke/which-key.nvim",
+    event = "VeryLazy",
+    opts = {
+      preset = "helix",
+    },
+    keys = {
+      {
+        "<leader>?",
+        function()
+          require("which-key").show({ global = false })
+        end,
+        desc = "Buffer Local Keymaps (which-key)",
+      },
+    },
+  },
+  {
+    "gbprod/yanky.nvim",
+    event = { "BufReadPost", "BufNewFile" },
+    opts = {
+      ring = { history_length = 100 },
+      highlight = { timer = 200 },
+    },
+    keys = {
+      { "p", "<Plug>(YankyPutAfter)", mode = { "n", "x" }, desc = "Put after cursor" },
+      { "P", "<Plug>(YankyPutBefore)", mode = { "n", "x" }, desc = "Put before cursor" },
+      { "gp", "<Plug>(YankyGPutAfter)", mode = { "n", "x" }, desc = "GPut after cursor" },
+      { "gP", "<Plug>(YankyGPutBefore)", mode = { "n", "x" }, desc = "GPut before cursor" },
+      { "[y", "<Plug>(YankyPreviousEntry)", desc = "Cycle backward through yank history" },
+      { "]y", "<Plug>(YankyNextEntry)", desc = "Cycle forward through yank history" },
+      { "<c-p>", "<Plug>(YankyPreviousEntry)", desc = "Cycle backward through yank history" },
+      { "<c-n>", "<Plug>(YankyNextEntry)", desc = "Cycle forward through yank history" },
+      { "<leader>fy", "<cmd>Telescope yank_history<CR>", desc = "Telescope yank history" },
+    },
+    config = function(_, opts)
+      require("yanky").setup(opts)
+      pcall(function()
+        require("telescope").load_extension("yank_history")
+      end)
+    end,
+  },
   -- deferred-clipboard is inlined in core/autocmds.lua
   {
     "jedrzejboczar/possession.nvim",
@@ -247,6 +288,53 @@ local pluginlist = {
   -- │ ∘ Motion                                                                     │
   -- ╰──────────────────────────────────────────────────────────────────────────────╯
   {
+    "folke/flash.nvim",
+    event = "VeryLazy",
+    opts = {},
+    keys = {
+      {
+        "s",
+        mode = { "n", "x", "o" },
+        function()
+          require("flash").jump()
+        end,
+        desc = "Flash",
+      },
+      {
+        "S",
+        mode = { "n", "x", "o" },
+        function()
+          require("flash").treesitter()
+        end,
+        desc = "Flash Treesitter",
+      },
+      {
+        "r",
+        mode = "o",
+        function()
+          require("flash").remote()
+        end,
+        desc = "Remote Flash",
+      },
+      {
+        "R",
+        mode = { "o", "x" },
+        function()
+          require("flash").treesitter_search()
+        end,
+        desc = "Treesitter Search",
+      },
+      {
+        "<c-s>",
+        mode = { "c" },
+        function()
+          require("flash").toggle()
+        end,
+        desc = "Toggle Flash Search",
+      },
+    },
+  },
+  {
     "rlane/pounce.nvim",
     keys = utils.generate_lazy_keys("pounce"),
     cmd = { "Pounce", "PounceRepeat" },
@@ -271,6 +359,27 @@ local pluginlist = {
     end,
     dependencies = {
       { "JoosepAlviste/nvim-ts-context-commentstring", event = "VeryLazy", opts = { enable_autocmd = false } },
+    },
+  },
+  {
+    "nvim-treesitter/nvim-treesitter-textobjects",
+    branch = "main",
+    event = { "BufReadPost", "BufNewFile" },
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    config = function()
+      require("plugins.configs.treesitter-textobjects").setup()
+    end,
+  },
+  {
+    "Wansmer/treesj",
+    keys = {
+      { "<leader>m", "<cmd>TSJToggle<CR>", desc = "Toggle Split/Join (TreeSJ)" },
+      { "<leader>j", "<cmd>TSJJoin<CR>", desc = "Join Node (TreeSJ)" },
+      { "<leader>s", "<cmd>TSJSplit<CR>", desc = "Split Node (TreeSJ)" },
+    },
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    opts = {
+      use_default_keymaps = false,
     },
   },
   {
@@ -310,6 +419,21 @@ local pluginlist = {
     "sindrets/diffview.nvim",
     cmd = { "DiffviewOpen", "DiffviewFileHistory" },
     dependencies = { "nvim-lua/plenary.nvim" },
+  },
+  {
+    "pwntester/octo.nvim",
+    cmd = "Octo",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvim-telescope/telescope.nvim",
+      "nvim-tree/nvim-web-devicons",
+    },
+    opts = {
+      enable_builtin = true,
+      default_to_projects_v2 = true,
+      default_merge_method = "squash",
+      picker = "telescope",
+    },
   },
 
   -- ╭──────────────────────────────────────────────────────────────────────────────╮
@@ -475,6 +599,54 @@ local pluginlist = {
     opts = function()
       return require("plugins.configs.trouble")
     end,
+  },
+  {
+    "folke/todo-comments.nvim",
+    event = { "BufReadPost", "BufNewFile" },
+    dependencies = { "nvim-lua/plenary.nvim" },
+    opts = {},
+    keys = {
+      {
+        "]t",
+        function()
+          require("todo-comments").jump_next()
+        end,
+        desc = "Next todo comment",
+      },
+      {
+        "[t",
+        function()
+          require("todo-comments").jump_prev()
+        end,
+        desc = "Previous todo comment",
+      },
+      { "<leader>xt", "<cmd>TodoTrouble<CR>", desc = "Todo (Trouble)" },
+      { "<leader>xT", "<cmd>TodoTrouble keywords=TODO,FIX,FIXME<CR>", desc = "Todo/Fix/Fixme (Trouble)" },
+      { "<leader>ft", "<cmd>TodoTelescope<CR>", desc = "Todo (Telescope)" },
+    },
+  },
+  {
+    "b0o/SchemaStore.nvim",
+    lazy = true,
+    version = false,
+  },
+  {
+    "saecki/crates.nvim",
+    event = { "BufRead Cargo.toml" },
+    dependencies = { "nvim-lua/plenary.nvim" },
+    opts = {
+      completion = {
+        cmp = {
+          enabled = true,
+        },
+      },
+      lsp = {
+        enabled = true,
+        actions = true,
+        completion = true,
+        hover = true,
+      },
+    },
   },
   {
     "mfussenegger/nvim-dap",
