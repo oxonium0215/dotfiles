@@ -335,11 +335,6 @@ local pluginlist = {
     },
   },
   {
-    "rlane/pounce.nvim",
-    keys = utils.generate_lazy_keys("pounce"),
-    cmd = { "Pounce", "PounceRepeat" },
-  },
-  {
     "smoka7/hop.nvim",
     keys = utils.generate_lazy_keys("hop"),
     opts = {},

@@ -214,13 +214,6 @@ M.oil = {
   { "n", "<leader>o", "<cmd>Oil<CR>", { desc = "Open oil" } },
 }
 
-M.pounce = {
-  { "n", "s", "<cmd>Pounce<CR>", { desc = "Pounce" } },
-  { "n", "S", "<cmd>PounceRepeat<CR>", { desc = "Pounce Repeat" } },
-  { "o", "gs", "<cmd>Pounce<CR>", { desc = "Pounce" } },
-  { "x", "s", "<cmd>Pounce<CR>", { desc = "Pounce" } },
-}
-
 M.hop = {
   {
     "n",
