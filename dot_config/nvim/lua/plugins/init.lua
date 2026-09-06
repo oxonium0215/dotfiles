@@ -6,6 +6,14 @@ local pluginlist = {
   -- │ ∘ Profiling / Meta                                                           │
   -- ╰──────────────────────────────────────────────────────────────────────────────╯
   {
+    "willothy/flatten.nvim",
+    lazy = false,
+    priority = 1001,
+    opts = function()
+      return require("plugins.configs.flatten")
+    end,
+  },
+  {
     "dstein64/vim-startuptime",
     cmd = "StartupTime",
     config = function()
