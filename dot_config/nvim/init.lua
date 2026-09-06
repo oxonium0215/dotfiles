@@ -13,7 +13,7 @@ if vim.g.vscode then
   require("vscode-config")
 else
   require("core.utils").set_mappings("general")
-  require("plugins")
+  require("config.lazy")
   -- colorschemeを設定
   vim.cmd("colorscheme onedark")
   require("core.japanese").setup_japanese_input()
