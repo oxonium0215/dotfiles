@@ -1,25 +1,39 @@
 ########################################
-# PowerShell Profile — zsh互換表示
+# PowerShell Profile — zsh互換表示 (高速化版)
 ########################################
 
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $OutputEncoding = [System.Text.Encoding]::UTF8
 
+#region XDG Base Directory (for Neovim and modern CLI tools)
+$env:XDG_CONFIG_HOME = "$HOME\.config"
+$env:XDG_DATA_HOME   = "$HOME\.local\share"
+$env:XDG_CACHE_HOME  = "$HOME\.cache"
+$env:XDG_STATE_HOME  = "$HOME\.local\state"
+$env:EDITOR          = 'nvim'
+#endregion
+
 #region PSReadLine (高速ロード)
-if (Get-Command Set-PSReadLineOption -ErrorAction SilentlyContinue) {
-    Set-PSReadLineOption -EditMode Vi
-    Set-PSReadLineOption -BellStyle None
-    Set-PSReadLineOption -HistorySearchCursorMovesToEnd
-    Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
-    Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
-    Set-PSReadLineKeyHandler -Chord 'Ctrl+r' -Function ReverseSearchHistory
-    Set-PSReadLineKeyHandler -Chord 'Ctrl+s' -Function ForwardSearchHistory
+if ($host.Name -eq 'ConsoleHost') {
+    try {
+        Set-PSReadLineOption -EditMode Vi
+        Set-PSReadLineOption -BellStyle None
+        Set-PSReadLineOption -HistorySearchCursorMovesToEnd
+        Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
+        Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
+        Set-PSReadLineKeyHandler -Chord 'Ctrl+r' -Function ReverseSearchHistory
+        Set-PSReadLineKeyHandler -Chord 'Ctrl+s' -Function ForwardSearchHistory
+    } catch {}
 }
+#endregion
+
+#region キャッシュ変数 (起動時DNS/ユーザー名解決のキャッシュ)
+$script:cachedUserName = $env:USERNAME ?? $env:USER ?? 'user'
+$script:cachedHostName = [System.Environment]::MachineName
 #endregion
 
 #region Git情報取得 (高速判定)
 function Get-GitInfo {
-    # .NET の高速パス走査で .git の有無を判定（非 Git ディレクトリでの git.exe プロセス起動を回避）
     $currentDir = $PWD.Path
     $hasGit = $false
     while ($currentDir) {
@@ -58,9 +72,7 @@ function prompt {
     $reset = "`e[0m"
     $blue  = "`e[34m"
 
-    $userName = $env:USERNAME ?? $env:USER ?? 'user'
-    $hostName = [System.Net.Dns]::GetHostName()
-    $time = Get-Date -Format 'HH:mm:ss'
+    $time = [System.DateTime]::Now.ToString('HH:mm:ss')
 
     $currentPath = $PWD.Path
     if ($currentPath.StartsWith($HOME, [System.StringComparison]::OrdinalIgnoreCase)) {
@@ -68,7 +80,7 @@ function prompt {
     }
     $currentPath = $currentPath -replace '\\', '/'
 
-    $left = "${userColor}${userName}${reset}@${blue}${hostName}${reset}(${time}) ${currentPath}"
+    $left = "${userColor}${script:cachedUserName}${reset}@${blue}${script:cachedHostName}${reset}(${time}) ${currentPath}"
     $leftPlain = $left -replace "`e\[[0-9;]*m", ''
 
     $gitPart = Get-GitInfo
@@ -88,70 +100,61 @@ function prompt {
 }
 #endregion
 
-#region XDG Base Directory (for Neovim and modern CLI tools)
-$env:XDG_CONFIG_HOME = "$HOME\.config"
-$env:XDG_DATA_HOME   = "$HOME\.local\share"
-$env:XDG_CACHE_HOME  = "$HOME\.cache"
-$env:XDG_STATE_HOME  = "$HOME\.local\state"
-#endregion
-
 #region mise (バージョン・環境変数マネージャー)
-if (-not (Get-Command mise -ErrorAction SilentlyContinue)) {
-    $possibleMisePaths = @(
-        "$env:LOCALAPPDATA\mise\bin",
-        "$HOME\.local\bin",
-        "$env:LOCALAPPDATA\Programs\mise\bin"
-    )
-    foreach ($p in $possibleMisePaths) {
-        if (Test-Path "$p\mise.exe") {
-            $env:PATH = "$p;$env:PATH"
-            break
-        }
-    }
-}
-
-# mise の shims ディレクトリを PATH に含める（非対話シェルやサブプロセス向け）
+# 1. shims を PATH の先頭に追加（最も高速にコマンド解決）
 $miseShimsPath = "$HOME\.local\share\mise\shims"
-if (Test-Path $miseShimsPath) {
-    if (($env:PATH -split ';') -notcontains $miseShimsPath) {
+if ([System.IO.Directory]::Exists($miseShimsPath)) {
+    if (-not $env:PATH.StartsWith($miseShimsPath)) {
         $env:PATH = "$miseShimsPath;$env:PATH"
     }
 }
 
-if (Get-Command mise -ErrorAction SilentlyContinue) {
+# 2. mise bin ディレクトリの追加
+$miseBinPath = "$env:LOCALAPPDATA\mise\bin"
+if ([System.IO.Directory]::Exists($miseBinPath)) {
+    if (($env:PATH -split ';') -notcontains $miseBinPath) {
+        $env:PATH = "$miseBinPath;$env:PATH"
+    }
+}
+
+# 3. mise activate (pwsh) を実行
+$miseExe = if ([System.IO.File]::Exists("$miseBinPath\mise.exe")) {
+    "$miseBinPath\mise.exe"
+} elseif ([System.IO.File]::Exists("$HOME\.local\bin\mise.exe")) {
+    "$HOME\.local\bin\mise.exe"
+} else {
+    $null
+}
+
+if ($miseExe) {
     try {
         if ($PSVersionTable.PSVersion.Major -ge 7) {
-            (& mise activate pwsh) | Out-String | Invoke-Expression
+            (& $miseExe activate pwsh) | Out-String | Invoke-Expression
         } else {
-            (& mise activate ps) | Out-String | Invoke-Expression
+            (& $miseExe activate ps) | Out-String | Invoke-Expression
         }
-    } catch {
-        # エラー発生時もプロファイルの読み込みを継続
-    }
+    } catch {}
 }
 #endregion
 
-#region エイリアス
-if (Get-Command eza -ErrorAction SilentlyContinue) {
-    function Invoke-Eza      { eza -a --icons --group-directories-first @args }
-    function Invoke-EzaLong  { eza -ltr --color=auto --icons --group-directories-first @args }
-    function Invoke-EzaAll   { eza -la --color=auto --icons --group-directories-first @args }
-    function Invoke-EzaList  { eza -l --color=auto --icons --group-directories-first @args }
-
-    Set-Alias -Name ls  -Value Invoke-Eza      -Option AllScope -Force
-    Set-Alias -Name l   -Value Invoke-EzaLong  -Option AllScope -Force
-    Set-Alias -Name lst -Value Invoke-EzaLong  -Option AllScope -Force
-    Set-Alias -Name la  -Value Invoke-EzaAll   -Option AllScope -Force
-    Set-Alias -Name ll  -Value Invoke-EzaList  -Option AllScope -Force
+#region エイリアス & ツールラッパー (起動時 Get-Command を排除して高速化)
+function Invoke-EzaWrapper {
+    param([string[]]$EzaArgs)
+    if ([System.IO.File]::Exists("$HOME\.local\share\mise\shims\eza.exe") -or (Get-Command eza -ErrorAction SilentlyContinue)) {
+        & eza @EzaArgs
+    } else {
+        Get-ChildItem -Force
+    }
 }
 
-if (Get-Command nvim -ErrorAction SilentlyContinue) {
-    Set-Alias -Name vi -Value nvim -Option AllScope -Force
-}
+function ls  { Invoke-EzaWrapper @('-a', '--icons', '--group-directories-first') @args }
+function l   { Invoke-EzaWrapper @('-ltr', '--color=auto', '--icons', '--group-directories-first') @args }
+function lst { Invoke-EzaWrapper @('-ltr', '--color=auto', '--icons', '--group-directories-first') @args }
+function la  { Invoke-EzaWrapper @('-la', '--color=auto', '--icons', '--group-directories-first') @args }
+function ll  { Invoke-EzaWrapper @('-l', '--color=auto', '--icons', '--group-directories-first') @args }
 
-if (Get-Command lazygit -ErrorAction SilentlyContinue) {
-    Set-Alias -Name lg -Value lazygit -Option AllScope -Force
-}
+function vi  { nvim @args }
+function lg  { lazygit @args }
 #endregion
 
 #region cd時の自動ls
@@ -162,11 +165,13 @@ function Set-LocationAndList {
     )
     if ($Path) { Set-Location @Path } else { Set-Location $HOME }
     if ($PWD.Path -ne $HOME) {
-        $entries = @(Get-ChildItem -Force -Path $PWD.Path -ErrorAction SilentlyContinue | Select-Object -First 501)
-        if ($entries.Count -gt 500) { return }
+        try {
+            $entries = [System.IO.Directory]::GetFileSystemEntries($PWD.Path)
+            if ($entries.Length -gt 500) { return }
+        } catch { return }
 
-        if (Get-Command eza -ErrorAction SilentlyContinue) {
-            eza -a --icons --group-directories-first
+        if ([System.IO.File]::Exists("$HOME\.local\share\mise\shims\eza.exe") -or (Get-Command eza -ErrorAction SilentlyContinue)) {
+            & eza -a --icons --group-directories-first
         } else {
             Get-ChildItem -Force
         }
@@ -206,19 +211,19 @@ function Invoke-GhqCd {
     if ($selected) {
         Set-Location $selected
         if (Get-Command eza -ErrorAction SilentlyContinue) {
-            eza -a --icons --group-directories-first
+            & eza -a --icons --group-directories-first
         }
     }
 }
 Set-Alias -Name cdg -Value Invoke-GhqCd -Option AllScope -Force
 
-if (Get-Command Set-PSReadLineKeyHandler -ErrorAction SilentlyContinue) {
-    Set-PSReadLineKeyHandler -Chord 'Ctrl+k' -ScriptBlock {
-        [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
-        [Microsoft.PowerShell.PSConsoleReadLine]::Insert('cdg')
-        [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
-    }
+if ($host.Name -eq 'ConsoleHost') {
+    try {
+        Set-PSReadLineKeyHandler -Chord 'Ctrl+k' -ScriptBlock {
+            [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
+            [Microsoft.PowerShell.PSConsoleReadLine]::Insert('cdg')
+            [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
+        }
+    } catch {}
 }
 #endregion
-
-$env:EDITOR = 'nvim'
