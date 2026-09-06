@@ -103,7 +103,6 @@ for _, provider in ipairs({ "node", "perl", "python3", "ruby" }) do
   vim.g["loaded_" .. provider .. "_provider"] = 0
 end
 
--- disable unnecessary default vim plugins
 local disabled_builtins = {
   "gzip",
   "zip",
@@ -115,11 +114,16 @@ local disabled_builtins = {
   "vimball",
   "vimballPlugin",
   "2html_plugin",
+  "tohtml",
+  "matchit",
+  "matchparen",
   "netrw",
   "netrwPlugin",
   "netrwSettings",
   "netrwFileHandlers",
   "tutor",
+  "rplugin",
+  "spellfile_plugin",
 }
 for _, plugin in ipairs(disabled_builtins) do
   vim.g["loaded_" .. plugin] = 1
