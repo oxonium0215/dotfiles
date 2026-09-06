@@ -1,12 +1,14 @@
 local utils = require("core.utils")
 
 local function get_default_shell()
-  if vim.fn.executable("pwsh") == 1 then
-    return "pwsh"
-  elseif vim.fn.executable("powershell") == 1 then
-    return "powershell"
-  elseif vim.fn.has("win32") == 1 then
-    return "powershell.exe"
+  if vim.fn.has("win32") == 1 then
+    if vim.fn.executable("pwsh") == 1 then
+      return "pwsh"
+    elseif vim.fn.executable("powershell") == 1 then
+      return "powershell"
+    else
+      return "powershell.exe"
+    end
   end
   return vim.o.shell
 end
