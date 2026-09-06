@@ -54,7 +54,7 @@ AppData/**
 *.ps1
 {{- end }}
 
-# Windows: nvim設定、PowerShellプロファイル、AppData/Local/nvim、mise設定、PowerShellスクリプトを適用
+# Windows: nvim設定、PowerShellプロファイル、AppData/Local/nvim、mise設定、PowerShellスクリプト、VSCode設定を適用
 {{- if eq .chezmoi.os "windows" }}
 *
 *.sh
@@ -71,5 +71,9 @@ AppData/**
 !AppData/Local
 !AppData/Local/nvim
 !AppData/Local/nvim/**
+!AppData/Roaming
+!AppData/Roaming/Code
+!AppData/Roaming/Code/User
+!AppData/Roaming/Code/User/**
 !*.ps1
 {{- end }}

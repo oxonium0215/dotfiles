@@ -1,0 +1,28 @@
+{
+  "terminal.integrated.initialHint": false,
+  "extensions.experimental.affinity": {
+    "asvetliakov.vscode-neovim": 1
+  },
+  "vscode-neovim.useWSL": true,
+  "vscode-neovim.neovimExecutablePaths.linux": "/home/yugo/.local/share/bob/nvim-bin/nvim",
+  "vscode-neovim.compositeKeys": {
+    "jj": {
+      "command": "vscode-neovim.escape"
+    },
+    "jk": {
+      "command": "vscode-neovim.escape"
+    }
+  },
+  "vscode-neovim.compositeTimeout": 300,
+  "editor.scrollBeyondLastLine": false,
+  "editor.cursorSurroundingLines": 8,
+  "editor.lineNumbers": "relative",
+  "vscode-neovim.highlightGroups.highlights": {
+    "IncSearch": {
+      "backgroundColor": "theme.editor.findMatchHighlightBackground"
+    },
+    "Search": {
+      "backgroundColor": "theme.editor.findMatchBackground"
+    }
+  }
+}
