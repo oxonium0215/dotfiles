@@ -3,8 +3,12 @@
   "extensions.experimental.affinity": {
     "asvetliakov.vscode-neovim": 1
   },
+  {{- if eq .chezmoi.os "windows" }}
   "vscode-neovim.useWSL": true,
   "vscode-neovim.neovimExecutablePaths.linux": "/home/yugo/.local/share/bob/nvim-bin/nvim",
+  {{- else }}
+  "vscode-neovim.neovimExecutablePaths.linux": "{{ .chezmoi.homeDir }}/.local/share/bob/nvim-bin/nvim",
+  {{- end }}
   "vscode-neovim.compositeKeys": {
     "jj": {
       "command": "vscode-neovim.escape"
