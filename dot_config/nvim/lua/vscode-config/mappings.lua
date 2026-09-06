@@ -1,5 +1,12 @@
 local M = {}
 
+local function vscode_action(cmd)
+  local ok, vscode = pcall(require, "vscode")
+  if ok and vscode.action then
+    vscode.action(cmd)
+  end
+end
+
 M.general = {
   -- better up/down
   { { "n", "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { desc = "Down", expr = true, silent = true } },
@@ -7,49 +14,122 @@ M.general = {
   { { "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { desc = "Up", expr = true, silent = true } },
   { { "n", "x" }, "<Up>", "v:count == 0 ? 'gk' : 'k'", { desc = "Up", expr = true, silent = true } },
 
-  -- Move to window using the <ctrl> hjkl keys
+  -- Move cursor in insert mode
   { "i", "<C-h>", "<Left>", { desc = "move left" } },
   { "i", "<C-l>", "<Right>", { desc = "move right" } },
   { "i", "<C-j>", "<Down>", { desc = "move down" } },
   { "i", "<C-k>", "<Up>", { desc = "move up" } },
+  { "i", "jj", "<ESC>", { desc = "escape" } },
 
   { "n", "<Esc>", "<cmd>noh<CR>", { desc = "General Clear highlights" } },
 
-  -- line number
-  { "n", "<leader>n", "<cmd>set nu!<CR>", { desc = "Toggle line number" } },
-  { "n", "<leader>rn", "<cmd>set rnu!<CR>", { desc = "Toggle relative number" } },
-
-  -- cheatsheet
-  -- {"n", "<leader>ch", "<cmd>NvCheatsheet<CR>", { desc = "Toggle nvcheatsheet" }}
-
-  -- global lsp mappings
-  { "n", "<leader>ds", vim.diagnostic.setloclist, { desc = "LSP Diagnostic loclist" } },
-
-  -- buffer
-  { "n", "<leader>b", "<cmd>enew<CR>", { desc = "buffer new" } },
   -- Don't copy the replaced text after pasting in visual mode
-  -- https://vim.fandom.com/wiki/Replace_a_word_with_yanked_text#Alternative_mapping_for_paste
   { "x", "p", 'p:let @+=@0<CR>:let @"=@0<CR>', { desc = "Dont copy replaced text", silent = true } },
 
-  --  Redirect change operations to the blackhole to avoid spoiling 'y' register content
+  -- Redirect change/delete operations to the blackhole
   { { "n", "v" }, "c", '"_c', { desc = "Redirect change to blackhole", silent = true } },
   { { "n", "v" }, "d", '"_d', { desc = "Redirect delete to blackhole", silent = true } },
   { { "n", "v" }, "D", '"_D', { desc = "Redirect delete to blackhole (to EOL)", silent = true } },
 
-  -- Comment
-  { "n", "<leader>/", "gcc", { desc = "Toggle Comment", remap = true } },
-  { "v", "<leader>/", "gc", { desc = "Toggle comment", remap = true } },
-}
+  -- Comment (VSCode Action)
+  {
+    { "n", "v" },
+    "<leader>/",
+    function()
+      vscode_action("editor.action.commentLine")
+    end,
+    { desc = "Toggle Comment (VSCode)" },
+  },
 
-M.oil = {
-  { "n", "<leader>o", "<cmd>Oil<CR>", { desc = "Open oil" } },
-}
-
-M.pounce = {
-  { "n", "s", "<cmd>Pounce<CR>", { desc = "Pounce" } },
-  { "n", "S", "<cmd>PounceRepeat<CR>", { desc = "Pounce Repeat" } },
-  { "o", "gs", "<cmd>Pounce<CR>", { desc = "Pounce" } },
-  { "x", "s", "<cmd>Pounce<CR>", { desc = "Pounce" } },
+  -- VSCode Native Navigation & Actions (matching Neovim keymaps)
+  {
+    "n",
+    "<leader>ff",
+    function()
+      vscode_action("workbench.action.quickOpen")
+    end,
+    { desc = "Find Files (VSCode)" },
+  },
+  {
+    "n",
+    "<leader>fg",
+    function()
+      vscode_action("workbench.action.findInFiles")
+    end,
+    { desc = "Find in Files (VSCode)" },
+  },
+  {
+    "n",
+    "<C-n>",
+    function()
+      vscode_action("workbench.action.toggleSidebarVisibility")
+    end,
+    { desc = "Toggle Sidebar (VSCode)" },
+  },
+  {
+    "n",
+    "<leader>e",
+    function()
+      vscode_action("workbench.view.explorer")
+    end,
+    { desc = "Focus Explorer (VSCode)" },
+  },
+  {
+    "n",
+    "<leader>rn",
+    function()
+      vscode_action("editor.action.rename")
+    end,
+    { desc = "Rename (VSCode)" },
+  },
+  {
+    "n",
+    "<leader>ca",
+    function()
+      vscode_action("editor.action.quickFix")
+    end,
+    { desc = "Code Action (VSCode)" },
+  },
+  {
+    "n",
+    "gd",
+    function()
+      vscode_action("editor.action.revealDefinition")
+    end,
+    { desc = "Go to Definition (VSCode)" },
+  },
+  {
+    "n",
+    "gr",
+    function()
+      vscode_action("editor.action.goToReferences")
+    end,
+    { desc = "Go to References (VSCode)" },
+  },
+  {
+    "n",
+    "<leader>fm",
+    function()
+      vscode_action("editor.action.formatDocument")
+    end,
+    { desc = "Format Document (VSCode)" },
+  },
+  {
+    "n",
+    "<leader>x",
+    function()
+      vscode_action("workbench.actions.view.problems")
+    end,
+    { desc = "Show Problems (VSCode)" },
+  },
+  {
+    "n",
+    "<leader>t",
+    function()
+      vscode_action("workbench.action.terminal.toggleTerminal")
+    end,
+    { desc = "Toggle Terminal (VSCode)" },
+  },
 }
 
 M.hop = {

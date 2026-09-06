@@ -1,8 +1,8 @@
--- All plugins have lazy=true by default,to load a plugin on startup just lazy=false
--- List of all default plugins & their definitions
+local utils = require("vscode-config.utils")
+
 local pluginlist = {
   -- ╭─────────────────────────────────────────────────────────────────────────────────╮
-  -- │ ∘ Other                                                                         │
+  -- │ ∘ Text Editing / Motions                                                        │
   -- ╰─────────────────────────────────────────────────────────────────────────────────╯
   {
     "kylechui/nvim-surround",
@@ -12,90 +12,120 @@ local pluginlist = {
   {
     "m4xshen/hardtime.nvim",
     event = { "BufReadPost", "BufAdd", "BufNewFile" },
-    dependencies = { "MunifTanjim/nui.nvim", "nvim-lua/plenary.nvim" },
+    dependencies = { "MunifTanjim/nui.nvim" },
     opts = {
       disable_mouse = false,
-      disabled_filetypes = { "qf", "lazy", "mason", "toggleterm" },
       max_count = 10,
     },
   },
-  { "nvim-lua/plenary.nvim" },
-  { "MunifTanjim/nui.nvim" },
+  { "nvim-lua/plenary.nvim", lazy = true },
+  { "MunifTanjim/nui.nvim", lazy = true },
 
-  -- ╭─────────────────────────────────────────────────────────────────────────────────╮
-  -- │ ∘ Easymotion                                                                    │
-  -- ╰─────────────────────────────────────────────────────────────────────────────────╯
+  -- Flash (modern motion in VSCode)
   {
-    "rlane/pounce.nvim",
-    keys = require("core.utils").generate_lazy_keys("pounce"),
-    cmd = { "Pounce", "PounceRepeat" },
+    "folke/flash.nvim",
+    event = "VeryLazy",
+    opts = {},
+    keys = {
+      {
+        "s",
+        mode = { "n", "x", "o" },
+        function()
+          require("flash").jump()
+        end,
+        desc = "Flash",
+      },
+      {
+        "S",
+        mode = { "n", "x", "o" },
+        function()
+          require("flash").treesitter()
+        end,
+        desc = "Flash Treesitter",
+      },
+    },
   },
+
+  -- Hop
   {
-    "phaazon/hop.nvim",
-    keys = require("core.utils").generate_lazy_keys("hop"),
-    branch = "v2",
+    "smoka7/hop.nvim",
+    keys = utils.generate_lazy_keys("hop"),
     opts = {},
   },
-  -- ╭─────────────────────────────────────────────────────────────────────────────────╮
-  -- │ ∘ Treesitter                                                                    │
-  -- ╰─────────────────────────────────────────────────────────────────────────────────╯
+
+  -- TreeSJ (Split / Join)
+  {
+    "Wansmer/treesj",
+    keys = {
+      { "<leader>m", "<cmd>TSJToggle<CR>", desc = "Toggle Split/Join (TreeSJ)" },
+      { "<leader>j", "<cmd>TSJJoin<CR>", desc = "Join Node (TreeSJ)" },
+    },
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    opts = {
+      use_default_keymaps = false,
+    },
+  },
+
+  -- Treesitter
   {
     "nvim-treesitter/nvim-treesitter",
     branch = "main",
-    lazy = false,
-    dependencies = {
-      { "JoosepAlviste/nvim-ts-context-commentstring", opts = { enable_autocmd = false } },
-      { "nvim-treesitter/nvim-treesitter-refactor", enabled = false }, -- incompatible with TS main
-      { "nvim-treesitter/nvim-tree-docs", enabled = false }, -- incompatible with TS main
-      { "yioneko/nvim-yati", enabled = false }, -- incompatible with TS main
-    },
+    event = { "BufReadPre", "BufNewFile" },
     build = ":TSUpdate",
-    config = function()
-      require("plugins.configs.treesitter").setup()
-    end,
   },
-  -- ╭─────────────────────────────────────────────────────────────────────────────────╮
-  -- │ ∘ Git stuff                                                                     │
-  -- ╰─────────────────────────────────────────────────────────────────────────────────╯
+
+  -- Yanky
   {
-    "lewis6991/gitsigns.nvim",
-    ft = { "gitcommit", "diff" },
-    event = { "CursorHold", "CursorHoldI" },
-    init = function()
-      -- load gitsigns only when a git file is opened
-      vim.api.nvim_create_autocmd({ "BufRead" }, {
-        group = vim.api.nvim_create_augroup("GitSignsLazyLoad", { clear = true }),
-        callback = function()
-          vim.fn.system("git -C " .. '"' .. vim.fn.expand("%:p:h") .. '"' .. " rev-parse")
-          if vim.v.shell_error == 0 then
-            vim.api.nvim_del_augroup_by_name("GitSignsLazyLoad")
-            vim.schedule(function()
-              require("lazy").load({ plugins = { "gitsigns.nvim" } })
-            end)
-          end
-        end,
-      })
-    end,
-    opts = function()
-      return require("plugins.configs.others").gitsigns
-    end,
-  },
-  -- ╭─────────────────────────────────────────────────────────────────────────────────╮
-  -- │ ∘ AI tools                                                                      │
-  -- ╰─────────────────────────────────────────────────────────────────────────────────╯
-  {
-    "olimorris/codecompanion.nvim",
-    cmd = { "CodeCompanion", "CodeCompanionChat", "CodeCompanionAction" },
-    keys = require("core.utils").generate_lazy_keys("codecompanion"),
-    opts = function()
-      return require("plugins.configs.codecompanion")
-    end,
+    "gbprod/yanky.nvim",
+    event = { "BufReadPost", "BufNewFile" },
+    opts = {
+      ring = { history_length = 100 },
+      highlight = { timer = 200 },
+    },
+    keys = {
+      { "p", "<Plug>(YankyPutAfter)", mode = { "n", "x" }, desc = "Put after cursor" },
+      { "P", "<Plug>(YankyPutBefore)", mode = { "n", "x" }, desc = "Put before cursor" },
+      { "gp", "<Plug>(YankyGPutAfter)", mode = { "n", "x" }, desc = "GPut after cursor" },
+      { "gP", "<Plug>(YankyGPutBefore)", mode = { "n", "x" }, desc = "GPut before cursor" },
+      { "[y", "<Plug>(YankyPreviousEntry)", desc = "Cycle backward through yank history" },
+      { "]y", "<Plug>(YankyNextEntry)", desc = "Cycle forward through yank history" },
+    },
     config = function(_, opts)
-      require("plugins.codecompanion.fidget-spinner"):init()
-      require("codecompanion").setup(opts)
+      require("yanky").setup(opts)
     end,
   },
 }
 
-local lazyconfig = require("plugins.configs.lazy_nvim")
-require("lazy").setup(pluginlist, lazyconfig)
+local lazyopts = {
+  defaults = { lazy = true },
+  performance = {
+    cache = {
+      enabled = true,
+      path = vim.fn.stdpath("cache") .. "/lazy/cache",
+      disable_events = { "UIEnter", "BufReadPre" },
+      ttl = 3600 * 24 * 2,
+    },
+    reset_packpath = true,
+    rtp = {
+      disabled_plugins = {
+        "gzip",
+        "matchit",
+        "matchparen",
+        "netrw",
+        "netrwPlugin",
+        "netrwSettings",
+        "netrwFileHandlers",
+        "tar",
+        "tarPlugin",
+        "tohtml",
+        "tutor",
+        "zip",
+        "zipPlugin",
+        "rplugin",
+        "spellfile",
+      },
+    },
+  },
+}
+
+require("lazy").setup(pluginlist, lazyopts)

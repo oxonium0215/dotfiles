@@ -1,8 +1,10 @@
 local M = {}
+
 M.set_mappings = function(section, extra_opts)
-  local mappings = require("vscode-config.mappings")[section]
+  local ok, mappings_mod = pcall(require, "vscode-config.mappings")
+  local mappings = ok and mappings_mod and mappings_mod[section]
   if not mappings then
-    error("Invalid mappings section: " .. tostring(section))
+    return
   end
   for _, mapping in ipairs(mappings) do
     local mode, lhs, rhs, opts = unpack(mapping)
@@ -14,9 +16,10 @@ M.set_mappings = function(section, extra_opts)
 end
 
 M.generate_lazy_keys = function(section)
-  local mappings = require("vscode-config.mappings")[section]
+  local ok, mappings_mod = pcall(require, "vscode-config.mappings")
+  local mappings = ok and mappings_mod and mappings_mod[section]
   if not mappings then
-    error("Invalid mappings section: " .. tostring(section))
+    return {}
   end
   local lazy_keys = {}
   for _, mapping in ipairs(mappings) do
