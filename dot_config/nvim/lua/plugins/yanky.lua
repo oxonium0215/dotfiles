@@ -12,8 +12,6 @@ return {
     { "gP", "<Plug>(YankyGPutBefore)", mode = { "n", "x" }, desc = "GPut before cursor" },
     { "[y", "<Plug>(YankyPreviousEntry)", desc = "Cycle backward through yank history" },
     { "]y", "<Plug>(YankyNextEntry)", desc = "Cycle forward through yank history" },
-    { "<c-p>", "<Plug>(YankyPreviousEntry)", desc = "Cycle backward through yank history" },
-    { "<c-n>", "<Plug>(YankyNextEntry)", desc = "Cycle forward through yank history" },
     { "<leader>fy", "<cmd>Telescope yank_history<CR>", desc = "Telescope yank history" },
   },
   config = function(_, opts)
