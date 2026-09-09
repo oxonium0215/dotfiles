@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "textlint": {
-      "command": "/home/yugo/.bun/bin/textlint",
-      "args": ["--mcp"]
-    }
-  }
-}
