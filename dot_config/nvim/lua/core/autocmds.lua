@@ -323,6 +323,18 @@ create_autocmd("FileType", {
   desc = "Disable auto-commenting on newline",
 })
 
+create_autocmd("FileType", {
+  pattern = "*",
+  callback = function(event)
+    local ok, lsp = pcall(require, "config.lsp")
+    if ok and lsp.apply_buffer_indent then
+      lsp.apply_buffer_indent(event.buf)
+    end
+  end,
+  group = "ft",
+  desc = "Apply language and LSP indent settings",
+})
+
 -- Yank Highlight Autocommand
 create_autocmd("TextYankPost", {
   pattern = "*",

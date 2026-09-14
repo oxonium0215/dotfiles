@@ -1,4 +1,4 @@
-local langs = require("plugins.configs.lsp.langs")
+local langs = require("config.lsp.langs")
 local lazy_install = require("core.lazy_install")
 
 print("--- Debugging Lazy Install ---")

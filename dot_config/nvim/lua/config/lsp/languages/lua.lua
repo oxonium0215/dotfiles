@@ -24,7 +24,7 @@ return {
                 enable = true,
                 defaultConfig = {
                   indent_style = "space",
-                  indent_size = "4",
+                  indent_size = "2",
                 },
               },
             },
@@ -32,6 +32,11 @@ return {
         }
       end,
     },
+  },
+  indent = {
+    shiftwidth = 2,
+    tabstop = 2,
+    expandtab = true,
   },
   treesitter = { "lua" },
 }

@@ -32,12 +32,203 @@ local function enable_inlay_hints(bufnr)
   end
 end
 
+local default_indent_by_ft = {
+  -- 2 spaces
+  javascript = { width = 2, expandtab = true },
+  javascriptreact = { width = 2, expandtab = true },
+  typescript = { width = 2, expandtab = true },
+  typescriptreact = { width = 2, expandtab = true },
+  vue = { width = 2, expandtab = true },
+  html = { width = 2, expandtab = true },
+  css = { width = 2, expandtab = true },
+  scss = { width = 2, expandtab = true },
+  json = { width = 2, expandtab = true },
+  jsonc = { width = 2, expandtab = true },
+  yaml = { width = 2, expandtab = true },
+  ["yaml.ansible"] = { width = 2, expandtab = true },
+  ["yaml.docker-compose"] = { width = 2, expandtab = true },
+  ["yaml.gitlab"] = { width = 2, expandtab = true },
+  ["yaml.helm-values"] = { width = 2, expandtab = true },
+  toml = { width = 2, expandtab = true },
+  lua = { width = 2, expandtab = true },
+  typst = { width = 2, expandtab = true },
+  r = { width = 2, expandtab = true },
+  angular = { width = 2, expandtab = true },
+  tex = { width = 2, expandtab = true },
+  plaintex = { width = 2, expandtab = true },
+  c = { width = 2, expandtab = true },
+  cpp = { width = 2, expandtab = true },
+  -- 4 spaces
+  python = { width = 4, expandtab = true },
+  rust = { width = 4, expandtab = true },
+  cs = { width = 4, expandtab = true },
+  zig = { width = 4, expandtab = true },
+  sh = { width = 4, expandtab = true },
+  bash = { width = 4, expandtab = true },
+  -- Tabs (width 4)
+  go = { width = 4, expandtab = false },
+  make = { width = 4, expandtab = false },
+}
+
+local function detect_clang_format(bufnr)
+  if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
+    return nil
+  end
+  local bufname = vim.api.nvim_buf_get_name(bufnr)
+  if not bufname or bufname == "" then
+    return nil
+  end
+  local dir = vim.fs.dirname(bufname)
+  local found = vim.fs.find({ ".clang-format", "_clang-format" }, { path = dir, upward = true })
+  if not found or #found == 0 then
+    return nil
+  end
+  local f = io.open(found[1], "r")
+  if not f then
+    return nil
+  end
+  local content = f:read("*a")
+  f:close()
+  if not content then
+    return nil
+  end
+
+  local indent_width = content:match("IndentWidth%s*:%s*(%d+)")
+  local use_tab = content:match("UseTab%s*:%s*(%w+)")
+  local tab_width = content:match("TabWidth%s*:%s*(%d+)")
+
+  local width = indent_width and tonumber(indent_width) or (tab_width and tonumber(tab_width))
+  local expandtab = true
+  if use_tab and (use_tab == "Always" or use_tab == "ForIndentation") then
+    expandtab = false
+  end
+
+  if width and width > 0 then
+    return { width = width, expandtab = expandtab }
+  end
+  return nil
+end
+
+local function extract_lsp_indent(client, bufnr)
+  if not client then
+    return nil
+  end
+
+  -- Clangd: detect .clang-format or fallback to clangd's default LLVM style (2 spaces)
+  if client.name == "clangd" then
+    local clang_cfg = detect_clang_format(bufnr)
+    if clang_cfg then
+      return clang_cfg
+    end
+    return { width = 2, expandtab = true }
+  end
+
+  if not client.config or not client.config.settings then
+    return nil
+  end
+  local settings = client.config.settings
+
+  -- 1. Lua (lua_ls)
+  if settings.Lua and settings.Lua.format and settings.Lua.format.defaultConfig then
+    local cfg = settings.Lua.format.defaultConfig
+    local size = tonumber(cfg.indent_size)
+    local is_space = cfg.indent_style ~= "tab"
+    if size and size > 0 then
+      return { width = size, expandtab = is_space }
+    end
+  end
+
+  -- 2. YAML / JSON
+  for _, sec in ipairs({ "yaml", "json" }) do
+    if settings[sec] and settings[sec].format and settings[sec].format.tabSize then
+      local size = tonumber(settings[sec].format.tabSize)
+      if size and size > 0 then
+        return { width = size, expandtab = true }
+      end
+    end
+  end
+
+  -- 3. Generic server settings patterns
+  local client_name = client.name
+  if client_name and settings[client_name] and type(settings[client_name]) == "table" then
+    local s = settings[client_name]
+    local size = s.tabSize or s.indentSize or (s.format and (s.format.tabSize or s.format.indentSize))
+    if size and tonumber(size) and tonumber(size) > 0 then
+      return { width = tonumber(size), expandtab = true }
+    end
+  end
+
+  return nil
+end
+
+local function apply_buffer_indent(bufnr, client)
+  if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
+    return
+  end
+
+  local ft = vim.bo[bufnr].filetype
+  if not ft or ft == "" then
+    return
+  end
+
+  -- Respect EditorConfig if it already set indent options for this buffer
+  local ec = vim.b[bufnr].editorconfig
+  if ec and (ec.indent_size or ec.tab_width) then
+    return
+  end
+
+  local indent = nil
+
+  -- 1. Extract from active LSP client settings
+  if client then
+    indent = extract_lsp_indent(client, bufnr)
+  end
+
+  -- 1.5 For C/C++, detect .clang-format if present
+  if not indent and (ft == "c" or ft == "cpp") then
+    indent = detect_clang_format(bufnr)
+  end
+
+  -- 2. Extract from config.lsp.languages
+  if not indent then
+    local matching = langs.matching_configs(ft)
+    for _, lang_cfg in pairs(matching) do
+      if lang_cfg.indent then
+        local w = lang_cfg.indent.shiftwidth or lang_cfg.indent.tabstop or lang_cfg.indent.width
+        local exp = lang_cfg.indent.expandtab
+        if w then
+          indent = { width = w, expandtab = exp ~= false }
+          break
+        end
+      end
+    end
+  end
+
+  -- 3. Fallback to common language defaults
+  if not indent then
+    indent = default_indent_by_ft[ft]
+  end
+
+  if indent and indent.width then
+    vim.bo[bufnr].shiftwidth = indent.width
+    vim.bo[bufnr].tabstop = indent.width
+    vim.bo[bufnr].softtabstop = indent.width
+    if indent.expandtab ~= nil then
+      vim.bo[bufnr].expandtab = indent.expandtab
+    end
+  end
+end
+
+M.apply_buffer_indent = apply_buffer_indent
+
 M.on_attach = function(client, bufnr)
   utils.set_mappings("lspconfig", { buffer = bufnr })
 
   if client:supports_method("textDocument/inlayHint", { bufnr = bufnr }) then
     enable_inlay_hints(bufnr)
   end
+
+  apply_buffer_indent(bufnr, client)
 end
 
 local capabilities = vim.lsp.protocol.make_client_capabilities()
@@ -65,6 +256,7 @@ local function setup_servers()
   mlsp.setup({
     -- ensure_installed = servers, -- Removed for lazy loading
     automatic_installation = false,
+    automatic_enable = false,
   })
 
   for _, server_name in ipairs(servers) do
@@ -86,12 +278,13 @@ local function setup_servers()
       end
     end
 
-    local ok_native, config = pcall(vim.lsp.config, server_name, opts)
+    local ok_native = pcall(vim.lsp.config, server_name, opts)
+    local config = ok_native and vim.lsp.config[server_name]
 
-    if not ok_native then
-      local ok_lspc, lspconfig = pcall(require, "lspconfig")
-      if ok_lspc and lspconfig[server_name] and lspconfig[server_name].document_config then
-        config = vim.tbl_deep_extend("force", {}, lspconfig[server_name].document_config.default_config or {}, opts)
+    if not config or not config.filetypes then
+      local ok_def, def = pcall(require, "lspconfig.configs." .. server_name)
+      if ok_def and def and def.default_config then
+        config = vim.tbl_deep_extend("force", {}, def.default_config, opts)
       else
         config = opts
       end
@@ -103,6 +296,8 @@ local function setup_servers()
         group = group,
         pattern = config.filetypes,
         callback = function(event)
+          apply_buffer_indent(event.buf)
+
           if #vim.lsp.get_clients({ bufnr = event.buf, name = server_name }) > 0 then
             return
           end

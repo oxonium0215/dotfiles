@@ -108,7 +108,7 @@ M.lspconfig = {
   {
     "n",
     "<leader>f",
-    "<cmd>lua require('plugins.configs.lsp').smart_format()<CR>",
+    "<cmd>lua require('config.lsp').smart_format()<CR>",
     { desc = "Format current buffer" },
   },
   {

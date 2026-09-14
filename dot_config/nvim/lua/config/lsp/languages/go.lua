@@ -7,5 +7,10 @@ return {
       gofumpt = "go",
     },
   },
+  indent = {
+    shiftwidth = 4,
+    tabstop = 4,
+    expandtab = false,
+  },
   treesitter = { "go" },
 }

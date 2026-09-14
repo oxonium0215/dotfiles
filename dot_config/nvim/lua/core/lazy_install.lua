@@ -216,7 +216,7 @@ function M.get_tools(filetype)
   end
 
   -- Collect LSP servers and formatters
-  local lsp_langs = require("plugins.configs.lsp.langs")
+  local lsp_langs = require("config.lsp.langs")
   local exec_requirements = lsp_langs.exec_requirements()
   local function has_runtime(name, alt, ft)
     local req = exec_requirements[name] or (alt and exec_requirements[alt])
@@ -268,7 +268,7 @@ function M.get_tools(filetype)
   end
 
   -- Collect DAP adapters
-  local dap_langs = require("plugins.configs.dap.languages")
+  local dap_langs = require("config.dap.languages")
   local dap_modules = dap_langs.load()
   for _, mod in ipairs(dap_modules) do
     if mod.filetypes and vim.tbl_contains(mod.filetypes, filetype) then
