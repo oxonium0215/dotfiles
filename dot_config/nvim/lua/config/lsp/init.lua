@@ -327,22 +327,69 @@ local function setup_servers()
             return ok
           end
 
+          local function launch(root_dir)
+            local cfg = vim.deepcopy(config)
+            cfg.on_attach = cfg.on_attach or M.on_attach
+            cfg.capabilities = cfg.capabilities or M.capabilities
+            cfg.root_dir = root_dir
+            cfg.name = cfg.name or server_name
+            if cfg.root_dir == nil and cfg.cmd == nil then
+              return
+            end
+            vim.lsp.start(cfg, {
+              bufnr = event.buf,
+              reuse_client = cfg.reuse_client,
+              _root_markers = cfg.root_markers,
+            })
+          end
+
           local function start_server()
             if not has_required_runtime() then
               return
             end
 
-            local cfg = vim.deepcopy(config)
-            cfg.on_attach = cfg.on_attach or M.on_attach
-            cfg.capabilities = cfg.capabilities or M.capabilities
-            if type(cfg.root_dir) == "function" then
-              cfg.root_dir = cfg.root_dir(vim.api.nvim_buf_get_name(event.buf))
+            if type(config.root_dir) == "function" then
+              local called = false
+              local function on_dir(dir)
+                if not called then
+                  called = true
+                  vim.schedule(function()
+                    launch(dir)
+                  end)
+                end
+              end
+
+              local nparams = debug.getinfo(config.root_dir, "u").nparams
+              if nparams < 2 then
+                local bufname = vim.api.nvim_buf_get_name(event.buf)
+                local ok, res = pcall(config.root_dir, bufname)
+                if ok and type(res) == "string" then
+                  on_dir(res)
+                end
+                return
+              end
+
+              -- nparams >= 2: Neovim 0.11+ / 0.12+ (bufnr, on_dir)
+              local ok, res = pcall(config.root_dir, event.buf, on_dir)
+              if ok and (called or type(res) == "string") then
+                if not called and type(res) == "string" then
+                  on_dir(res)
+                end
+                return
+              end
+
+              -- Fallback for legacy functions expecting (fname, bufnr)
+              local bufname = vim.api.nvim_buf_get_name(event.buf)
+              local ok2, res2 = pcall(config.root_dir, bufname, on_dir)
+              if ok2 and (called or type(res2) == "string") then
+                if not called and type(res2) == "string" then
+                  on_dir(res2)
+                end
+                return
+              end
+            else
+              launch(config.root_dir)
             end
-            cfg.name = cfg.name or server_name
-            if cfg.root_dir == nil and cfg.cmd == nil then
-              return
-            end
-            vim.lsp.start(cfg, { bufnr = event.buf })
           end
 
           if not has_required_runtime() then
