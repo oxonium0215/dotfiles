@@ -1,26 +1,52 @@
 {
+  "filters": {
+    "comments": true
+  },
+  "plugins": [
+    "latex2e"
+  ],
   "rules": {
     "preset-ja-technical-writing": {
-      "sentence-length": {
-        "max": 120
-      },
-      "no-exclamation-question-mark": true,
       "no-mix-dearu-desumasu": {
         "preferInHeader": "",
-        "preferInBody": "ですます",
+        "preferInBody": "である",
         "preferInList": "である",
-        "strict": false
-      }
+        "strict": true
+      },
+      "sentence-length": {
+        "max": 140
+      },
+      "max-kanji-continuous-len": {
+        "max": 8,
+        "allow": [
+          "同期式順序回路",
+          "非同期式順序回路",
+          "大規模集積回路",
+          "算術論理演算器",
+          "動作確認合格時刻"
+        ]
+      },
+      "no-doubled-joshi": {
+        "min_interval": 1
+      },
+      "ja-no-redundant-expression": true
     },
+    "preset-ja-spacing": {
+      "ja-space-between-half-and-full-width": {
+        "space": false
+      },
+      "ja-no-space-around-parentheses": true,
+      "ja-space-around-code": false
+    },
+    "no-dropping-the-ra": true,
     "@textlint-ja/preset-ai-writing": {
-      "no-ai-list-formatting": true,
-      "no-ai-hype-expressions": true,
-      "no-ai-emphasis-patterns": true,
       "no-ai-colon-continuation": true,
-      "ai-tech-writing-guideline": {
-        "severity": "info",
-        "enableDocumentAnalysis": true
-      }
-    }
+      "no-ai-list-formatting": {
+        "disableBoldListItems": false,
+        "disableEmojiListItems": false
+      },
+      "no-ai-hype-expressions": true
+    },
+    "latex-ai-writing": true
   }
 }
