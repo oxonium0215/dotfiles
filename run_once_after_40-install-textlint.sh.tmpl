@@ -40,6 +40,12 @@ bun install -g @textlint-ja/textlint-rule-no-synonyms@latest
 echo "  -> Tier 2 presets skipped (set install_textlint_extras=true to enable)"
 {{ end -}}
 
+# Local custom rules
+if [ -d "$HOME/.config/textlint/rules/textlint-rule-no-unnatural-style" ]; then
+    echo "  -> Installing custom rule: textlint-rule-no-unnatural-style..."
+    bun install -g "$HOME/.config/textlint/rules/textlint-rule-no-unnatural-style"
+fi
+
 echo "==> textlint installation complete."
 
 # Verify installation

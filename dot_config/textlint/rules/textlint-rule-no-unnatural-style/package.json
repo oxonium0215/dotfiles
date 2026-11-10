@@ -1,0 +1,6 @@
+{
+  "name": "textlint-rule-no-unnatural-style",
+  "version": "1.0.0",
+  "description": "textlint rule to detect unnatural katakana, excessive parentheses, and subjective words",
+  "main": "index.js"
+}

@@ -46,6 +46,7 @@
         "disableEmojiListItems": false
       },
       "no-ai-hype-expressions": true
-    }
+    },
+    "no-unnatural-style": true
   }
 }
