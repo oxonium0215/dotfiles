@@ -76,6 +76,14 @@ M.general = {
   },
   {
     "n",
+    "<leader>w",
+    function()
+      vscode_action("workbench.action.files.save")
+    end,
+    { desc = "Save File (VSCode)" },
+  },
+  {
+    "n",
     "<leader>rn",
     function()
       vscode_action("editor.action.rename")

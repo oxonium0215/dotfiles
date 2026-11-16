@@ -26,6 +26,7 @@ create_autocmd({ "BufReadPost", "BufNewFile", "VimEnter" }, {
   callback = function()
     vim.schedule(function()
       if vim.g.vscode then
+        vim.opt.clipboard = "unnamedplus"
         return
       end
 
