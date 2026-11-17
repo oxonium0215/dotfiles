@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+# proofread: 日本語文書（Markdown / LaTeX / テキスト）の校正・推敲支援ツール
+# textlint による機械的リントと、yomiyasu による表現検査・脱臭・推敲指針を統合
+
+set -euo pipefail
+
+TARGET="${1:-}"
+
+if [ -z "$TARGET" ]; then
+    echo "使用法: proofread <対象ファイル (例: report/main.tex, README.md)>"
+    exit 1
+fi
+
+if [ ! -f "$TARGET" ]; then
+    echo "エラー: ファイル '$TARGET' が見つかりません。"
+    exit 1
+fi
+
+TEXTLINTRC="$HOME/.textlintrc.json"
+
+# Resolve bun global node_modules directory
+BUN_GLOBAL=""
+for dir in "$HOME/.cache/.bun/install/global/node_modules" "$HOME/.bun/install/global/node_modules"; do
+    if [ -d "$dir" ]; then
+        BUN_GLOBAL="$dir"
+        break
+    fi
+done
+
+echo "============================================================"
+echo " 1. textlint 静的検査 ($TARGET)"
+echo "============================================================"
+
+TEXTLINT_CMD="textlint"
+if ! command -v textlint &>/dev/null; then
+    for bin in "$HOME/.cache/.bun/bin/textlint" "$HOME/.bun/bin/textlint"; do
+        if [ -x "$bin" ]; then
+            TEXTLINT_CMD="$bin"
+            break
+        fi
+    done
+fi
+
+if command -v "$TEXTLINT_CMD" &>/dev/null; then
+    if [ -n "$BUN_GLOBAL" ]; then
+        NODE_PATH="${NODE_PATH:-}:$BUN_GLOBAL" "$TEXTLINT_CMD" \
+            ${TEXTLINTRC:+-c "$TEXTLINTRC"} \
+            --rules-base-directory "$BUN_GLOBAL" \
+            "$TARGET" || true
+    else
+        "$TEXTLINT_CMD" ${TEXTLINTRC:+-c "$TEXTLINTRC"} "$TARGET" || true
+    fi
+else
+    echo "textlint がインストールされていないか、PATH にありません。"
+fi
+
+YOMIYASU_LINT="$HOME/.config/skills/yomiyasu/scripts/yomiyasu_lint.py"
+if [ -f "$YOMIYASU_LINT" ]; then
+    echo ""
+    echo "============================================================"
+    echo " 2. yomiyasu 表現・書式検査 ($TARGET)"
+    echo "============================================================"
+    python3 "$YOMIYASU_LINT" "$TARGET" || true
+fi
+
+echo ""
+echo "============================================================"
+echo " 3. yomiyasu 手動推敲ガイドライン (AI臭さ・造語・過剰装飾の排除)"
+echo "============================================================"
+cat << 'GUIDE'
+- [ ] 【意味の保持】原文の情報量、数値、条件、因果関係を勝手に変更・創作していないか
+- [ ] 【過剰な装飾】文中に過剰な太字（\textbf）や全角コロン（：）の羅列がないか
+- [ ] 【カッコ補足】安易な（ ）による補足や言い換えを多用せず、地の文に統合できているか
+- [ ] 【誇張・造語】「〜基盤」「〜制御」「極限まで」「原理的に」等の抽象造語・煽り語がないか
+- [ ] 【自然な主述】非生物主語の比喩動詞や主客のねじれを解体し、動作主と結果を客観的に記述しているか
+GUIDE
+
+echo ""
+echo "============================================================"
+echo " 4. AI エージェントへの指示例"
+echo "============================================================"
+echo "「~/.config/skills/yomiyasu/SKILL.md の指針に基づき、上記の推敲観点に従って $TARGET をチェック・推敲してください」"

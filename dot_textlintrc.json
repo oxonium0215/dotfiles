@@ -46,7 +46,6 @@
         "disableEmojiListItems": false
       },
       "no-ai-hype-expressions": true
-    },
-    "latex-ai-writing": true
+    }
   }
 }

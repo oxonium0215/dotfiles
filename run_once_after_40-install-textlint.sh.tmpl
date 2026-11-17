@@ -21,17 +21,20 @@ if ! command -v bun &>/dev/null; then
     exit 1
 fi
 
-# Tier 1: Core presets (always install)
-echo "  -> Installing Tier 1 presets..."
+# Tier 1: Core presets and plugins configured in .textlintrc.json
+echo "  -> Installing Tier 1 presets & plugins..."
 bun install -g textlint@latest
 bun install -g textlint-rule-preset-ja-technical-writing@latest
 bun install -g @textlint-ja/textlint-rule-preset-ai-writing@latest
+bun install -g textlint-rule-preset-ja-spacing@latest
+bun install -g textlint-rule-no-dropping-the-ra@latest
+bun install -g textlint-plugin-latex2e@latest
+bun install -g textlint-filter-rule-comments@latest
 
 # Tier 2: Complementary presets
 {{ if index . "install_textlint_extras" | default false -}}
 echo "  -> Installing Tier 2 presets..."
 bun install -g textlint-rule-preset-jtf-style@latest
-bun install -g textlint-rule-preset-ja-spacing@latest
 bun install -g @textlint-ja/textlint-rule-no-synonyms@latest
 {{ else -}}
 echo "  -> Tier 2 presets skipped (set install_textlint_extras=true to enable)"
