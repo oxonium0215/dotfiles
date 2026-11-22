@@ -13,10 +13,12 @@
       "type": "stdio",
       "disabled": false
     },
-    "white-pc": {
-      "command": "C:\\Users\\yugo\\white-pc-agent\\.venv\\Scripts\\python.exe",
+    "cua-driver": {
+      "command": "C:\\Users\\yugo\\AppData\\Local\\Programs\\Cua\\cua-driver\\bin\\cua-driver.exe",
       "args": [
-        "C:\\Users\\yugo\\white-pc-agent\\mcp_stdio.py"
+        "mcp",
+        "--socket",
+        "\\\\.\\pipe\\cua-driver"
       ],
       "type": "stdio",
       "disabled": false

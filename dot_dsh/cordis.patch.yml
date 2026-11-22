@@ -27,11 +27,13 @@
           - "mcp-for-unity"
           - "--transport"
           - "stdio"
-    - id: white-pc-mcp
+    - id: cua-driver-mcp
       name: "@deepseek-ai/dsh-mcp-client"
       config:
-        serverName: white_pc
+        serverName: cua_driver
         transport: stdio
-        command: "C:\\Users\\yugo\\white-pc-agent\\.venv\\Scripts\\python.exe"
+        command: "C:\\Users\\yugo\\AppData\\Local\\Programs\\Cua\\cua-driver\\bin\\cua-driver.exe"
         args:
-          - "C:\\Users\\yugo\\white-pc-agent\\mcp_stdio.py"
+          - mcp
+          - --socket
+          - "\\\\.\\pipe\\cua-driver"
