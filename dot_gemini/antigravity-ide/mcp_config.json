@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "unityMCP": {
+      "command": "C:\\Users\\yugo\\AppData\\Local\\hermes\\bin\\uvx.exe",
+      "args": [
+        "--offline",
+        "--from",
+        "mcpforunityserver==10.3.0",
+        "mcp-for-unity",
+        "--transport",
+        "stdio"
+      ],
+      "type": "stdio",
+      "disabled": false
+    },
+    "white-pc": {
+      "command": "C:\\Users\\yugo\\white-pc-agent\\.venv\\Scripts\\python.exe",
+      "args": [
+        "C:\\Users\\yugo\\white-pc-agent\\mcp_stdio.py"
+      ],
+      "type": "stdio",
+      "disabled": false
+    }
+  }
+}
