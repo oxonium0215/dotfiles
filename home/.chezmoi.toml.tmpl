@@ -55,6 +55,6 @@
 
 [diff]
     exclude = ["scripts"]
-{{- if lookPath "delta" }}
+{{- if and (ne .chezmoi.os "windows") (lookPath "delta") }}
     pager = "delta"
 {{- end }}
