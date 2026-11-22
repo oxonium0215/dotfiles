@@ -1,0 +1,16 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- $managed := dict
+  "unityMCP" (dict
+    "command" "C:\\Users\\yugo\\AppData\\Local\\hermes\\bin\\uvx.exe"
+    "args" (list "--offline" "--from" "mcpforunityserver==10.3.0" "mcp-for-unity" "--transport" "stdio")
+    "type" "stdio"
+    "disabled" false
+  )
+  "cua-driver" (dict
+    "command" "C:\\Users\\yugo\\AppData\\Local\\Programs\\Cua\\cua-driver\\bin\\cua-driver.exe"
+    "args" (list "mcp" "--socket" "\\\\.\\pipe\\cua-driver")
+    "type" "stdio"
+    "disabled" false
+  )
+-}}
+{{- includeTemplate "gemini-mcp-merge" (dict "stdin" .chezmoi.stdin "managed" $managed) -}}

@@ -11,7 +11,7 @@ hooks = [
     { id = "check-symlinks" },
     { id = "check-yaml", exclude = { glob = "**/*.tmpl" } },
     { id = "check-toml", exclude = { glob = "**/*.tmpl" } },
-    { id = "check-json", exclude = { glob = "**/*.tmpl" } },
+    { id = "check-json", exclude = { glob = ["**/*.tmpl", "**/modify_*"] } },
     { id = "detect-private-key" },
     { id = "end-of-file-fixer" },
     { id = "trailing-whitespace" },

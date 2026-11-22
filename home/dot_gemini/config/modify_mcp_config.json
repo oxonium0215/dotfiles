@@ -1,0 +1,36 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- $managed := dict
+  "unityMCP" (dict
+    "command" "C:\\Users\\yugo\\AppData\\Local\\hermes\\bin\\uvx.exe"
+    "args" (list "--offline" "--from" "mcpforunityserver==10.3.0" "mcp-for-unity" "--transport" "stdio")
+    "type" "stdio"
+    "disabled" false
+  )
+  "chrome-devtools" (dict
+    "command" "npx"
+    "args" (list "--yes" "chrome-devtools-mcp" "--autoConnect")
+    "type" "stdio"
+    "disabled" false
+  )
+  "browser-use" (dict
+    "command" "C:\\Users\\yugo\\.local\\bin\\uvx.exe"
+    "args" (list "--from" "browser-use[cli]" "browser-use" "--mcp")
+    "type" "stdio"
+    "disabled" false
+  )
+  "rea" (dict
+    "command" "cmd.exe"
+    "args" (list "/d" "/c" "npx" "-y" "rea-agents@6.5.0" "mcp")
+    "env" (dict
+      "GHIDRA_INSTALL_DIR" "C:\\tools\\ghidra_12.1.4_PUBLIC"
+      "JAVA_HOME" "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.12.101-hotspot"
+    )
+  )
+  "cua-driver" (dict
+    "command" "C:\\Users\\yugo\\AppData\\Local\\Programs\\Cua\\cua-driver\\bin\\cua-driver.exe"
+    "args" (list "mcp" "--socket" "\\\\.\\pipe\\cua-driver")
+    "type" "stdio"
+    "disabled" false
+  )
+-}}
+{{- includeTemplate "gemini-mcp-merge" (dict "stdin" .chezmoi.stdin "managed" $managed) -}}

@@ -46,3 +46,15 @@
     install_static_curl = {{ $install_static_curl }}
     install_textlint = {{ $install_textlint }}
     install_textlint_extras = {{ $install_textlint_extras }}
+
+[edit]
+{{- if lookPath "nvim" }}
+    command = "nvim"
+{{- end }}
+    apply = true
+
+[diff]
+    exclude = ["scripts"]
+{{- if lookPath "delta" }}
+    pager = "delta"
+{{- end }}

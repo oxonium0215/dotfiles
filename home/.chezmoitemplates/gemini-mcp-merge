@@ -1,0 +1,10 @@
+{{- $d := dict -}}
+{{- if .stdin | trim -}}
+{{-   $d = .stdin | fromJson -}}
+{{- end -}}
+{{- $servers := dig "mcpServers" dict $d -}}
+{{- range $name, $cfg := .managed -}}
+{{-   $_ := set $servers $name $cfg -}}
+{{- end -}}
+{{- $_ := set $d "mcpServers" $servers -}}
+{{ $d | toPrettyJson "  " }}

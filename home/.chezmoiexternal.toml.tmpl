@@ -1,0 +1,10 @@
+{{- if or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin") }}
+[".local/share/xdg-ninja"]
+    type = "git-repo"
+    url = "https://github.com/b3nj5m1n/xdg-ninja.git"
+    refreshPeriod = "168h"
+    [".local/share/xdg-ninja".clone]
+        args = ["--depth=1"]
+    [".local/share/xdg-ninja".pull]
+        args = ["--ff-only"]
+{{- end }}
