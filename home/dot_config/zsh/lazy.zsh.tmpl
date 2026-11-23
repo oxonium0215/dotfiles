@@ -330,6 +330,7 @@ zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 # ../ の後で今いるディレクトリを補完しない
 zstyle ':completion:*' ignore-parents parent pwd ..
 # 補完の見た目を変更
+zmodload -i zsh/complist
 zstyle ':completion:*' menu select
 # sudo の後ろでコマンド名を補完する
 zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin \
@@ -422,3 +423,6 @@ export SSH_AUTH_SOCK="${XDG_RUNTIME_DIR:-/run/user/$UID}/ssh-agent.sock"
 ########################################
 export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
 {{- end }}
+
+# Rebind autosuggestions once after compinit and custom ZLE widgets are registered.
+(( $+functions[_zsh_autosuggest_start] )) && _zsh_autosuggest_start
