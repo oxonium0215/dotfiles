@@ -1,0 +1,9 @@
+# Skip Ubuntu/Debian /etc/zsh/zshrc duplicate compinit (compinit is handled in lazy.zsh).
+skip_global_compinit=1
+
+if [[ -f "$HOME/.cargo/env" ]]; then
+    . "$HOME/.cargo/env"
+fi
+{{- if and (eq .chezmoi.os "linux") (contains "microsoft" (lower .chezmoi.kernel.osrelease)) }}
+export PATH="$PATH:/mnt/c/Tools"
+{{- end }}

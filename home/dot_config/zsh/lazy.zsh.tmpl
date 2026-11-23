@@ -177,9 +177,18 @@ fi
 ########################################
 # ghq + roots + git-wt + zf integration
 
-# git-wt shell wrapper (deferred)
-if command -v git-wt >/dev/null 2>&1; then
-    zsh-defer -c 'eval "$(git-wt --init zsh)"'
+_zsh_cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
+_zsh_comp_dir="$_zsh_cache_dir/completions"
+
+# git-wt shell wrapper (cached, avoid $+commands hash scan across /mnt/c)
+if _git_wt_bin="$(command -v git-wt 2>/dev/null)"; then
+    _git_wt_cache="$_zsh_cache_dir/git-wt-init.zsh"
+    if [[ ! -s "$_git_wt_cache" || "$_git_wt_bin" -nt "$_git_wt_cache" ]]; then
+        mkdir -p "$_zsh_cache_dir"
+        git-wt --init zsh >| "${_git_wt_cache}.tmp" 2>/dev/null && mv -f "${_git_wt_cache}.tmp" "$_git_wt_cache" && zcompile "$_git_wt_cache" 2>/dev/null
+    fi
+    [[ -r "$_git_wt_cache" ]] && source "$_git_wt_cache"
+    unset _git_wt_bin _git_wt_cache
 fi
 
 # Jump to any ghq repository or git worktree using roots and fzf/zf
@@ -245,9 +254,15 @@ bindkey '^k' zle-cd-ghq
 
 ########################################
 # zmx (Session Manager)
-if command -v zmx >/dev/null 2>&1; then
-    # Completions (deferred)
-    zsh-defer -c 'eval "$(zmx completions zsh)"'
+if _zmx_bin="$(command -v zmx 2>/dev/null)"; then
+    # Cache #compdef _zmx into fpath instead of spawning `zmx completions zsh` (240ms) on every startup
+    _zmx_comp="$_zsh_comp_dir/_zmx"
+    if [[ ! -s "$_zmx_comp" || "$_zmx_bin" -nt "$_zmx_comp" ]]; then
+        mkdir -p "$_zsh_comp_dir"
+        zmx completions zsh >| "${_zmx_comp}.tmp" 2>/dev/null && mv -f "${_zmx_comp}.tmp" "$_zmx_comp"
+    fi
+    [[ -d "$_zsh_comp_dir" ]] && fpath=("$_zsh_comp_dir" $fpath)
+    unset _zmx_bin _zmx_comp
 
     # Prompt indicator
     # Note: We inject this into PROMPT in nonlazy.zsh.tmpl logic or just prefix it here
@@ -297,13 +312,19 @@ fi
 
 ########################################
 # 補完
-# 補完機能を有効にする
+# 補完機能を有効にする (7日間キャッシュ + .zwc バイトコードコンパイル)
 autoload -Uz compinit
-if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.m-1) ]]; then
-    compinit -C
+_zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
+if [[ -s "$_zcompdump" && -n ${_zcompdump}(#qN.mh-168) ]]; then
+    compinit -C -d "$_zcompdump"
 else
-    compinit
+    compinit -d "$_zcompdump"
+    [[ -f "$_zcompdump" ]] && touch "$_zcompdump"
 fi
+if [[ -s "$_zcompdump" && ( ! -s "${_zcompdump}.zwc" || "$_zcompdump" -nt "${_zcompdump}.zwc" ) ]]; then
+    { zcompile "$_zcompdump" } &!
+fi
+unset _zcompdump _zsh_cache_dir _zsh_comp_dir
 # 補完で小文字でも大文字にマッチさせる
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 # ../ の後で今いるディレクトリを補完しない

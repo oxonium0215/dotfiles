@@ -16,6 +16,9 @@ if command -v sheldon &>/dev/null; then
         CACHE_FILE="$HOME/.config/zsh/sheldon/sheldon.zsh"
         if sheldon --config-file "$SHELDON_CONFIG" source > "${CACHE_FILE}.tmp"; then
             mv "${CACHE_FILE}.tmp" "$CACHE_FILE"
+            if command -v zsh &>/dev/null; then
+                zsh -c 'for f in "$HOME/.config/zsh/sheldon/sheldon.zsh" "$HOME/.local/share/sheldon/repos/github.com"/*/*/*.zsh; do [[ -f "$f" ]] && zcompile "$f" 2>/dev/null || true; done'
+            fi
         else
             echo "Warning: Failed to regenerate sheldon cache. Keeping old cache if exists."
             rm -f "${CACHE_FILE}.tmp"

@@ -86,7 +86,18 @@ return {
   {
     "nvim-telescope/telescope-ui-select.nvim",
     dependencies = { "nvim-telescope/telescope.nvim" },
-    event = "VeryLazy",
+    cmd = "Telescope",
+    init = function()
+      local orig_select = vim.ui.select
+      ---@diagnostic disable-next-line: duplicate-set-field
+      vim.ui.select = function(...)
+        if vim.ui.select ~= orig_select then
+          return vim.ui.select(...)
+        end
+        require("lazy").load({ plugins = { "telescope-ui-select.nvim" } })
+        return vim.ui.select(...)
+      end
+    end,
     config = function()
       pcall(function()
         require("telescope").load_extension("ui-select")
@@ -116,7 +127,7 @@ return {
   {
     "nvim-telescope/telescope-smart-history.nvim",
     dependencies = { "nvim-telescope/telescope.nvim", "kkharji/sqlite.lua" },
-    event = "VeryLazy",
+    cmd = "Telescope",
     build = function()
       local dir = vim.fs.joinpath(vim.fn.stdpath("state"), "databases")
       vim.fn.mkdir(dir, "p")

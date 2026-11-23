@@ -6,7 +6,7 @@ return {
     cmd = { "TSInstall", "TSUpdate", "TSInstallSync", "TSUpdateSync", "TSUninstall", "TSModuleInfo" },
     build = ":TSUpdate",
     dependencies = {
-      { "JoosepAlviste/nvim-ts-context-commentstring", event = "VeryLazy", opts = { enable_autocmd = false } },
+      { "JoosepAlviste/nvim-ts-context-commentstring", event = { "BufReadPost", "BufNewFile" }, opts = { enable_autocmd = false } },
     },
     config = function()
       local ok_langs, langs = pcall(require, "config.lsp.langs")

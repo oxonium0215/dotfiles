@@ -3,7 +3,16 @@ local utils = require("core.utils")
 return {
   "mfussenegger/nvim-dap",
   keys = utils.generate_lazy_keys("dap"),
-  event = "VeryLazy",
+  cmd = {
+    "DapContinue",
+    "DapToggleBreakpoint",
+    "DapStepOver",
+    "DapStepInto",
+    "DapStepOut",
+    "DapTerminate",
+    "DapNew",
+    "DapShowLog",
+  },
   dependencies = {
     {
       "rcarriga/nvim-dap-ui",

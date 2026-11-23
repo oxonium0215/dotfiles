@@ -1,7 +1,7 @@
 shell = "zsh"
 
 [templates]
-defer = "{{ hooks?.pre | nl }}{% for file in files %}zsh-defer -t 0.0001 source \"{{ file }}\"\n{% endfor %}{{ hooks?.post | nl }}"
+defer = "{{ hooks?.pre | nl }}{% for file in files %}zsh-defer source \"{{ file }}\"\n{% endfor %}{{ hooks?.post | nl }}"
 
 [plugins.zsh-defer]
 github = "romkatv/zsh-defer"
@@ -12,14 +12,27 @@ github = "mafredri/zsh-async"
 [plugins.z]
 github = 'agkozak/zsh-z'
 apply = ["defer"]
-hooks.post = '''
-zsh-defer eval "ZSHZ_NO_RESOLVE_SYMLINKS=1"
+hooks.pre = '''
+export ZSHZ_NO_RESOLVE_SYMLINKS=1
 '''
 
 [plugins.bd]
 github = 'Tarrasch/zsh-bd'
 use = ['bd.zsh']
 apply = ["defer"]
+
+[plugins.zsh-autosuggestions]
+github = "zsh-users/zsh-autosuggestions"
+apply = ["defer"]
+hooks.pre = '''
+export ZSH_AUTOSUGGEST_USE_ASYNC=1
+export ZSH_AUTOSUGGEST_MANUAL_REBIND=1
+export ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
+export ZSH_AUTOSUGGEST_HISTORY_IGNORE="(cd *|ls *|la *|ll *|l *|exit|clear)"
+'''
+hooks.post = '''
+zsh-defer -c '(( $+functions[_zsh_autosuggest_start] )) && _zsh_autosuggest_start'
+'''
 
 # [plugins.zsh-abbr]
 # github = 'olets/zsh-abbr'

@@ -11,7 +11,7 @@ return {
     "hrsh7th/cmp-calc",
     "lukas-reineke/cmp-rg",
     "petertriho/cmp-git",
-    { "lukas-reineke/cmp-under-comparator", event = "VeryLazy" },
+    { "lukas-reineke/cmp-under-comparator", event = "InsertEnter" },
     {
       "onsails/lspkind-nvim",
       event = "InsertEnter",

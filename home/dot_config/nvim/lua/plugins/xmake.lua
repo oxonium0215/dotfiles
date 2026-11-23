@@ -6,7 +6,7 @@ return {
   enabled = function()
     return vim.fn.executable("xmake") == 1
   end,
-  event = "VeryLazy",
+  event = { "BufReadPre xmake.lua", "BufNewFile xmake.lua" },
   keys = utils.generate_lazy_keys("xmake"),
   cmd = {
     "XMakeConfig",
