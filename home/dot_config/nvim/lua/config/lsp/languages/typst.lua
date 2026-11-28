@@ -10,7 +10,7 @@ return {
       tinymist = function()
         return {
           settings = {
-            exportPdf = "onType",
+            exportPdf = "never",
           },
         }
       end,
